@@ -14,7 +14,7 @@ from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
 from get_weather import get_projected_weather
 from matching_utils import get_viable_matches
 from match_constants import CATEGORIES, MATCH_GROUPS
-from category_constants import ACCESSORIES, MAIN_CATEGORIES, OCCASION_KEYS
+from category_constants import ACCESSORIES, MAIN_CATEGORIES, OCCASION_TAGS
 from utils import get_filesnames_in_dir
 
 # References:
@@ -84,7 +84,7 @@ def choose_outfit(
         elif cat == 'shoes':
             ind_options = [
                 i for i, x in enumerate(options) 
-                if OCCASION_KEYS[occasion] in x.split('.')[0]
+                if OCCASION_TAGS[occasion] in x.split('.')[0]
             ]
         elif cat == 'outerwear' and weather in ('Hot', 'Warm'):
             continue
@@ -161,4 +161,3 @@ def display_outfit_plan(
             col += 1
         else:
             col = 0
-

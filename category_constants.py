@@ -3,7 +3,7 @@ ACCESSORIES = ['hats', 'bags']
 
 ALL_CATEGORIES = MAIN_CATEGORIES + ACCESSORIES
 
-OCCASION_KEYS = {
+OCCASION_TAGS = {
     'Casual': 'ca',
     'Work': 'w',
     'Dinner/Bar': 'b',
