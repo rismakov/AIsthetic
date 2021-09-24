@@ -12,7 +12,7 @@ from matching_utils import get_viable_matches
 from outfit_calendar import (
     choose_outfit, display_outfit_pieces, display_outfit_plan
 )
-from utils import get_filesnames_in_dir
+from utils import get_filesnames_in_dir, get_key_of_value
 
 # References:
 # https://daleonai.com/social-media-fashion-ai
@@ -66,6 +66,7 @@ def init_category_display(images_per_row):
 
     return cols_info, col_inds
 
+
 def get_final_label_from_labels_list(labels):
     """Get the final label from a list of labels.
 
@@ -78,31 +79,29 @@ def get_final_label_from_labels_list(labels):
     str
     """
     category_mapping = {
-        'Top': 'Tops',
-        'Shirt': 'Tops',
-        'Skirt': 'Bottoms',
-        'Shorts': 'Bottoms',
-        'Pants': 'Bottoms',
-        'Jeans': 'Bottoms',
-        'Dress': 'Dresses/Sets',
-        'Outerwear': 'Outerwear',
-        'Coat': 'Outerwear',
-        'Shoe': 'Shoes',
-        'High heels': 'Shoes',
-        'Footwear': 'Shoes',
-        'Bag': 'Bags',
+        'Tops': {'Top', 'Shirt'},
+        'Bottoms': {'Skirt', 'Shorts', 'Pants', 'Jeans'},
+        'Dresses/Sets': {'Dress'},
+        'Outerwear': {'Outerwear', 'Coat'},
+        'Shoes': {'Shoe', 'High heels', 'Footwear'},
+        'Bags': {'Bag'},
     }
+
     if len(set(labels)) == 1:
-        return category_mapping[labels[0]]
-    if any(category_mapping[label] == 'Outerwear' for label in labels):
+        return get_key_of_value(category_mapping, labels[0])
+    if any(label in category_mapping['Outerwear'] for label in labels):
         return 'Outerwear'
-    if any(category_mapping[label] == 'Tops' for label in labels):
+    if any(label in category_mapping['Tops'] for label in labels):
         return 'Tops'
     
-    labels = [x for x in labels if x not in ('Shoe', 'Bag')]
+    labels = [
+        x for x in labels 
+        if get_key_of_value(category_mapping, x) not in ('Shoes', 'Bags')
+    ]
     if len(set(labels)) == 1:
-        return category_mapping[labels[0]]
-          
+        return get_key_of_value(category_mapping, labels[0])
+
+    print(f"Unknown labels: {labels}") 
     return 'Unknown'
 
 
@@ -120,9 +119,6 @@ def categorize_wardrode():
             labels = [x['label'] for x in response]
             
             label = get_final_label_from_labels_list(labels)
-
-            if label == 'Unknown':
-                print(labels)
 
             cols_info[label][col_inds[label]].image(file_path)
             col_inds[label] += 1
