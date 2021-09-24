@@ -1,47 +1,23 @@
-import io
 import os
 import numpy as np
-import pandas as pd
-import random
 import streamlit as st
-import streamlit.components.v1 as components
 
-from google.api_core.protobuf_helpers import get_messages
-from google.cloud import storage
-from google.cloud import vision
-from google.cloud.vision import types
-# from pyvisionproductsearch import ProductSearch, ProductCategories
-
-from numpy import asarray
-from PIL import Image
+from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
+from category_constants import ALL_CATEGORIES
 
 from ProductSearch import ProductSearch, ProductCategories
-
 from clothing_nodes import MATCHES
-from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
 from get_weather import get_projected_weather
 from matching_utils import get_viable_matches
-from match_constants import CATEGORIES, MATCH_GROUPS
-from utils import detectLabels
+from outfit_calendar import (
+    choose_outfit, display_outfit_pieces, display_outfit_plan
+)
+from utils import get_filesnames_in_dir
 
 # References:
 # https://daleonai.com/social-media-fashion-ai
 
 INSPO_DIR = 'inspo/'
-
-ALL_CATEGORIES = [
-    'tops', 'bottoms', 'dresses', 'hats', 'shoes', 'outerwear', 'bags', 
-]
-CATEGORIES_1 = [x for x in ALL_CATEGORIES if x not in ('dresses')]
-CATEGORIES_2 = [x for x in ALL_CATEGORIES if x not in ('tops', 'bottoms')]
-ACCESSORIES = ['bags', 'hats'] 
-
-OCCASION_KEYS = {
-    'Casual': 'ca',
-    'Work': 'w',
-    'Dinner/Bar': 'b',
-    'Club/Fancy': 'f',
-}
 
 WEATHER_KEYS = {
     'Hot': 'h',
@@ -57,11 +33,13 @@ IMAGE_SIZE = (96, 96) # (224, 224)
 
 OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
 
-def get_filesnames_in_dir(dir):
-    return [
-        name for name in os.listdir(dir) 
-        if os.path.isfile(os.path.join(dir, name)) and name != '.DS_Store'
-    ]
+WEATHER_ICON_MAPPING = {
+    'Partly cloudy': 'partly_cloudy.png',
+    'Clear': 'sunny.png',
+    'Mostly clear': 'sunny.png',
+    'Cloudy': 'cloudy.png',
+    'Rainy': 'rainy.png',
+}
 
 def count_items():
     item_counts = []
@@ -82,12 +60,11 @@ def init_category_display(images_per_row):
         'Tops', 'Bottoms', 'Dresses/Sets', 'Outerwear', 'Shoes', 'Bags', 'Unknown'
     ]:
         st.subheader(cat)
-        placeholders[cat] = st.empty()
+        placeholders[cat] = st.beta_container()
         cols_info[cat] = placeholders[cat].beta_columns(images_per_row)
         col_inds[cat] = 0
 
     return cols_info, col_inds
-
 
 def get_final_label_from_labels_list(labels):
     """Get the final label from a list of labels.
@@ -111,6 +88,8 @@ def get_final_label_from_labels_list(labels):
         'Outerwear': 'Outerwear',
         'Coat': 'Outerwear',
         'Shoe': 'Shoes',
+        'High heels': 'Shoes',
+        'Footwear': 'Shoes',
         'Bag': 'Bags',
     }
     if len(set(labels)) == 1:
@@ -152,59 +131,6 @@ def categorize_wardrode():
             if col_inds[label] >= images_per_row:
                 col_inds[label] = 0
 
-
-def choose_outfit_type(include_accessories=True):
-    choice = random.randint(1, 5)
-    if choice == 1:
-        if include_accessories:
-            return CATEGORIES_2
-        return [x for x in CATEGORIES_2 if x not in ACCESSORIES]
-
-    if include_accessories:
-        return CATEGORIES_1
-    return [x for x in CATEGORIES_1 if x not in ACCESSORIES]
-
-
-def choose_outfit(
-    season, 
-    weather, 
-    occasion, 
-    include_accessories=True,
-    exclude_items=[],
-):
-    categories = choose_outfit_type(include_accessories)
-
-    outfit_pieces = []
-
-    for cat in categories:
-        directory = f'closet/{cat}'
-        options = sorted(get_filesnames_in_dir(directory))
-        ind_options = [
-            i for i, x in enumerate(options) 
-            if f'{directory}/{x}' not in exclude_items
-        ]
-        
-        if cat == 'bottoms':
-            # get possible options from the matches for the chosen `top` choice
-            ind_options = [
-                i for i in ind_options if i + 1 in MATCHES[choice_int + 1]
-            ]
-        elif cat == 'shoes':
-            ind_options = [
-                i for i, x in enumerate(options) 
-                if OCCASION_KEYS[occasion] in x.split('.')[0]
-            ]
-        elif cat == 'outerwear' and weather in ('Hot', 'Warm'):
-            continue
-
-        choice_int = random.choice(ind_options)
-        
-        filename = f'{directory}/{options[choice_int]}'
-        outfit_pieces.append(filename)
-
-    return outfit_pieces
-
-
 def option_one_questions():
     options = ['Summer', 'Autumn', 'Winter', 'Spring']
     season = st.sidebar.selectbox("What's the season?", options)
@@ -221,9 +147,6 @@ def option_one_questions():
 def option_three_questions():
     side = st.sidebar
 
-    options = ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy']
-    weather = side.selectbox("What is the weather today?", options)
-
     options = ['Work', 'Casual', 'Dinner/Bar', 'Club/Fancy']
     q = "What occasions are you planning for?"
     occasions = side.multiselect(q, options)
@@ -237,8 +160,6 @@ def option_three_questions():
         'Yes': True,
         'No': False,
     }
-    options = ['one week', 'two weeks', 'one month']
-    length = side.selectbox("How long is the trip?", options)
 
     options = ['Yes', 'No']
     include = side.selectbox("Would you like to include accessories?", options)
@@ -246,18 +167,16 @@ def option_three_questions():
     options = ['small carry-on suitcase', 'medium suitcase', 'entire closet']
     amount = side.selectbox("How much are you looking to bring?", options)
 
-    options = ['Tel Aviv', 'Palo Alto', 'London', 'New York']
-    city = side.selectbox("Which city are you traveling to?", options)
+    city = side.text_input("Which city are you traveling to?").lower().strip()
+    country = side.text_input("Country?").lower().strip()
 
     start_date = st.sidebar.date_input("When are you starting your trip?")
     end_date = side.date_input("When are you ending your trip?")
 
-    get_projected_weather(city, start_date, end_date)
-
     return (
-        weather,
+        city,
+        country,
         occasions, 
-        length_mapping[length], 
         accessories_mapping[include], 
         amount,
         start_date,
@@ -299,52 +218,6 @@ def get_outfit_match_from_inspo(filename):
     outfit_match_score = sum(match_scores) * 100 / len(match_scores) 
     score_header.subheader(f'Match Score: {outfit_match_score:.2f}')
 
-def display_outfit_pieces(outfit_pieces):
-    cols = st.beta_columns(6)
-    for i, filename in zip(OUTFIT_COLS, outfit_pieces):
-        cols[i].image(filename, width=250)
-    st.button("This doesn't match together.")
-
-
-def display_outfit_plan(
-    season, weather, occasion, num_days, amount, include_accessories, days_in_week=7
-):   
-    num_cols = 3
-
-    recent_tops = []
-    recent_bottoms = []
-    recent_dresses = []
-    for n in range(1, num_days + 1):
-        if (n - 1) % days_in_week == 0:
-            st.header(f'Week {int(((n - 1) / days_in_week)) + 1}')
-            cols = st.beta_columns(num_cols)
-
-            col = 0
-        
-        outfit_pieces = choose_outfit(
-            season, 
-            weather, 
-            occasion, 
-            include_accessories, 
-            exclude_items=recent_tops + recent_bottoms + recent_dresses
-        )        
-        recent_tops = [x for x in outfit_pieces if 'tops/' in x] + recent_tops
-        recent_tops = recent_tops[:5]
-        recent_bottoms = [x for x in outfit_pieces if 'bottoms/' in x] + recent_bottoms
-        recent_bottoms = recent_bottoms[:5]
-        recent_dresses = [x for x in outfit_pieces if 'dresses/' in x] + recent_dresses
-        recent_dresses = recent_dresses[:5]
-
-        cols[col].subheader(f'Day {n}')
-        cols[col].image(outfit_pieces, width=70)
-
-        cols[col].markdown("""---""")
-
-        if col in list(range(num_cols - 1)):
-            col += 1
-        else:
-            col = 0
-
 
 ######################################
 ######################################
@@ -384,7 +257,7 @@ elif option == 2:
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):
         st.header('Selected Outfit')
-        outfit_pieces = choose_outfit(season, weather, occasion)
+        outfit_pieces = choose_outfit(weather, occasion)
         display_outfit_pieces(outfit_pieces)
 elif option == 3:
     filename = choose_inspo_file()
@@ -396,20 +269,21 @@ elif option == 3:
         get_outfit_match_from_inspo(filename)
 else:
     (
-        weather, 
+        city,
+        country,
         occasions, 
-        num_days, 
-        include_accessories, 
-        amount, 
+        include_accessories,
+        amount,
         start_date, 
         end_date,
     ) = option_three_questions()
 
-    season = None
+    weather_info = get_projected_weather(city, country, start_date, end_date)
+
     if st.sidebar.button("Create Outfit Plan"):
         for occasion in occasions:
             st.header(f'{occasion}')
             st.markdown("""---""")
             display_outfit_plan(
-                season, weather, occasion, num_days, amount, include_accessories
+                weather_info, occasion, (end_date - start_date).days, amount, include_accessories
             )
