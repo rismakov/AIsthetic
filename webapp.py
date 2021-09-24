@@ -67,7 +67,7 @@ def init_category_display(images_per_row):
     return cols_info, col_inds
 
 
-def get_final_label_from_labels_list(labels):
+def get_final_label_from_labels(labels):
     """Get the final label from a list of labels.
 
     Parameters
@@ -118,7 +118,7 @@ def categorize_wardrode():
             response = product_set.search("apparel", file_path=file_path)
             labels = [x['label'] for x in response]
             
-            label = get_final_label_from_labels_list(labels)
+            label = get_final_label_from_labels(labels)
 
             cols_info[label][col_inds[label]].image(file_path)
             col_inds[label] += 1
