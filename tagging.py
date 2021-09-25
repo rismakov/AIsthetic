@@ -60,40 +60,43 @@ def add_later():
             
             os.path.rename(filename, f'{filename}_{tag}')
 
+
+def display_article_tags_for_item(col, image_filename):
+    col.image(image_filename, width=150)
+    
+    display_style_tag(col, image_filename)
+    display_tags(
+        col, 
+        image_filename, 
+        SEASON_ICON_MAPPING, 
+        SEASON_TAGS, 
+        WEATHER_ICON_PATH,
+    )
+    display_tags(
+        col, 
+        image_filename, 
+        OCCASION_ICON_MAPPING, 
+        OCCASION_TAGS, 
+        OCCASION_ICON_PATH,
+    )
+
+
 def display_article_tags(filenames):
     num_cols = 3
     cols = st.beta_columns(num_cols)
 
     col_i = 0
-    buttons = []
     for i, image_filename in enumerate(filenames):
         col = cols[col_i]
-        col.image(image_filename, width=150)
-        
-        display_style_tag(col, image_filename)
-        display_tags(
-            col, 
-            image_filename, 
-            SEASON_ICON_MAPPING, 
-            SEASON_TAGS, 
-            WEATHER_ICON_PATH,
-        )
-        display_tags(
-            col, 
-            image_filename, 
-            OCCASION_ICON_MAPPING, 
-            OCCASION_TAGS, 
-            OCCASION_ICON_PATH,
-        )
-
-        # buttons.append(col.button('Update Tags', key=i))
-
-        col.markdown("""---""")
+        display_article_tags_for_item(col, image_filename)
 
         if col_i == num_cols - 1:
             col_i = 0
         else:
             col_i += 1
+    
+        col.markdown("""---""")
+ 
 
 def update_article_tags(filenames):
     missing_tags = [
