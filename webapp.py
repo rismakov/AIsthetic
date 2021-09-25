@@ -13,6 +13,7 @@ from outfit_calendar import (
     choose_outfit, display_outfit_pieces, display_outfit_plan
 )
 from utils import get_filesnames_in_dir, get_key_of_value
+from utils_constants import PATH_CLOSET
 
 # References:
 # https://daleonai.com/social-media-fashion-ai
@@ -44,7 +45,7 @@ WEATHER_ICON_MAPPING = {
 def count_items():
     item_counts = []
     for cat in ALL_CATEGORIES:
-        item_counts.append(len(get_filesnames_in_dir(f'closet/{cat}')))
+        item_counts.append(len(get_filesnames_in_dir(f'{PATH_CLOSET}/{cat}')))
     
     combo_count = sum(len(v) for k, v in MATCHES.items())
     st.text(
@@ -112,7 +113,7 @@ def categorize_wardrode():
     images_per_row = 10
     cols_info, col_inds = init_category_display(images_per_row)
     for cat in ALL_CATEGORIES:
-        directory = f'closet/{cat}'
+        directory = f'{PATH_CLOSET}/{cat}'
         for filename in get_filesnames_in_dir(directory):
             file_path = os.path.join(directory, filename)
             response = product_set.search("apparel", file_path=file_path)
