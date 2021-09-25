@@ -16,6 +16,7 @@ from matching_utils import get_viable_matches
 from match_constants import CATEGORIES, MATCH_GROUPS
 from category_constants import ACCESSORIES, MAIN_CATEGORIES, OCCASION_TAGS
 from utils import get_filesnames_in_dir
+from utils_constants import PATH_CLOSET
 
 # References:
 # https://daleonai.com/social-media-fashion-ai
@@ -30,6 +31,7 @@ WEATHER_ICON_MAPPING = {
     'Mostly clear': 'sunny.png',
     'Cloudy': 'cloudy.png',
     'Rainy': 'rainy.png',
+    'Really Cold': 'cold.png',
 }
 
 
@@ -69,7 +71,7 @@ def choose_outfit(
 
     outfit_pieces = {}
     for cat in categories:
-        directory = f'closet/{cat}'
+        directory = f'{PATH_CLOSET}/{cat}'
         options = sorted(get_filesnames_in_dir(directory))
         ind_options = [
             i for i, x in enumerate(options) 
@@ -105,6 +107,8 @@ def display_outfit_pieces(outfit_pieces: dict):
 
 
 def get_weather_icon_filename(weather_type, weather):
+    if weather_type == 'Really Cold':
+        return WEATHER_ICON_MAPPING['Really Cold']
     if weather_type == 'Rainy':
         return WEATHER_ICON_MAPPING['Rainy']
     return WEATHER_ICON_MAPPING.get(weather, 'cloudy.png')
@@ -140,7 +144,7 @@ def display_outfit_plan(
         temp, weather, weather_type = (x[n] for x in weather_info)
 
         outfit_pieces = choose_outfit(
-            weather_info[2][n], 
+            weather_type, 
             occasion, 
             include_accessories, 
             exclude_items=recently_worn,
@@ -151,7 +155,7 @@ def display_outfit_plan(
         weather_text = f'{weather} - {temp}° ({weather_type})'
         weather_icon_filename = get_weather_icon_filename(weather_type, weather)
 
-        cols[col].image(f'weather icons/{weather_icon_filename}', width=30)
+        cols[col].image(f'icons/weather/{weather_icon_filename}', width=30)
         cols[col].text(weather_text)
         cols[col].image([v for _, v in outfit_pieces.items()], width=70)
 
