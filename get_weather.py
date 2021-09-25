@@ -21,10 +21,24 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 
-def get_weather_type(temp, weather):
+def get_weather_type(temp: int, weather: str) -> str:
+    """Get weather category from temperature and weather description.
+
+    Parameters
+    ----------
+    temp : int
+    weather : str
+
+    Returns
+    -------
+    str
+        Returns 'Really Cold', 'Cold', 'Chilly', 'Mild', 'Warm', or 'Hot'.
+    """
     if 'rain' in weather.lower():
         return 'Rainy'
 
+    if temp < 32:
+        return 'Really Cold'
     if temp < 50:
         return 'Cold'
     if temp < 60:
