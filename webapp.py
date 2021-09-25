@@ -12,6 +12,7 @@ from matching_utils import get_viable_matches
 from outfit_calendar import (
     choose_outfit, display_outfit_pieces, display_outfit_plan
 )
+from tagging import display_article_tags
 from utils import get_filesnames_in_dir, get_key_of_value
 from utils_constants import PATH_CLOSET
 
@@ -19,14 +20,6 @@ from utils_constants import PATH_CLOSET
 # https://daleonai.com/social-media-fashion-ai
 
 INSPO_DIR = 'inspo/'
-
-WEATHER_KEYS = {
-    'Hot': 'h',
-    'Warm': 'h',
-    'Mild': 'm',
-    'Chilly': 'ch',
-    'Cold': 'cl',
-}
 
 INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;'
 
@@ -42,13 +35,22 @@ WEATHER_ICON_MAPPING = {
     'Rainy': 'rainy.png',
 }
 
+def get_all_image_filenames():
+    paths = []
+    for cat in ALL_CATEGORIES:
+        directory = f'{PATH_CLOSET}/{cat}'
+        paths += [
+            f'{directory}/{fn}' for fn in get_filesnames_in_dir(directory)
+        ]
+    return paths
+
 def count_items():
     item_counts = []
     for cat in ALL_CATEGORIES:
         item_counts.append(len(get_filesnames_in_dir(f'{PATH_CLOSET}/{cat}')))
     
     combo_count = sum(len(v) for k, v in MATCHES.items())
-    st.text(
+    st.write(
         f'You have {sum(item_counts)} items in your closet and {combo_count} '
         'unique outfit combinations.'
     )
@@ -127,6 +129,7 @@ def categorize_wardrode():
             # restart column count after it reachs end of row
             if col_inds[label] >= images_per_row:
                 col_inds[label] = 0
+          
 
 def option_one_questions():
     options = ['Summer', 'Autumn', 'Winter', 'Spring']
@@ -250,6 +253,9 @@ if option == 1:
     if st.sidebar.button('Show Wardrode Info'):
         print('Printing wardrobe info...')
         categorize_wardrode()
+    if st.sidebar.button('Update Article Tags'):
+        filenames = get_all_image_filenames()
+        display_article_tags(filenames)
 elif option == 2:
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):
