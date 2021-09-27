@@ -345,13 +345,17 @@ if option == 1:
 
     form = st.sidebar.form('Choose Filename')
     session_state.filepath = choose_filename_to_update(filepaths)
-    button_clicked = st.sidebar.button('Update Article Tags')
-    if button_clicked:
-        session_state.button_clicked = True
-    
-    if session_state.button_clicked:
-        update_article_tags(session_state.filepath)
+
+    # if there are items that are untagged, include options to review
+    if session_state.filepath:
+        button_clicked = st.sidebar.button('Review Article Tags')
+        if button_clicked:
+            session_state.button_clicked = True
         
+        if session_state.button_clicked:
+            update_article_tags(session_state.filepath)
+    else:
+        st.sidebar.write('All items have been tagged.')
 elif option == 2:
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):
