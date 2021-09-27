@@ -41,6 +41,14 @@ def get_all_image_filenames() -> dict:
     return filepaths
 
 
+def filter_basic_items(items):
+    return [x for x in items if STYLE_TAGS['Basic'] in x]
+
+
+def filter_statement_items(items):
+    return [x for x in items if STYLE_TAGS['Statement'] in x]
+
+
 def get_basics_and_statements(filepaths):
     count = 0
     basics = []
@@ -54,11 +62,28 @@ def get_basics_and_statements(filepaths):
                 statements.append(path)
     return count, basics, statements
 
+
 def count_items(filepaths, info_placeholder):
     count, basics, statements = get_basics_and_statements(filepaths)
 
     combo_count = (
-        sum(len(v) for k, v in MATCHES.items()) + len(filepaths['dresses'])
+        # basic tops + basic bottoms
+        (
+            len(filter_basic_items(filepaths['tops'])) 
+            * len(filter_basic_items(filepaths['bottoms']))
+        )
+        # basic tops + statement bottoms
+        + (
+            len(filter_statement_items(filepaths['tops'])) 
+            * len(filter_basic_items(filepaths['bottoms']))
+        ) 
+        # statement tops + basic bottoms
+        + (
+            len(filter_basic_items(filepaths['tops'])) 
+            * len(filter_statement_items(filepaths['bottoms']))
+        )
+        # dresses + sets
+        + len(filepaths['dresses'])
     )
 
     info_placeholder.write(
@@ -73,6 +98,7 @@ def count_items(filepaths, info_placeholder):
         f'({basic_count * 100 / total:.2f}%) and {statement_count} statement '
         f'pieces ({statement_count * 100 / total:.2f}%).'
     )
+
 
 def init_category_display(images_per_row):
     placeholders = {}
@@ -204,9 +230,11 @@ def option_three_questions():
         end_date,
     )
 
+
 def choose_inspo_file():
     filenames = os.listdir(INSPO_DIR)
     return st.sidebar.selectbox('Select your inspo file', filenames)
+
 
 def get_outfit_match_from_inspo(filename):
     ps = ProductSearch(GCP_PROJECTID, CREDS, CLOSET_SET)
