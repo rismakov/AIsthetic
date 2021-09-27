@@ -84,12 +84,12 @@ def display_article_tags_for_item(col, image_filename):
 
 def display_article_tags(filepaths):
     num_cols = 3
-    cols = st.beta_columns(num_cols)
 
     for cat in filepaths:
         st.subheader(cat)
         st.markdown("""---""")
 
+        cols = st.beta_columns(num_cols)
         col_i = 0
         for i, image_filename in enumerate(filepaths[cat]):
             col = cols[col_i]
@@ -102,6 +102,7 @@ def display_article_tags(filepaths):
         
             col.markdown("""---""")
  
+
 def choose_filename_to_update(filepaths):
     image_filenames = []
     for cat in filepaths:
