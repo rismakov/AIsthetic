@@ -83,7 +83,7 @@ def choose_outfit(
         
         if not options:
             print(f"NO MATCHING OPTIONS FOR CATEGORY '{cat}'.")
-            continue 
+            continue
         
         # if previous item was 'statement' piece, only choose from 'basics'
         if is_statement:
@@ -96,7 +96,6 @@ def choose_outfit(
         
         # if this item or any of the previous items were 'statement' pieces
         is_statement = (STYLE_TAGS['Statement'] in choice) or is_statement
-            
 
     return outfit_pieces
 
