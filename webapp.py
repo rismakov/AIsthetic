@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import streamlit as st
+import SessionState
 
 from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
 from category_constants import ALL_CATEGORIES
@@ -10,10 +11,14 @@ from clothing_nodes import MATCHES
 from get_weather import get_projected_weather
 from matching_utils import get_viable_matches
 from outfit_calendar import (
-    choose_outfit, display_outfit_pieces, display_outfit_plan
+    choose_outfit, display_outfit_pieces, display_outfit_plan, 
 )
-from tagging import display_article_tags
+from tagging import (
+    choose_filename_to_update, display_article_tags, update_article_tags
+)
 from utils import get_filesnames_in_dir, get_key_of_value
+
+from category_constants import SEASON_TAGS, STYLE_TAGS, OCCASION_TAGS
 from utils_constants import PATH_CLOSET
 
 # References:
@@ -35,25 +40,46 @@ WEATHER_ICON_MAPPING = {
     'Rainy': 'rainy.png',
 }
 
-def get_all_image_filenames():
-    paths = []
+
+def get_all_image_filenames() -> dict:
+    filepaths = {}
     for cat in ALL_CATEGORIES:
         directory = f'{PATH_CLOSET}/{cat}'
-        paths += [
+        filepaths[cat] = [
             f'{directory}/{fn}' for fn in get_filesnames_in_dir(directory)
         ]
-    return paths
+    return filepaths
 
-def count_items():
-    item_counts = []
-    for cat in ALL_CATEGORIES:
-        item_counts.append(len(get_filesnames_in_dir(f'{PATH_CLOSET}/{cat}')))
-    
-    combo_count = sum(len(v) for k, v in MATCHES.items())
-    st.write(
-        f'You have {sum(item_counts)} items in your closet and {combo_count} '
-        'unique outfit combinations.'
+
+def count_items(filepaths):
+    count = 0
+    basics = []
+    statements = []
+    for cat in filepaths:
+        count += len(filepaths[cat])
+        for path in filepaths[cat]:
+            if STYLE_TAGS['Basic'] in path: 
+                basics.append(path)
+            elif STYLE_TAGS['Statement'] in path: 
+                statements.append(path)
+
+    combo_count = (
+        sum(len(v) for k, v in MATCHES.items()) + len(filepaths['dresses'])
     )
+
+    st.write(
+        f'You have {count} items in your closet and {combo_count} unique '
+        'top/bottom outfit combinations.'
+    )
+
+    basic_count, statement_count = len(basics), len(statements)
+    total = basic_count + statement_count
+    st.write(
+        f'You have {basic_count} ({basic_count * 100 / total:.2f}%) basic '
+        f'pieces and {statement_count} ({basic_count * 100 / total:.2f}%) '
+        'statement pieces. '
+    )
+
 
 def init_category_display(images_per_row):
     placeholders = {}
@@ -227,12 +253,16 @@ def get_outfit_match_from_inspo(filename):
 st.title("AIsthetic Wardrobe Algorithm")
 st.write('')
 
+filepaths = get_all_image_filenames()
+
 st.header('Closet Information')
 info_placeholder = st.empty()
 print('Counting items...')
-count_items()
+count_items(filepaths)
 
 st.header('AIsthetic Algorithm')
+st.write('First, before using the algorithm, review tags.')
+st.write('')
 st.write("What would you like to do?")
 st.write("1. See all clothing articles in closet.")
 st.write("2. Select a random outfit combination from closet.")
@@ -248,14 +278,28 @@ option = st.selectbox("Choose an option:", options)
 ######################################
 ######################################
 
+session_state = SessionState.get(filepath="", button_clicked=False)
+
 st.sidebar.header("Options")
 if option == 1:
+    season = st.sidebar.multiselect('Seasons', list(SEASON_TAGS.keys()))
+    st.sidebar.multiselect('Occasions', list(OCCASION_TAGS.keys()))
+
     if st.sidebar.button('Show Wardrode Info'):
         print('Printing wardrobe info...')
         categorize_wardrode()
-    if st.sidebar.button('Update Article Tags'):
-        filenames = get_all_image_filenames()
-        display_article_tags(filenames)
+    if st.sidebar.button('Display Article Tags'):
+        display_article_tags(filepaths)
+
+    form = st.sidebar.form('Choose Filename')
+    session_state.filepath = choose_filename_to_update(filepaths)
+    button_clicked = st.sidebar.button('Update Article Tags')
+    if button_clicked:
+        session_state.button_clicked = True
+    
+    if session_state.button_clicked:
+        update_article_tags(session_state.filepath)
+        
 elif option == 2:
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):

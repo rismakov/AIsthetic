@@ -1,1 +1,1 @@
-PATH_CLOSET = 'closet/'
+PATH_CLOSET = 'closet'
