@@ -21,6 +21,7 @@ def daterange(start_date, end_date):
         yield start_date + timedelta(n)
 
 
+# http://www.city-data.com/forum/weather/2237356-what-do-people-consider-above-warm-3.html
 def get_weather_type(temp: int, weather: str) -> str:
     """Get weather category from temperature and weather description.
 
@@ -37,22 +38,21 @@ def get_weather_type(temp: int, weather: str) -> str:
     if 'rain' in weather.lower():
         return 'Rainy'
 
-    if temp < 32:
-        return 'Really Cold'
-    if temp < 50:
-        return 'Cold'
-    if temp < 60:
-        return 'Chilly'
-    if temp < 70:
+    if temp > 85:
+        return 'Hot'
+    # if between 80-85, or between 70-80 and not cloudy
+    if (temp > 80) or (temp > 70 and (not 'cloud' in weather.lower())):
+        return 'Warm'
+    # if between 65-70, or between 70-80 and cloudy
+    if temp > 65:
         return 'Mild'
-    if temp < 80:
-        if 'cloud' in weather.lower():
-            return 'Mild'
-        return 'Warm'
-    if temp < 85:
-        return 'Warm'
-    return 'Hot' 
+    if temp > 55:
+        return 'Chilly'
+    if temp > 32:
+        return 'Cold'
     
+    return 'Really Cold'
+
 
 def get_projected_weather(city, country, start_date, end_date):
     """
