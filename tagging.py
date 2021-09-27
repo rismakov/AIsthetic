@@ -115,12 +115,13 @@ def choose_filename_to_update(filepaths):
             or not any(tag in x for tag in OCCASION_TAGS.values()) 
         )
     ]
-    info = (
-        f'These {len(missing_tags)} clothing articles have not been tagged with'
-        ' a style, season, or occasion type yet:'
-    )
+    if missing_tags:
+        info = (
+            f'These {len(missing_tags)} clothing articles have not been tagged with'
+            ' a style, season, or occasion type yet:'
+        )
 
-    return st.sidebar.selectbox(info, missing_tags)
+        return st.sidebar.selectbox(info, missing_tags)
 
 def update_article_tags(filepath):
     cols = st.beta_columns(3)
