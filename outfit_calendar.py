@@ -138,8 +138,7 @@ def display_outfit_plan(
         if n % days_in_week == 0:
             st.header(f'Week {int((n / days_in_week)) + 1}')
             cols = st.beta_columns(num_cols)
-
-            col = 0
+            col_i = 0
         
         temp, weather, weather_type = (x[n] for x in weather_info)
 
@@ -151,17 +150,17 @@ def display_outfit_plan(
         ) 
         recently_worn = update_most_recently_worn(outfit_pieces, recently_worn)
 
-        cols[col].subheader(f'Day {n + 1}')
+        cols[col_i].subheader(f'Day {n + 1}')
         weather_text = f'{weather} - {temp}° ({weather_type})'
         weather_icon_filename = get_weather_icon_filename(weather_type, weather)
 
-        cols[col].image(f'icons/weather/{weather_icon_filename}', width=30)
-        cols[col].text(weather_text)
-        cols[col].image([v for _, v in outfit_pieces.items()], width=70)
+        cols[col_i].image(f'icons/weather/{weather_icon_filename}', width=30)
+        cols[col_i].text(weather_text)
+        cols[col_i].image([v for _, v in outfit_pieces.items()], width=70)
 
-        cols[col].markdown("""---""")
+        cols[col_i].markdown("""---""")
 
-        if col in list(range(num_cols - 1)):
-            col += 1
+        if col_i in list(range(num_cols - 1)):
+            col_i += 1
         else:
-            col = 0
+            col_i = 0
