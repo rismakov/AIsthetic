@@ -75,9 +75,9 @@ def count_items(filepaths):
     basic_count, statement_count = len(basics), len(statements)
     total = basic_count + statement_count
     st.write(
-        f'You have {basic_count} ({basic_count * 100 / total:.2f}%) basic '
-        f'pieces and {statement_count} ({basic_count * 100 / total:.2f}%) '
-        'statement pieces. '
+        f'- This includes {basic_count} basic pieces '
+        f'({basic_count * 100 / total:.2f}%) and {statement_count} statement '
+        f'pieces ({statement_count * 100 / total:.2f}%).'
     )
 
 
@@ -261,13 +261,15 @@ print('Counting items...')
 count_items(filepaths)
 
 st.header('AIsthetic Algorithm')
-st.write('First, before using the algorithm, review tags.')
-st.write('')
 st.write("What would you like to do?")
-st.write("1. See all clothing articles in closet.")
-st.write("2. Select a random outfit combination from closet.")
-st.write("3. Select an outfit based on an inspo-photo.")
-st.write("4. Plan a set of outfits for the next weeks.")
+st.write(
+    """   
+    1. See all clothing articles in closet.
+    2. Select a random outfit combination from closet.
+    3. Select an outfit based on an inspo-photo.
+    4. Plan a set of outfits for the next weeks.
+    """
+)
 
 options = [1, 2, 3, 4]
 option = st.selectbox("Choose an option:", options)
