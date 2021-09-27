@@ -15,7 +15,12 @@ from get_weather import get_projected_weather
 from matching_utils import get_viable_matches
 from match_constants import CATEGORIES, MATCH_GROUPS
 from category_constants import (
-    ACCESSORIES, MAIN_CATEGORIES, OCCASION_TAGS, STYLE_TAGS, WEATHER_ICON_MAPPING
+    ACCESSORIES, 
+    MAIN_CATEGORIES, 
+    OCCASION_TAGS, 
+    SEASON_TAGS, 
+    STYLE_TAGS, 
+    WEATHER_ICON_MAPPING,
 )
 from utils import get_filesnames_in_dir
 from utils_constants import PATH_CLOSET
@@ -27,6 +32,14 @@ IMAGE_SIZE = (96, 96) # (224, 224)
 
 OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
 
+WEATHER_TO_SEASON_MAPPINGS = {
+    'Hot': 'Summer',
+    'Warm': 'Summer',
+    'Mild': 'Spring',
+    'Chilly': 'Fall',
+    'Rainy': 'Fall',
+    'Cold': 'Winter',
+    'Really Cold': 'Winter',
 }
 
 
@@ -52,8 +65,9 @@ def choose_outfit_type(include_accessories=True) -> list:
 
 
 def choose_outfit(
-    weather, 
-    occasion, 
+    filepaths,
+    weather_type, 
+    occasion,
     include_accessories=True,
     exclude_items={},
 ):
@@ -64,32 +78,40 @@ def choose_outfit(
     """
     categories = choose_outfit_type(include_accessories)
 
+    season = WEATHER_TO_SEASON_MAPPINGS[weather_type]
+
     outfit_pieces = {}
+    is_statement = False
     for cat in categories:
-        directory = f'{PATH_CLOSET}/{cat}'
-        options = sorted(get_filesnames_in_dir(directory))
-        ind_options = [
-            i for i, x in enumerate(options) 
-            if f'{directory}/{x}' not in exclude_items.get(cat, [])
+        # get clothing items that are the proper occasion and season type 
+        # and that have not been recently worn
+        options = [
+            x for x in filepaths[cat] if (
+                (OCCASION_TAGS[occasion] in x)
+                and (SEASON_TAGS[season] in x) 
+                and (x not in exclude_items.get(cat, []))
+            )
         ]
         
-        if cat == 'bottoms':
-            # get possible options from the matches for the chosen `top` choice
-            ind_options = [
-                i for i in ind_options if i + 1 in MATCHES[choice_int + 1]
-            ]
-        elif cat == 'shoes':
-            ind_options = [
-                i for i, x in enumerate(options) 
-                if OCCASION_TAGS[occasion] in x.split('.')[0]
-            ]
-        elif cat == 'outerwear' and weather in ('Hot', 'Warm'):
+        if (cat == 'outerwear') and (weather_type in ('Hot')):
             continue
-
-        choice_int = random.choice(ind_options)
         
-        filename = f'{directory}/{options[choice_int]}'
-        outfit_pieces[cat] = filename
+        if not options:
+            print(f"NO MATCHING OPTIONS FOR CATEGORY '{cat}'.")
+            continue 
+        
+        # if previous item was 'statement' piece, only choose from 'basics'
+        if is_statement:
+            options = [
+                x for x in options if STYLE_TAGS['Statement'] not in x
+            ]
+
+        choice = random.choice(options)
+        outfit_pieces[cat] = choice
+        
+        # if this item or any of the previous items were 'statement' pieces
+        is_statement = (STYLE_TAGS['Statement'] in choice) or is_statement
+            
 
     return outfit_pieces
 
@@ -124,7 +146,7 @@ def update_most_recently_worn(outfit_pieces, recently_worn):
     return recently_worn
 
 def display_outfit_plan(
-    weather_info, occasion, num_days, amount, include_accessories, days_in_week=7
+    filepaths, weather_info, occasion, num_days, amount, include_accessories, days_in_week=7
 ):   
     num_cols = 3
 
@@ -138,6 +160,7 @@ def display_outfit_plan(
         temp, weather, weather_type = (x[n] for x in weather_info)
 
         outfit_pieces = choose_outfit(
+            filepaths,
             weather_type, 
             occasion, 
             include_accessories, 
