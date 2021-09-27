@@ -51,7 +51,7 @@ def get_all_image_filenames() -> dict:
     return filepaths
 
 
-def count_items(filepaths):
+def get_basics_and_statements(filepaths):
     count = 0
     basics = []
     statements = []
@@ -62,24 +62,27 @@ def count_items(filepaths):
                 basics.append(path)
             elif STYLE_TAGS['Statement'] in path: 
                 statements.append(path)
+    return count, basics, statements
+
+def count_items(filepaths, info_placeholder):
+    count, basics, statements = get_basics_and_statements(filepaths)
 
     combo_count = (
         sum(len(v) for k, v in MATCHES.items()) + len(filepaths['dresses'])
     )
 
-    st.write(
+    info_placeholder.write(
         f'You have {count} items in your closet and {combo_count} unique '
         'top/bottom outfit combinations.'
     )
 
     basic_count, statement_count = len(basics), len(statements)
     total = basic_count + statement_count
-    st.write(
+    info_placeholder.write(
         f'- This includes {basic_count} basic pieces '
         f'({basic_count * 100 / total:.2f}%) and {statement_count} statement '
         f'pieces ({statement_count * 100 / total:.2f}%).'
     )
-
 
 def init_category_display(images_per_row):
     placeholders = {}
@@ -198,6 +201,8 @@ def option_three_questions():
 
     start_date = st.sidebar.date_input("When are you starting your trip?")
     end_date = side.date_input("When are you ending your trip?")
+    if end_date < start_date:
+        st.sidebar.error("ERROR: end date cannot be before start date.")
 
     return (
         city,
@@ -245,6 +250,24 @@ def get_outfit_match_from_inspo(filename):
     score_header.subheader(f'Match Score: {outfit_match_score:.2f}')
 
 
+def filter_items(
+    filepaths, 
+    seasons=list(SEASON_TAGS.keys()), 
+    occasions=list(OCCASION_TAGS.keys())
+):
+    season_tags = [SEASON_TAGS[season] for season in seasons] 
+    occasion_tags = [OCCASION_TAGS[occasion] for occasion in occasions]
+    
+    filepaths_filtered = {}
+    for cat in filepaths:
+        filepaths_filtered[cat] = [
+            x for x in filepaths[cat] if (
+                any(tag in x for tag in season_tags)
+                and any(tag in x for tag in occasion_tags)
+            )
+        ]
+    return filepaths_filtered
+
 ######################################
 ######################################
 # Main Screen ########################
@@ -256,9 +279,10 @@ st.write('')
 filepaths = get_all_image_filenames()
 
 st.header('Closet Information')
-info_placeholder = st.empty()
+info_placeholder = st.beta_container()
 print('Counting items...')
-count_items(filepaths)
+info_placeholder.subheader('Entire Wardrobe')
+count_items(filepaths, info_placeholder)
 
 st.header('AIsthetic Algorithm')
 st.write("What would you like to do?")
@@ -280,18 +304,26 @@ option = st.selectbox("Choose an option:", options)
 ######################################
 ######################################
 
-session_state = SessionState.get(filepath="", button_clicked=False)
+session_state = SessionState.get(
+    filepath="", button_clicked=False, filepaths_filtered=[],
+)
 
 st.sidebar.header("Options")
 if option == 1:
-    season = st.sidebar.multiselect('Seasons', list(SEASON_TAGS.keys()))
-    st.sidebar.multiselect('Occasions', list(OCCASION_TAGS.keys()))
+    form = st.sidebar.form('Tags')
+    seasons = form.multiselect('Seasons', list(SEASON_TAGS.keys()))
+    occasions = form.multiselect('Occasions', list(OCCASION_TAGS.keys()))
+
+    if form.form_submit_button('Add Filters'):
+        session_state.filepaths_filtered = filter_items(filepaths, seasons, occasions)
+        info_placeholder.subheader('Post Filter')
+        count_items(session_state.filepaths_filtered, info_placeholder)
 
     if st.sidebar.button('Show Wardrode Info'):
         print('Printing wardrobe info...')
         categorize_wardrode()
     if st.sidebar.button('Display Article Tags'):
-        display_article_tags(filepaths)
+        display_article_tags(session_state.filepaths_filtered)
 
     form = st.sidebar.form('Choose Filename')
     session_state.filepath = choose_filename_to_update(filepaths)
@@ -306,7 +338,7 @@ elif option == 2:
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):
         st.header('Selected Outfit')
-        outfit_pieces = choose_outfit(weather, occasion)
+        outfit_pieces = choose_outfit(filepaths, weather, occasion)
         display_outfit_pieces(outfit_pieces)
 elif option == 3:
     filename = choose_inspo_file()
@@ -328,11 +360,12 @@ else:
     ) = option_three_questions()
 
     weather_info = get_projected_weather(city, country, start_date, end_date)
+    # filepaths_filtered = filter_items(filepaths, occasions=occasions)
 
     if st.sidebar.button("Create Outfit Plan"):
         for occasion in occasions:
             st.header(f'{occasion}')
             st.markdown("""---""")
             display_outfit_plan(
-                weather_info, occasion, (end_date - start_date).days, amount, include_accessories
+                filepaths, weather_info, occasion, (end_date - start_date).days, amount, include_accessories
             )
