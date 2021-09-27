@@ -32,14 +32,6 @@ IMAGE_SIZE = (96, 96) # (224, 224)
 
 OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
 
-WEATHER_ICON_MAPPING = {
-    'Partly cloudy': 'partly_cloudy.png',
-    'Clear': 'sunny.png',
-    'Mostly clear': 'sunny.png',
-    'Cloudy': 'cloudy.png',
-    'Rainy': 'rainy.png',
-}
-
 
 def get_all_image_filenames() -> dict:
     filepaths = {}

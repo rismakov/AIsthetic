@@ -14,7 +14,9 @@ from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
 from get_weather import get_projected_weather
 from matching_utils import get_viable_matches
 from match_constants import CATEGORIES, MATCH_GROUPS
-from category_constants import ACCESSORIES, MAIN_CATEGORIES, OCCASION_TAGS
+from category_constants import (
+    ACCESSORIES, MAIN_CATEGORIES, OCCASION_TAGS, STYLE_TAGS, WEATHER_ICON_MAPPING
+)
 from utils import get_filesnames_in_dir
 from utils_constants import PATH_CLOSET
 
@@ -25,13 +27,6 @@ IMAGE_SIZE = (96, 96) # (224, 224)
 
 OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
 
-WEATHER_ICON_MAPPING = {
-    'Partly cloudy': 'partly_cloudy.png',
-    'Clear': 'sunny.png',
-    'Mostly clear': 'sunny.png',
-    'Cloudy': 'cloudy.png',
-    'Rainy': 'rainy.png',
-    'Really Cold': 'cold.png',
 }
 
 
