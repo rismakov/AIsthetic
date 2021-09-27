@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import streamlit as st
 import SessionState
 
@@ -7,7 +6,6 @@ from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
 from category_constants import ALL_CATEGORIES
 
 from ProductSearch import ProductSearch, ProductCategories
-from clothing_nodes import MATCHES
 from get_weather import get_projected_weather
 from matching_utils import get_viable_matches
 from outfit_calendar import (

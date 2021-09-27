@@ -1,19 +1,6 @@
-import io
-import os
-import numpy as np
-import pandas as pd
 import random
 import streamlit as st
-import streamlit.components.v1 as components
 
-from numpy import asarray
-from PIL import Image
-
-from clothing_nodes import MATCHES
-from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
-from get_weather import get_projected_weather
-from matching_utils import get_viable_matches
-from match_constants import CATEGORIES, MATCH_GROUPS
 from category_constants import (
     ACCESSORIES, 
     MAIN_CATEGORIES, 
@@ -22,13 +9,10 @@ from category_constants import (
     STYLE_TAGS, 
     WEATHER_ICON_MAPPING,
 )
-from utils import get_filesnames_in_dir
 from utils_constants import PATH_CLOSET
 
 # References:
 # https://daleonai.com/social-media-fashion-ai
-
-IMAGE_SIZE = (96, 96) # (224, 224)
 
 OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
 
