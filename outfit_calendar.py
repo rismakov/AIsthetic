@@ -26,6 +26,7 @@ WEATHER_TO_SEASON_MAPPINGS = {
     'Really Cold': 'Winter',
 }
 
+OUTFIT_TYPE_RATIO = 4
 
 def choose_outfit_type(include_accessories=True) -> list:
     """Choose outfit combination type and return outfit categories.
@@ -36,7 +37,7 @@ def choose_outfit_type(include_accessories=True) -> list:
     -------
     List(str)
     """
-    choice = random.randint(1, 5)  # determine this value
+    choice = random.randint(1, OUTFIT_TYPE_RATIO)  # determine this value
 
     additional_categories = ACCESSORIES if include_accessories else []
 
