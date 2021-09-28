@@ -11,8 +11,8 @@ def filter_items_in_all_categories(
 
 def filter_items(
     filepaths: list, 
-    seasons=list(SEASON_TAGS.keys()): list, 
-    occasions=list(OCCASION_TAGS.keys(): list)
+    seasons: list=list(SEASON_TAGS.keys()), 
+    occasions: list=list(OCCASION_TAGS.keys())
 ) -> list:
     season_tags = [SEASON_TAGS[season] for season in seasons] 
     occasion_tags = [OCCASION_TAGS[occasion] for occasion in occasions]
