@@ -8,6 +8,7 @@ from category_constants import (
     SEASON_TAGS, 
     STYLE_TAGS, 
     WEATHER_ICON_MAPPING,
+    WEATHER_TO_SEASON_MAPPINGS,
 )
 from utils_constants import PATH_CLOSET
 
@@ -17,16 +18,6 @@ from outfit_utils import filter_items
 # https://daleonai.com/social-media-fashion-ai
 
 OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
-
-WEATHER_TO_SEASON_MAPPINGS = {
-    'Hot': 'Summer',
-    'Warm': 'Summer',
-    'Mild': 'Spring',
-    'Chilly': 'Fall',
-    'Rainy': 'Fall',
-    'Cold': 'Winter',
-    'Really Cold': 'Winter',
-}
 
 
 def choose_outfit_type(ratio, include_accessories=True) -> list:

@@ -373,5 +373,5 @@ else:
             st.header(f'{occasion}')
             st.markdown("""---""")
             display_outfit_plan(
-                filepaths, weather_info, occasion, (end_date - start_date).days, amount, include_accessories
+                filepaths_filtered, weather_info, occasion, (end_date - start_date).days, amount, include_accessories
             )

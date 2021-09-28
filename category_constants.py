@@ -30,3 +30,13 @@ WEATHER_ICON_MAPPING = {
     'Rainy': 'rainy.png',
     'Really Cold': 'cold.png',
 }
+
+WEATHER_TO_SEASON_MAPPINGS = {
+    'Hot': 'Summer',
+    'Warm': 'Summer',
+    'Mild': 'Spring',
+    'Chilly': 'Fall',
+    'Rainy': 'Fall',
+    'Cold': 'Winter',
+    'Really Cold': 'Winter',
+}
