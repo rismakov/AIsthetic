@@ -54,13 +54,21 @@ def get_weather_type(temp: int, weather: str) -> str:
     return 'Really Cold'
 
 
-def get_projected_weather(city, country, start_date, end_date):
+def get_projected_weather(
+    city: str, country: str, start_date, end_date
+) -> dict:
     """
     Parameters
     ----------
     city : str
+    country : str
     start_date : datetime.date
     end_date : datetime.date
+
+    Returns
+    -------
+    dict 
+        Returns dict of lists with keys: ['temps', 'weathers', 'weather_types'].
     """
     weather_info_class_regex = 'ww-month-week(end|days) (fore(a|)cast)(-statistics|)'
     weather_class_regex = 'icon-weather wi d\d{3} tooltip'
@@ -95,4 +103,6 @@ def get_projected_weather(city, country, start_date, end_date):
             elif section_date > end_date:
                 break
 
-    return temps, weathers, weather_types
+    return {
+        'temps': temps, 'weathers': weathers, 'weather_types': weather_types
+    }

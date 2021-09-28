@@ -137,6 +137,12 @@ def update_most_recently_worn(outfit_pieces, recently_worn):
 def display_outfit_plan(
     filepaths, weather_info, occasion, num_days, amount, include_accessories, days_in_week=7
 ):   
+    temps, weathers, weather_types = (
+        weather_info['temps'], 
+        weather_info['weathers'], 
+        weather_info['weather_types'],
+    )
+
     num_cols = 3
 
     recently_worn = init_most_recently_worn()
@@ -145,12 +151,10 @@ def display_outfit_plan(
             st.header(f'Week {int((n / days_in_week)) + 1}')
             cols = st.beta_columns(num_cols)
             col_i = 0
-        
-        temp, weather, weather_type = (x[n] for x in weather_info)
 
         outfit_pieces = choose_outfit(
             filepaths,
-            weather_type, 
+            weather_types[n], 
             occasion, 
             include_accessories, 
             exclude_items=recently_worn,
@@ -158,8 +162,10 @@ def display_outfit_plan(
         recently_worn = update_most_recently_worn(outfit_pieces, recently_worn)
 
         cols[col_i].subheader(f'Day {n + 1}')
-        weather_text = f'{weather} - {temp}° ({weather_type})'
-        weather_icon_filename = get_weather_icon_filename(weather_type, weather)
+        weather_text = f'{weathers[n]} - {temps[n]}° ({weather_types[n]})'
+        weather_icon_filename = get_weather_icon_filename(
+            weather_types[n], weathers[n]
+        )
 
         cols[col_i].image(f'icons/weather/{weather_icon_filename}', width=30)
         cols[col_i].text(weather_text)
