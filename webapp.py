@@ -11,6 +11,7 @@ from matching_utils import get_viable_matches
 from outfit_calendar import (
     choose_outfit, display_outfit_pieces, display_outfit_plan, 
 )
+from outfit_utils import filter_items
 from tagging import (
     choose_filename_to_update, display_article_tags, update_article_tags
 )
@@ -267,25 +268,6 @@ def get_outfit_match_from_inspo(filename):
     outfit_match_score = sum(match_scores) * 100 / len(match_scores) 
     score_header.subheader(f'Match Score: {outfit_match_score:.2f}')
 
-
-def filter_items(
-    filepaths, 
-    seasons=list(SEASON_TAGS.keys()), 
-    occasions=list(OCCASION_TAGS.keys())
-):
-    season_tags = [SEASON_TAGS[season] for season in seasons] 
-    occasion_tags = [OCCASION_TAGS[occasion] for occasion in occasions]
-    
-    filepaths_filtered = {}
-    for cat in filepaths:
-        filepaths_filtered[cat] = [
-            x for x in filepaths[cat] if (
-                any(tag in x for tag in season_tags)
-                and any(tag in x for tag in occasion_tags)
-            )
-        ]
-    return filepaths_filtered
-
 ######################################
 ######################################
 # Main Screen ########################
@@ -333,7 +315,9 @@ if option == 1:
     occasions = form.multiselect('Occasions', list(OCCASION_TAGS.keys()))
 
     if form.form_submit_button('Add Filters'):
-        session_state.filepaths_filtered = filter_items(filepaths, seasons, occasions)
+        session_state.filepaths_filtered = filter_items_in_all_categories(
+            filepaths, seasons, occasions
+        )
         info_placeholder.subheader('Post Filter')
         count_items(session_state.filepaths_filtered, info_placeholder)
 

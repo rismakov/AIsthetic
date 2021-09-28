@@ -11,6 +11,8 @@ from category_constants import (
 )
 from utils_constants import PATH_CLOSET
 
+from outfit_utils import filter_items
+
 # References:
 # https://daleonai.com/social-media-fashion-ai
 
