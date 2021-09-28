@@ -28,9 +28,8 @@ WEATHER_TO_SEASON_MAPPINGS = {
     'Really Cold': 'Winter',
 }
 
-OUTFIT_TYPE_RATIO = 4
 
-def choose_outfit_type(include_accessories=True) -> list:
+def choose_outfit_type(ratio, include_accessories=True) -> list:
     """Choose outfit combination type and return outfit categories.
 
     Can either choose top + bottom combo, or dress/set combo.
@@ -39,7 +38,7 @@ def choose_outfit_type(include_accessories=True) -> list:
     -------
     List(str)
     """
-    choice = random.randint(1, OUTFIT_TYPE_RATIO)  # determine this value
+    choice = random.randint(1, ratio)
 
     additional_categories = ACCESSORIES if include_accessories else []
 
@@ -63,9 +62,13 @@ def choose_outfit(
     -------
     dict
     """
-    categories = choose_outfit_type(include_accessories)
-
     season = WEATHER_TO_SEASON_MAPPINGS[weather_type]
+
+    tops_count = len(filter_items(filepaths['tops'], [season], [occasion]))
+    bottoms_count = len(filter_items(filepaths['bottoms'], [season], [occasion]))
+    dresses_count = len(filter_items(filepaths['dresses'], [season], [occasion]))
+    ratio = round(((tops_count + bottoms_count) / 2) / dresses_count)
+    categories = choose_outfit_type(ratio, include_accessories)
 
     outfit_pieces = {}
     is_statement = False
