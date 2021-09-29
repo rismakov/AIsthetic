@@ -28,6 +28,8 @@ DAYS_IN_WEEK = {
     'Work': 5,
 }
 
+WEEKDAY_MAPPING = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
+
 def choose_outfit_type(ratio: int, include_accessories: bool=True) -> list:
     """Choose outfit combination type and return outfit categories.
 
@@ -181,7 +183,10 @@ def display_outfit_plan(
             outfit_pieces, amount, recently_worn
         )
 
-        cols[col_i].subheader(f'Day {day_i + 1}')
+        dow = WEEKDAY_MAPPING[current_date.weekday()]
+        month_day = f'{current_date.month}-{current_date.day}'
+        cols[col_i].subheader(f'Day {day_i + 1} - {dow} - {month_day}')
+
         weather_text = (
             f'{weathers[day_i]} - {temps[day_i]}° ({weather_types[day_i]})'
         )
