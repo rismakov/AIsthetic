@@ -11,13 +11,20 @@ from matching_utils import get_viable_matches
 from outfit_calendar import (
     choose_outfit, display_outfit_pieces, display_outfit_plan, 
 )
-from outfit_utils import filter_items
+from outfit_utils import (
+    filter_basic_items,
+    filter_items_based_on_amount, 
+    filter_items_in_all_categories,
+    filter_statement_items,
+)
 from tagging import (
     choose_filename_to_update, display_article_tags, update_article_tags
 )
 from utils import get_filesnames_in_dir, get_key_of_value
 
-from category_constants import SEASON_TAGS, STYLE_TAGS, OCCASION_TAGS
+from category_constants import (
+    SEASON_TAGS, STYLE_TAGS, OCCASION_TAGS, WEATHER_TO_SEASON_MAPPINGS
+)
 from utils_constants import PATH_CLOSET
 
 # References:
@@ -40,14 +47,6 @@ def get_all_image_filenames() -> dict:
             f'{directory}/{fn}' for fn in get_filesnames_in_dir(directory)
         ]
     return filepaths
-
-
-def filter_basic_items(items):
-    return [x for x in items if STYLE_TAGS['Basic'] in x]
-
-
-def filter_statement_items(items):
-    return [x for x in items if STYLE_TAGS['Statement'] in x]
 
 
 def get_basics_and_statements(filepaths):
@@ -190,46 +189,62 @@ def option_one_questions():
     return season, weather, occasion
 
 
-def option_three_questions():
+def get_outfit_plan():
     side = st.sidebar
+    form = side.form('Plan')
 
     options = ['Work', 'Casual', 'Dinner/Bar', 'Club/Fancy']
     q = "What occasions are you planning for?"
-    occasions = side.multiselect(q, options)
+    occasions = form.multiselect(q, options)
 
-    length_mapping = {
-        'one week': 7,
-        'two weeks': 14,
-        'one month': 30,
-    }
     accessories_mapping = {
         'Yes': True,
         'No': False,
     }
 
     options = ['Yes', 'No']
-    include = side.selectbox("Would you like to include accessories?", options)
+    include = form.selectbox("Would you like to include accessories?", options)
 
     options = ['small carry-on suitcase', 'medium suitcase', 'entire closet']
-    amount = side.selectbox("How much are you looking to bring?", options)
+    amount = form.selectbox("How much are you looking to bring?", options)
 
-    city = side.text_input("Which city are you traveling to?").lower().strip()
-    country = side.text_input("Country?").lower().strip()
+    city = form.text_input("Which city are you traveling to?").lower().strip()
+    country = form.text_input("Country?").lower().strip()
 
-    start_date = st.sidebar.date_input("When are you starting your trip?")
-    end_date = side.date_input("When are you ending your trip?")
-    if end_date < start_date:
-        st.sidebar.error("ERROR: end date cannot be before start date.")
+    start_date = form.date_input("When are you starting your trip?")
+    end_date = form.date_input("When are you ending your trip?")
 
-    return (
-        city,
-        country,
-        occasions, 
-        accessories_mapping[include], 
-        amount,
-        start_date,
-        end_date,
-    )
+    if form.form_submit_button("Create Outfit Plan"):
+        if end_date < start_date:
+            form.error("ERROR: end date cannot be before start date.")
+
+        weather_info = get_projected_weather(city, country, start_date, end_date)
+        weather_type_set = set(weather_info['weather_types'])
+        season_types = set([
+            WEATHER_TO_SEASON_MAPPINGS[weather_type] 
+            for weather_type in weather_type_set
+        ])
+        # Make sure items of all necessary season types are available, depending on
+        # set of all weather types of trip:
+        filepaths_filtered = filter_items_in_all_categories(
+            filepaths, seasons=season_types, occasions=occasions
+        )
+        filepaths_filtered = filter_items_based_on_amount(
+            filepaths_filtered, amount, occasions,
+        )
+
+        for occasion in occasions:
+            st.header(f'{occasion}')
+            st.markdown("""---""")
+            display_outfit_plan(
+                filepaths_filtered, 
+                weather_info, 
+                occasion, 
+                start_date, 
+                end_date,
+                amount, 
+                accessories_mapping[include],
+            )
 
 
 def choose_inspo_file():
@@ -355,23 +370,24 @@ elif option == 3:
         st.image(inspo_filename, width=300)
         get_outfit_match_from_inspo(filename)
 else:
-    (
-        city,
-        country,
-        occasions, 
-        include_accessories,
-        amount,
-        start_date, 
-        end_date,
-    ) = option_three_questions()
+    get_outfit_plan()
 
-    weather_info = get_projected_weather(city, country, start_date, end_date)
-    # filepaths_filtered = filter_items(filepaths, occasions=occasions)
+    
 
-    if st.sidebar.button("Create Outfit Plan"):
-        for occasion in occasions:
-            st.header(f'{occasion}')
-            st.markdown("""---""")
-            display_outfit_plan(
-                filepaths_filtered, weather_info, occasion, (end_date - start_date).days, amount, include_accessories
-            )
+'''
+export_as_pdf = st.button("Export Report")
+
+def create_download_link(val, filename):
+    b64 = base64.b64encode(val)  # val looks like b'...'
+    return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="{filename}.pdf">Download file</a>'
+
+if export_as_pdf:
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font('Arial', 'B', 16)
+    pdf.cell(40, 10, report_text)
+    
+    html = create_download_link(pdf.output(dest="S").encode("latin-1"), "test")
+
+    st.markdown(html, unsafe_allow_html=True)
+'''

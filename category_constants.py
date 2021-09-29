@@ -40,3 +40,30 @@ WEATHER_TO_SEASON_MAPPINGS = {
     'Cold': 'Winter',
     'Really Cold': 'Winter',
 }
+
+_high_cadence = {
+    'tops': 4,
+    'bottoms': 4,
+    'dresses': 4,
+    'outerwear': 0,
+}
+
+_med_cadence = {
+    'tops': 5,
+    'bottoms': 5,
+    'dresses': 6,
+    'outerwear': 1,
+}
+
+_low_cadence = {
+    'tops': 6,
+    'bottoms': 6,
+    'dresses': 9, 
+    'outerwear': 3,
+} 
+
+CADENCES = {
+    'small carry-on suitcase': _high_cadence,
+    'medium suitcase': _med_cadence,
+    'entire closet': _low_cadence,
+}
