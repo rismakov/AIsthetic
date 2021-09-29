@@ -5,21 +5,23 @@ from bs4 import BeautifulSoup
 from datetime import date, timedelta
 
 MONTH_MAPPING = [
-    'january', 'feburary', 'march', 
-    'april', 'may', 'june', 
-    'july', 'august', 'september', 
-    'october', 'november', 'december',
+    'january', 
+    'feburary', 
+    'march', 
+    'april', 
+    'may', 
+    'june', 
+    'july', 
+    'august', 
+    'september', 
+    'october', 
+    'november', 
+    'december',
 ]
 
 COUNTRY_MAPPING = {'england': 'united_kingdom'}
 
 URL = "https://world-weather.info/forecast/{}/{}/{}-{}/"
-
-
-def daterange(start_date, end_date):
-    for n in range(int((end_date - start_date).days)):
-        yield start_date + timedelta(n)
-
 
 # http://www.city-data.com/forum/weather/2237356-what-do-people-consider-above-warm-3.html
 def get_weather_type(temp: int, weather: str) -> str:
@@ -50,7 +52,6 @@ def get_weather_type(temp: int, weather: str) -> str:
         return 'Chilly'
     if temp > 32:
         return 'Cold'
-    
     return 'Really Cold'
 
 
