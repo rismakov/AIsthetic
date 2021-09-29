@@ -28,14 +28,24 @@ DAYS_IN_WEEK = {
     'Work': 5,
 }
 
-def choose_outfit_type(ratio, include_accessories=True) -> list:
+def choose_outfit_type(ratio: int, include_accessories: bool=True) -> list:
     """Choose outfit combination type and return outfit categories.
 
     Can either choose top + bottom combo, or dress/set combo.
 
+    Parameters
+    ----------
+    ratio : int
+        The number of top-bottom outfit types you want to see for every dresses 
+        outfit type. To be used as the weight when randoming choosing between 
+        the two outfit combination types.
+    include_accessories : bool
+        Whether you want to add accessories to the outfit. Default is True.
+
     Returns
     -------
     List(str)
+        The clothing categories for one outfit.
     """
     choice = random.randint(1, ratio)
 
@@ -136,6 +146,7 @@ def update_most_recently_worn(
             [outfit_pieces.get(cat, '')] + recently_worn[cat]
         )[:cadence]
     return recently_worn
+
 
 def display_outfit_plan(
     filepaths, weather_info, occasion, start_date, end_date, amount, include_accessories
