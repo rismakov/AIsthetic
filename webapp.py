@@ -9,7 +9,7 @@ from ProductSearch import ProductSearch, ProductCategories
 from get_weather import get_projected_weather
 from matching_utils import get_viable_matches
 from outfit_calendar import (
-    choose_outfit, display_outfit_pieces, display_outfit_plan, 
+    choose_outfit, get_outfit_plan, display_outfit_pieces, display_outfit_plan, 
 )
 from outfit_utils import (
     filter_basic_items,
@@ -189,7 +189,7 @@ def option_one_questions():
     return season, weather, occasion
 
 
-def get_outfit_plan():
+def get_and_display_outfit_plan():
     side = st.sidebar
     form = side.form('Plan')
 
@@ -224,8 +224,8 @@ def get_outfit_plan():
             WEATHER_TO_SEASON_MAPPINGS[weather_type] 
             for weather_type in weather_type_set
         ])
-        # Make sure items of all necessary season types are available, depending on
-        # set of all weather types of trip:
+        # Make sure items of all necessary season types are available, depending
+        # on set of all weather types of trip
         filepaths_filtered = filter_items_in_all_categories(
             filepaths, seasons=season_types, occasions=occasions
         )
@@ -236,15 +236,17 @@ def get_outfit_plan():
         for occasion in occasions:
             st.header(f'{occasion}')
             st.markdown("""---""")
-            display_outfit_plan(
+            dates, outfits = get_outfit_plan(
                 filepaths_filtered, 
-                weather_info, 
+                weather_info['weather_types'], 
                 occasion, 
                 start_date, 
                 end_date,
                 amount, 
                 accessories_mapping[include],
             )
+
+            display_outfit_plan(dates, outfits, weather_info, occasion)
 
 
 def choose_inspo_file():
@@ -370,4 +372,5 @@ elif option == 3:
         st.image(inspo_filename, width=300)
         get_outfit_match_from_inspo(filename)
 else:
-    get_outfit_plan()
+    get_and_display_outfit_plan()
+    

@@ -150,43 +150,25 @@ def update_most_recently_worn(
     return recently_worn
 
 
-def display_outfit_plan(
-    filepaths, weather_info, occasion, start_date, end_date, amount, include_accessories
-):   
+def display_outfit_plan(dates: list, outfits: list, weather_info, occasion):
     temps, weathers, weather_types = (
         weather_info['temps'], 
         weather_info['weathers'], 
         weather_info['weather_types'],
     )
-
+    
     num_cols = 3
     day_i = 0
-    recently_worn = init_most_recently_worn()
-    for current_date in daterange(start_date, end_date):
-        # Don't find outfit for `occasion` of type 'Work' if weekend 
-        if (current_date.weekday() in (5, 6)) and (occasion == 'Work'):
-            continue
-
+    for outfit_date, outfit_pieces in zip(dates, outfits):
         if day_i % DAYS_IN_WEEK[occasion] == 0:
             st.header(f'Week {int((day_i / DAYS_IN_WEEK[occasion])) + 1}')
             cols = st.beta_columns(num_cols)
             col_i = 0
 
-        outfit_pieces = choose_outfit(
-            filepaths,
-            weather_types[day_i], 
-            occasion, 
-            include_accessories, 
-            exclude_items=recently_worn,
-        ) 
-        recently_worn = update_most_recently_worn(
-            outfit_pieces, amount, recently_worn
-        )
-
-        dow = WEEKDAY_MAPPING[current_date.weekday()]
-        month_day = f'{current_date.month}-{current_date.day}'
+        dow = WEEKDAY_MAPPING[outfit_date.weekday()]
+        month_day = f'{outfit_date.month}-{outfit_date.day}'
         cols[col_i].subheader(f'Day {day_i + 1} - {dow} - {month_day}')
-
+        
         weather_text = (
             f'{weathers[day_i]} - {temps[day_i]}° ({weather_types[day_i]})'
         )
@@ -196,7 +178,7 @@ def display_outfit_plan(
 
         cols[col_i].image(f'icons/weather/{weather_icon_filename}', width=30)
         cols[col_i].text(weather_text)
-        cols[col_i].image([v for _, v in outfit_pieces.items()], width=70)
+        cols[col_i].image(list(outfit_pieces.values()), width=70)
 
         cols[col_i].markdown("""---""")
 
@@ -206,3 +188,36 @@ def display_outfit_plan(
             col_i = 0
         
         day_i += 1
+        
+        
+
+def get_outfit_plan(
+    filepaths, weather_types, occasion, start_date, end_date, amount, include_accessories
+):   
+    outfits = []
+    dates = []
+    recently_worn = init_most_recently_worn()
+    for weather_type, outfit_date in zip(
+        weather_types, daterange(start_date, end_date)
+    ):
+        dates.append(outfit_date)
+
+        # Don't find outfit for `occasion` of type 'Work' if weekend 
+        if (outfit_date.weekday() in (5, 6)) and (occasion == 'Work'):
+            outfits.append({})
+            continue
+
+        outfit_pieces = choose_outfit(
+            filepaths,
+            weather_type, 
+            occasion, 
+            include_accessories, 
+            exclude_items=recently_worn,
+        )
+
+        outfits.append(outfit_pieces) 
+        recently_worn = update_most_recently_worn(
+            outfit_pieces, amount, recently_worn
+        )
+    
+    return dates, outfits
