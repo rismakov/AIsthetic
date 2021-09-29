@@ -27,6 +27,13 @@ from category_constants import (
 )
 from utils_constants import PATH_CLOSET
 
+DAYS_IN_WEEK = {
+    'Casual': 7,
+    'Dinner/Bar': 7,
+    'Club/Fancy': 7,
+    'Work': 5,
+}
+
 # References:
 # https://daleonai.com/social-media-fashion-ai
 
@@ -236,17 +243,19 @@ def get_and_display_outfit_plan():
         for occasion in occasions:
             st.header(f'{occasion}')
             st.markdown("""---""")
+            days_in_week = DAYS_IN_WEEK[occasion]
             dates, outfits = get_outfit_plan(
                 filepaths_filtered, 
                 weather_info['weather_types'], 
-                occasion, 
+                occasion,
+                city, 
                 start_date, 
                 end_date,
                 amount, 
                 accessories_mapping[include],
             )
 
-            display_outfit_plan(dates, outfits, weather_info, occasion)
+            display_outfit_plan(dates, outfits, weather_info, days_in_week)
 
 
 def choose_inspo_file():
