@@ -156,22 +156,21 @@ def display_outfit_plan(
     )
     
     num_cols = 3
-    day_i = 0
-    for outfit_date, outfit_pieces in zip(dates, outfits):
-        if day_i % DAYS_IN_WEEK[occasion] == 0:
-            st.header(f'Week {int((day_i / DAYS_IN_WEEK[occasion])) + 1}')
+    for i, outfit_date, outfit_pieces in zip(range(len(dates)), dates, outfits):
+        if i % days_in_week == 0:
+            st.header(f'Week {int((i / days_in_week)) + 1}')
             cols = st.beta_columns(num_cols)
             col_i = 0
 
         dow = WEEKDAY_MAPPING[outfit_date.weekday()]
-        month_day = f'{outfit_date.month}-{outfit_date.day}'
-        cols[col_i].subheader(f'Day {day_i + 1} - {dow} - {month_day}')
+        month_day = f'{outfit_date.month}/{outfit_date.day}'
+        cols[col_i].subheader(f'Day {i + 1} - {dow} - {month_day}')
         
         weather_text = (
-            f'{weathers[day_i]} - {temps[day_i]}° ({weather_types[day_i]})'
+            f'{weathers[i]} - {temps[i]}° ({weather_types[i]})'
         )
         weather_icon_filename = get_weather_icon_filename(
-            weather_types[day_i], weathers[day_i]
+            weather_types[i], weathers[i]
         )
 
         cols[col_i].image(f'icons/weather/{weather_icon_filename}', width=30)
@@ -184,10 +183,7 @@ def display_outfit_plan(
             col_i += 1
         else:
             col_i = 0
-        
-        day_i += 1
-        
-        
+
 
 def get_outfit_plan(
     filepaths: list, 
