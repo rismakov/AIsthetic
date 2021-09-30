@@ -105,7 +105,11 @@ def count_items(filepaths, info_placeholder):
         f'({basic_count * 100 / total:.2f}%) and {statement_count} statement '
         f'pieces ({statement_count * 100 / total:.2f}%).'
     )
-
+    info = '- '
+    for cat in ALL_CATEGORIES:
+        info += f'{len(filepaths[cat])} {cat}, '
+    
+    info_placeholder.write(f'{info[:-2]}.')
 
 def init_category_display(images_per_row):
     placeholders = {}
