@@ -119,7 +119,7 @@ def init_category_display(images_per_row):
         'Tops', 'Bottoms', 'Dresses/Sets', 'Outerwear', 'Shoes', 'Bags', 'Unknown'
     ]:
         st.subheader(cat)
-        placeholders[cat] = st.beta_container()
+        placeholders[cat] = st.container()
         cols_info[cat] = placeholders[cat].beta_columns(images_per_row)
         col_inds[cat] = 0
 
@@ -311,7 +311,7 @@ st.write('')
 filepaths = get_all_image_filenames()
 
 st.header('Closet Information')
-info_placeholder = st.beta_container()
+info_placeholder = st.container()
 print('Counting items...')
 info_placeholder.subheader('Entire Wardrobe')
 count_items(filepaths, info_placeholder)
