@@ -272,7 +272,9 @@ def choose_inspo_file():
 
 
 def get_outfit_match_from_inspo(filename):
-    ps = ProductSearch(GCP_PROJECTID, CREDS, CLOSET_SET)
+    ps = ProductSearch(
+        st.secrets(GCP_PROJECTID), st.secrets(CREDS), st.secrets(CLOSET_SET)
+    )
     product_set = ps.getProductSet(CLOSET_SET)
 
     response = product_set.search("apparel", file_path=inspo_filename)
