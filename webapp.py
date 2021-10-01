@@ -356,6 +356,11 @@ if option == 1:
     if st.sidebar.button('Show Wardrode Info'):
         print('Printing wardrobe info...')
         categorize_wardrode(filepaths)
+    
+    st.sidebar(
+        "NOTE: Select filters above (using `Add Filters` button) before "
+        "displaying article tags."
+    )
     if st.sidebar.button('Display Article Tags'):
         display_article_tags(session_state.filepaths_filtered)
 
