@@ -2,7 +2,7 @@ import os
 import streamlit as st
 import SessionState
 
-from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
+# from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
 from category_constants import ALL_CATEGORIES
 
 from ProductSearch import ProductSearch, ProductCategories
