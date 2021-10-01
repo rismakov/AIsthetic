@@ -357,7 +357,7 @@ if option == 1:
         print('Printing wardrobe info...')
         categorize_wardrode(filepaths)
     
-    st.sidebar(
+    st.sidebar.write(
         "NOTE: Select filters above (using `Add Filters` button) before "
         "displaying article tags."
     )
