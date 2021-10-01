@@ -228,12 +228,11 @@ def get_outfit_plan(
     for weather_type, outfit_date in zip(
         weather_types, daterange(start_date, end_date)
     ):
-        dates.append(outfit_date)
-
         # Don't find outfit for `occasion` of type 'Work' if weekend 
         if (outfit_date.weekday() in (5, 6)) and (occasion == 'Work'):
-            outfits.append({})
             continue
+
+        dates.append(outfit_date)
 
         outfit_pieces = choose_outfit(
             filepaths,
