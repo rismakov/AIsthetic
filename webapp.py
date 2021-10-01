@@ -166,7 +166,9 @@ def get_final_label_from_labels(labels):
 
 def categorize_wardrode(filepaths):
     ps = ProductSearch(
-        st.secrets(GCP_PROJECTID), st.secrets(CREDS), st.secrets(CLOSET_SET)
+        st.secrets['GCP_PROJECTID'], 
+        st.secrets['CREDS'], 
+        st.secrets['CLOSET_SET'],
     )
     product_set = ps.getProductSet(CLOSET_SET)
 
@@ -273,7 +275,9 @@ def choose_inspo_file():
 
 def get_outfit_match_from_inspo(filename):
     ps = ProductSearch(
-        st.secrets(GCP_PROJECTID), st.secrets(CREDS), st.secrets(CLOSET_SET)
+        st.secrets['GCP_PROJECTID'], 
+        st.secrets['CREDS'], 
+        st.secrets['CLOSET_SET'],
     )
     product_set = ps.getProductSet(CLOSET_SET)
 
