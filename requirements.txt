@@ -3,7 +3,6 @@ blinker==1.4
 brotlipy==0.7.0
 certifi==2021.5.30
 cycler==0.10.0
-entrypoints-0.3-py2.py3-none-any.whl
 fpdf==1.7.2
 google-api-core==1.31.2
 google-api-python-client==1.10.1
