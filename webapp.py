@@ -164,7 +164,7 @@ def get_final_label_from_labels(labels):
     return 'Unknown'
 
 
-def categorize_wardrode():
+def categorize_wardrode(filepaths):
     ps = ProductSearch(GCP_PROJECTID, CREDS, CLOSET_SET)
     product_set = ps.getProductSet(CLOSET_SET)
 
