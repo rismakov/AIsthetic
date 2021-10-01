@@ -248,7 +248,7 @@ def get_outfit_plan(
             outfit_pieces, amount, recently_worn
         )
     
-    with open(f'outfit_plans/{city}_{start_date}_{end_date}.json', 'w') as f:
-        json.dump(outfits , f)
+    # with open(f'outfit_plans/{city}_{start_date}_{end_date}.json', 'w') as f:
+    #    json.dump(outfits , f)
 
     return dates, outfits
