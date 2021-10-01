@@ -120,7 +120,7 @@ def init_category_display(images_per_row):
     ]:
         st.subheader(cat)
         placeholders[cat] = st.container()
-        cols_info[cat] = placeholders[cat].beta_columns(images_per_row)
+        cols_info[cat] = placeholders[cat].columns(images_per_row)
         col_inds[cat] = 0
 
     return cols_info, col_inds
@@ -279,7 +279,7 @@ def get_outfit_match_from_inspo(filename):
     match_scores = []
     image_filenames = set()
     score_header = st.empty()
-    cols = st.beta_columns(6)
+    cols = st.columns(6)
     i = 0
     for item_matches in response:
         for match in get_viable_matches(

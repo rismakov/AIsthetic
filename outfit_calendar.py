@@ -117,7 +117,7 @@ def choose_outfit(
 
 
 def display_outfit_pieces(outfit_pieces: dict):
-    cols = st.beta_columns(6)
+    cols = st.columns(6)
     for i, filename in zip(OUTFIT_COLS, outfit_pieces.values()):
         cols[i].image(filename, width=250)
     st.button("This doesn't match together.")
@@ -159,7 +159,7 @@ def display_outfit_plan(
     for i, outfit_date, outfit_pieces in zip(range(len(dates)), dates, outfits):
         if i % days_in_week == 0:
             st.header(f'Week {int((i / days_in_week)) + 1}')
-            cols = st.beta_columns(num_cols)
+            cols = st.columns(num_cols)
             col_i = 0
 
         dow = WEEKDAY_MAPPING[outfit_date.weekday()]

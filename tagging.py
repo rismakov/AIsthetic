@@ -89,7 +89,7 @@ def display_article_tags(filepaths):
         st.subheader(cat)
         st.markdown("""---""")
 
-        cols = st.beta_columns(num_cols)
+        cols = st.columns(num_cols)
         col_i = 0
         for i, image_filename in enumerate(filepaths[cat]):
             col = cols[col_i]
@@ -124,7 +124,7 @@ def choose_filename_to_update(filepaths):
         return st.sidebar.selectbox(info, missing_tags)
 
 def update_article_tags(filepath):
-    cols = st.beta_columns(3)
+    cols = st.columns(3)
     display_article_tags_for_item(cols[0], filepath)
 
     form = st.form('tags')
