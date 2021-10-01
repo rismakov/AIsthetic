@@ -31,8 +31,6 @@ PyYAML==5.4.1
 six==1.16.0
 soupsieve==2.2.1
 streamlit-metrics==0.1.0
-tensorflow @ https://github.com/apple/tensorflow_macos/releases/download/v0.1alpha3/tensorflow_macos-0.1a3-cp38-cp38-macosx_11_0_arm64.whl
-tensorflow-addons @ https://github.com/apple/tensorflow_macos/releases/download/v0.1alpha3/tensorflow_addons_macos-0.1a3-cp38-cp38-macosx_11_0_arm64.whl
 termcolor==1.1.0
 uritemplate==3.0.1
 webencodings==0.5.1
