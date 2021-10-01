@@ -165,7 +165,9 @@ def get_final_label_from_labels(labels):
 
 
 def categorize_wardrode(filepaths):
-    ps = ProductSearch(GCP_PROJECTID, CREDS, CLOSET_SET)
+    ps = ProductSearch(
+        st.secrets(GCP_PROJECTID), st.secrets(CREDS), st.secrets(CLOSET_SET)
+    )
     product_set = ps.getProductSet(CLOSET_SET)
 
     images_per_row = 10
