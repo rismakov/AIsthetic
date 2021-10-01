@@ -170,22 +170,24 @@ def categorize_wardrode(filepaths):
 
     images_per_row = 10
     cols_info, col_inds = init_category_display(images_per_row)
-    for cat in ALL_CATEGORIES:
-        directory = f'{PATH_CLOSET}/{cat}'
-        for filename in get_filesnames_in_dir(directory):
-            file_path = os.path.join(directory, filename)
-            response = product_set.search("apparel", file_path=file_path)
-            labels = [x['label'] for x in response]
-            
-            label = get_final_label_from_labels(labels)
 
-            cols_info[label][col_inds[label]].image(file_path)
-            col_inds[label] += 1
+    all_paths = []
+    for cat in filepaths:
+        all_paths += filepaths[cat]
 
-            # restart column count after it reachs end of row
-            if col_inds[label] >= images_per_row:
-                col_inds[label] = 0
-          
+    for filepath in all_paths:
+        response = product_set.search("apparel", file_path=filepath)
+        labels = [x['label'] for x in response]
+        
+        label = get_final_label_from_labels(labels)
+        cols_info[label][col_inds[label]].image(filepath)
+
+        # Add one to column indices count
+        # Restart column count after it reachs end of row
+        col_inds[label] += 1
+        if col_inds[label] >= images_per_row:
+            col_inds[label] = 0
+    
 
 def option_one_questions():
     options = ['Summer', 'Autumn', 'Winter', 'Spring']
@@ -353,7 +355,7 @@ if option == 1:
 
     if st.sidebar.button('Show Wardrode Info'):
         print('Printing wardrobe info...')
-        categorize_wardrode()
+        categorize_wardrode(filepaths)
     if st.sidebar.button('Display Article Tags'):
         display_article_tags(session_state.filepaths_filtered)
 
