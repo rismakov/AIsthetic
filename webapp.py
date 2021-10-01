@@ -353,9 +353,9 @@ if option == 1:
         info_placeholder.subheader('Post Filter')
         count_items(session_state.filepaths_filtered, info_placeholder)
 
-    if st.sidebar.button('Show Wardrode Info'):
-        print('Printing wardrobe info...')
-        categorize_wardrode(filepaths)
+    # if st.sidebar.button('Show Wardrode Info'):
+    #    print('Printing wardrobe info...')
+    #    categorize_wardrode(filepaths)
     
     st.sidebar.write(
         "NOTE: Select filters above (using `Add Filters` button) before "
