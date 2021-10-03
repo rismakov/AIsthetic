@@ -237,36 +237,43 @@ def get_and_display_outfit_plan():
             
         else:
             weather_info = get_projected_weather(city, country, start_date, end_date)
-            weather_type_set = set(weather_info['weather_types'])
-            season_types = set([
-                WEATHER_TO_SEASON_MAPPINGS[weather_type] 
-                for weather_type in weather_type_set
-            ])
-            # Make sure items of all necessary season types are available, depending
-            # on set of all weather types of trip
-            filepaths_filtered = filter_items_in_all_categories(
-                filepaths, seasons=season_types, occasions=occasions
-            )
-            filepaths_filtered = filter_items_based_on_amount(
-                filepaths_filtered, amount, occasions,
-            )
-
-            for occasion in occasions:
-                st.header(f'{occasion}')
-                st.markdown("""---""")
-                days_in_week = DAYS_IN_WEEK[occasion]
-                dates, outfits = get_outfit_plan(
-                    filepaths_filtered, 
-                    weather_info['weather_types'], 
-                    occasion,
-                    city, 
-                    start_date, 
-                    end_date,
-                    amount, 
-                    accessories_mapping[include],
+            if not weather_info['temps']:
+                st.error(
+                    'ERROR: Weather information not found. Confirm that city '
+                    'and country names are spelled correctly.'
                 )
 
-                display_outfit_plan(dates, outfits, weather_info, days_in_week)
+            else:
+                weather_type_set = set(weather_info['weather_types'])
+                season_types = set([
+                    WEATHER_TO_SEASON_MAPPINGS[weather_type] 
+                    for weather_type in weather_type_set
+                ])
+                # Make sure items of all necessary season types are available, depending
+                # on set of all weather types of trip
+                filepaths_filtered = filter_items_in_all_categories(
+                    filepaths, seasons=season_types, occasions=occasions
+                )
+                filepaths_filtered = filter_items_based_on_amount(
+                    filepaths_filtered, amount, occasions,
+                )
+
+                for occasion in occasions:
+                    st.header(f'{occasion}')
+                    st.markdown("""---""")
+                    days_in_week = DAYS_IN_WEEK[occasion]
+                    dates, outfits = get_outfit_plan(
+                        filepaths_filtered, 
+                        weather_info['weather_types'], 
+                        occasion,
+                        city, 
+                        start_date, 
+                        end_date,
+                        amount, 
+                        accessories_mapping[include],
+                    )
+
+                    display_outfit_plan(dates, outfits, weather_info, days_in_week)
 
 
 def choose_inspo_file():
