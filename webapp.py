@@ -234,38 +234,39 @@ def get_and_display_outfit_plan():
     if form.form_submit_button("Create Outfit Plan"):
         if end_date < start_date:
             form.error("ERROR: end date cannot be before start date.")
-
-        weather_info = get_projected_weather(city, country, start_date, end_date)
-        weather_type_set = set(weather_info['weather_types'])
-        season_types = set([
-            WEATHER_TO_SEASON_MAPPINGS[weather_type] 
-            for weather_type in weather_type_set
-        ])
-        # Make sure items of all necessary season types are available, depending
-        # on set of all weather types of trip
-        filepaths_filtered = filter_items_in_all_categories(
-            filepaths, seasons=season_types, occasions=occasions
-        )
-        filepaths_filtered = filter_items_based_on_amount(
-            filepaths_filtered, amount, occasions,
-        )
-
-        for occasion in occasions:
-            st.header(f'{occasion}')
-            st.markdown("""---""")
-            days_in_week = DAYS_IN_WEEK[occasion]
-            dates, outfits = get_outfit_plan(
-                filepaths_filtered, 
-                weather_info['weather_types'], 
-                occasion,
-                city, 
-                start_date, 
-                end_date,
-                amount, 
-                accessories_mapping[include],
+            
+        else:
+            weather_info = get_projected_weather(city, country, start_date, end_date)
+            weather_type_set = set(weather_info['weather_types'])
+            season_types = set([
+                WEATHER_TO_SEASON_MAPPINGS[weather_type] 
+                for weather_type in weather_type_set
+            ])
+            # Make sure items of all necessary season types are available, depending
+            # on set of all weather types of trip
+            filepaths_filtered = filter_items_in_all_categories(
+                filepaths, seasons=season_types, occasions=occasions
+            )
+            filepaths_filtered = filter_items_based_on_amount(
+                filepaths_filtered, amount, occasions,
             )
 
-            display_outfit_plan(dates, outfits, weather_info, days_in_week)
+            for occasion in occasions:
+                st.header(f'{occasion}')
+                st.markdown("""---""")
+                days_in_week = DAYS_IN_WEEK[occasion]
+                dates, outfits = get_outfit_plan(
+                    filepaths_filtered, 
+                    weather_info['weather_types'], 
+                    occasion,
+                    city, 
+                    start_date, 
+                    end_date,
+                    amount, 
+                    accessories_mapping[include],
+                )
+
+                display_outfit_plan(dates, outfits, weather_info, days_in_week)
 
 
 def choose_inspo_file():
