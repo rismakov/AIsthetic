@@ -89,6 +89,10 @@ def get_projected_weather(
         soup = BeautifulSoup(requests.get(weather_url).content, 'html.parser')
         sections = soup.find_all(True, {'class': re.compile(weather_info_class_regex)})
         
+        # if `BeautifulSoup` doesn't return anything, break out of loop:
+        if not sections:
+            break
+
         for x in sections:
             section_date = date(start_date.year, month, int(x.div.text))
             section_temp = int(x.span.text.replace('+', '').replace('°', ''))
