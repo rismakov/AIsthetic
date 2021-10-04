@@ -13,6 +13,7 @@ def image_processing(filepath):
     tagged on the original image (if any).
     """
 
+    print('DEBUG', filepath)
     # load image file and import as a numpy array
     image = np.asarray(Image.open(filepath), dtype='uint8')                
 
