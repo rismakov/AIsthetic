@@ -7,6 +7,7 @@ from category_constants import ALL_CATEGORIES
 
 from ProductSearch import ProductSearch, ProductCategories
 from get_weather import get_projected_weather
+from image_processing import image_processing
 from matching_utils import get_viable_matches
 from outfit_calendar import (
     choose_outfit, get_outfit_plan, display_outfit_pieces, display_outfit_plan, 
