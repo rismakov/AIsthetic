@@ -1,7 +1,8 @@
 import os
-import pickle
 import streamlit as st
 import SessionState
+
+from tensorflow.keras.models import load_model
 
 # from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
 from category_constants import ALL_CATEGORIES
@@ -166,8 +167,7 @@ def get_final_label_from_labels(labels):
     return 'Unknown'
 
 def categorize_wardrobe_style(filepaths):
-    with open('model.hdf5', 'rb') as f:
-        pattern_model = pickle.load(f)
+    pattern_model = load_model('model.hdf5')
     
     for filepath in filepaths:
         processed_image = image_processing(filepath)
