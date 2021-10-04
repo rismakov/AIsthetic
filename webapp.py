@@ -171,13 +171,14 @@ def get_final_label_from_labels(labels):
 def categorize_wardrobe_style(filepaths):
     pattern_model = load_model('model.hdf5')
     
-    for filepath in filepaths:
-        print('Processing image...')
-        processed_image = image_processing(filepath)
-        print('Predicting style of item...')
-        pred = pattern_model.predict(processed_image)
-        st.subheader(pred)
-        st.image(filepath)
+    for cat in filepaths:
+        for filepath in filepaths[cat]: 
+            print('Processing image...')
+            processed_image = image_processing(filepath)
+            print('Predicting style of item...')
+            pred = pattern_model.predict(processed_image)
+            st.subheader(pred)
+            st.image(filepath)
 
 
 def categorize_wardrode(filepaths):
@@ -399,7 +400,7 @@ if option == 1:
     )
     if st.sidebar.button('Show Wardrode Info'):
         print('Printing wardrobe info...')
-        categorize_wardrobe_style(filepaths)
+        categorize_wardrobe_style(session_state.filepaths_filtered)
 
     if st.sidebar.button('Display Clothing Tags'):
         display_article_tags(session_state.filepaths_filtered)
