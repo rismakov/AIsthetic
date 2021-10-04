@@ -1,6 +1,7 @@
 import cv2  # for image processing
 import numpy as np
-import PIL
+
+from PIL import Image
 
 
 def image_processing(filepath):
