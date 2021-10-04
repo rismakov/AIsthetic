@@ -45,7 +45,11 @@ def choose_outfit_type(ratio: int, include_accessories: bool=True) -> list:
     List(str)
         The clothing categories for one outfit.
     """
-    choice = random.randint(1, ratio)
+    # If no `dresses`, always choose top/bottom outfit type
+    if not ratio:
+        choice = 2
+    else:
+        choice = random.randint(1, ratio)
 
     additional_categories = ACCESSORIES if include_accessories else []
 
@@ -75,9 +79,9 @@ def choose_outfit(
     bottoms_count = len(filter_items(filepaths['bottoms'], [season], [occasion]))
     dresses_count = len(filter_items(filepaths['dresses'], [season], [occasion]))
     
-    # To avoid `division by 0` error
+    # Avoid `division by zero` error 
     if dresses_count == 0:
-        ratio = 1
+        ratio = None
     else:
         ratio = round(((tops_count + bottoms_count) / 2) / dresses_count) + 1
     
