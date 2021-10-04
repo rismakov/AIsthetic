@@ -394,7 +394,7 @@ if option == 1:
     )
     if st.sidebar.button('Show Wardrode Info'):
         print('Printing wardrobe info...')
-        categorize_style_wardrode(filepaths)
+        categorize_wardrobe_style(filepaths)
 
     if st.sidebar.button('Display Clothing Tags'):
         display_article_tags(session_state.filepaths_filtered)
