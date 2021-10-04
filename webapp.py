@@ -114,6 +114,7 @@ def count_items(filepaths, info_placeholder):
     
     info_placeholder.write(f'{info[:-2]}.')
 
+
 def init_category_display(images_per_row):
     placeholders = {}
     cols_info = {}
@@ -166,11 +167,14 @@ def get_final_label_from_labels(labels):
     print(f"Unknown labels: {labels}") 
     return 'Unknown'
 
+
 def categorize_wardrobe_style(filepaths):
     pattern_model = load_model('model.hdf5')
     
     for filepath in filepaths:
+        print('Processing image...')
         processed_image = image_processing(filepath)
+        print('Predicting style of item...')
         pred = pattern_model.predict(processed_image)
         st.subheader(pred)
         st.image(filepath)
@@ -431,5 +435,4 @@ elif option == 3:
         get_outfit_match_from_inspo(filename)
 else:
     st.sidebar.header("Options")
-    get_and_display_outfit_plan()
-    
+    get_and_display_outfit_plan()   
