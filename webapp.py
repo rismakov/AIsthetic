@@ -164,6 +164,16 @@ def get_final_label_from_labels(labels):
     print(f"Unknown labels: {labels}") 
     return 'Unknown'
 
+def categorize_wardrobe_style(filepaths):
+    with open('model.hdf5', 'rb') as f:
+        pattern_model = pickle.load(f)
+    
+    for filepath in filepaths:
+        processed_image = image_processing(filepath)
+        pred = pattern_model.predict(processed_image)
+        st.subheader(pred)
+        st.image(filepath)
+
 
 def categorize_wardrode(filepaths):
     ps = ProductSearch(
@@ -172,6 +182,9 @@ def categorize_wardrode(filepaths):
         st.secrets['CLOSET_SET'],
     )
     product_set = ps.getProductSet(CLOSET_SET)
+
+    # with open('model.hdf5', 'rb') as f:
+    #    pattern_model = pickle.load(f)
 
     images_per_row = 10
     cols_info, col_inds = init_category_display(images_per_row)
@@ -235,13 +248,14 @@ def get_and_display_outfit_plan():
     if form.form_submit_button("Create Outfit Plan"):
         if end_date < start_date:
             form.error("ERROR: end date cannot be before start date.")
-            
         else:
-            weather_info = get_projected_weather(city, country, start_date, end_date)
+            weather_info = get_projected_weather(
+                city, country, start_date, end_date,
+            )
             if not weather_info['temps']:
                 st.error(
                     'ERROR: Weather information not found. Confirm that city '
-                    'and country names are spelled correctly.'
+                    'and country names are filled in and spelled correctly.'
                 )
 
             else:
@@ -357,34 +371,38 @@ session_state = SessionState.get(
     filepath="", button_clicked=False, filepaths_filtered=[],
 )
 
-st.sidebar.header("Options")
 if option == 1:
+    st.sidebar.header("Filters")
     form = st.sidebar.form('Tags')
     seasons = form.multiselect('Seasons', list(SEASON_TAGS.keys()))
     occasions = form.multiselect('Occasions', list(OCCASION_TAGS.keys()))
 
     if form.form_submit_button('Add Filters'):
-        session_state.filepaths_filtered = filter_items_in_all_categories(
-            filepaths, seasons, occasions
-        )
-        info_placeholder.subheader('Post Filter')
-        count_items(session_state.filepaths_filtered, info_placeholder)
-
-    # if st.sidebar.button('Show Wardrode Info'):
-    #    print('Printing wardrobe info...')
-    #    categorize_wardrode(filepaths)
+        if not occasions:
+            st.error('Please select occasion types above first.')
+        else: 
+            session_state.filepaths_filtered = filter_items_in_all_categories(
+                filepaths, seasons, occasions
+            )
+            info_placeholder.subheader('Post Filter')
+            count_items(session_state.filepaths_filtered, info_placeholder)
     
+    st.sidebar.header("Options")
     st.sidebar.write(
         "NOTE: Select filters above (using `Add Filters` button) before "
-        "displaying article tags."
+        "selecting next option."
     )
-    if st.sidebar.button('Display Article Tags'):
+    if st.sidebar.button('Show Wardrode Info'):
+        print('Printing wardrobe info...')
+        categorize_style_wardrode(filepaths)
+
+    if st.sidebar.button('Display Clothing Tags'):
         display_article_tags(session_state.filepaths_filtered)
 
     form = st.sidebar.form('Choose Filename')
     session_state.filepath = choose_filename_to_update(filepaths)
 
-    # if there are items that are untagged, include options to review
+    # If there are items that are untagged, include options to review
     if session_state.filepath:
         button_clicked = st.sidebar.button('Review Article Tags')
         if button_clicked:
@@ -395,12 +413,14 @@ if option == 1:
     else:
         st.sidebar.write('All items have been tagged.')
 elif option == 2:
+    st.sidebar.header("Options")
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):
         st.header('Selected Outfit')
         outfit_pieces = choose_outfit(filepaths, weather, occasion)
         display_outfit_pieces(outfit_pieces)
 elif option == 3:
+    st.sidebar.header("Options")
     filename = choose_inspo_file()
     if st.sidebar.button("Select Inspo-Based Outfit"):
         inspo_filename = os.path.join(INSPO_DIR, filename)
@@ -409,5 +429,6 @@ elif option == 3:
         st.image(inspo_filename, width=300)
         get_outfit_match_from_inspo(filename)
 else:
+    st.sidebar.header("Options")
     get_and_display_outfit_plan()
     
