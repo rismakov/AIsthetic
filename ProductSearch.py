@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import os
+import streamlit as st
 
 from google.cloud import storage
 from google.cloud import vision

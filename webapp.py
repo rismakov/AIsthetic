@@ -4,7 +4,6 @@ import SessionState
 
 from tensorflow.keras.models import load_model
 
-# from constants import GCP_PROJECTID, CREDS, CLOSET_SET, LOCATION
 from category_constants import ALL_CATEGORIES
 
 from ProductSearch import ProductSearch, ProductCategories
@@ -187,7 +186,7 @@ def categorize_wardrode(filepaths):
         st.secrets['CREDS'], 
         st.secrets['CLOSET_SET'],
     )
-    product_set = ps.getProductSet(CLOSET_SET)
+    product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
 
     # with open('model.hdf5', 'rb') as f:
     #    pattern_model = pickle.load(f)
@@ -302,15 +301,14 @@ def choose_inspo_file():
     return st.sidebar.selectbox('Select your inspo file', filenames)
 
 
-def get_outfit_match_from_inspo(filename):
+def get_outfit_match_from_inspo(filepath):
     ps = ProductSearch(
         st.secrets['GCP_PROJECTID'], 
         st.secrets['CREDS'], 
         st.secrets['CLOSET_SET'],
     )
-    product_set = ps.getProductSet(CLOSET_SET)
-
-    response = product_set.search("apparel", file_path=inspo_filename)
+    product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
+    response = product_set.search("apparel", file_path=filepath)
     url_path = 'https://storage.googleapis.com/closet_set/'
 
     match_scores = []
@@ -429,11 +427,11 @@ elif option == 3:
     st.sidebar.header("Options")
     filename = choose_inspo_file()
     if st.sidebar.button("Select Inspo-Based Outfit"):
-        inspo_filename = os.path.join(INSPO_DIR, filename)
+        filepath = os.path.join(INSPO_DIR, filename)
         st.header('Inspiration Match')
         st.text(f'You selected the following image as your inspiration outfit:')
-        st.image(inspo_filename, width=300)
-        get_outfit_match_from_inspo(filename)
+        st.image(filepath, width=300)
+        get_outfit_match_from_inspo(filepath)
 else:
     st.sidebar.header("Options")
     get_and_display_outfit_plan()   

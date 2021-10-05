@@ -4,6 +4,8 @@ import numpy as np
 from PIL import Image
 
 
+import streamlit as st
+
 def image_processing(filepath):
     """
     Convert image to an array of size 100x1.
@@ -17,8 +19,9 @@ def image_processing(filepath):
     # load image file and import as a numpy array
     # type of `uint8` so values will be between 0-255
     image = np.asarray(Image.open(filepath), dtype='uint8')        
-    image = image.astype('uint8')    
+    # image = image.astype('uint8')    
 
+    st.image(image)
     # read the numpy arrays as color images in OpenCV
     image_bgr = cv2.imdecode(image, cv2.IMREAD_COLOR)
   
