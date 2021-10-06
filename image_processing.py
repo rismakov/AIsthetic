@@ -21,7 +21,7 @@ def image_processing(filepath):
     # image = np.asarray(Image.open(filepath), dtype='uint8')     
     # image = image.astype('uint8') 
 
-    st.header(image.shape)
+    # st.header(image.shape)
     image_gray = cv2.imread(filepath, cv2.IMREAD_GRAYSCALE)
     # st.header(image_bgr.shape)
     # st.image(image)
