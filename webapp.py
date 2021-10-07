@@ -1,10 +1,9 @@
 import os
+import numpy as np
 import streamlit as st
 import SessionState
 
 from tensorflow.keras.models import load_model
-
-from category_constants import ALL_CATEGORIES
 
 from ProductSearch import ProductSearch, ProductCategories
 from get_weather import get_projected_weather
@@ -25,7 +24,7 @@ from tagging import (
 from utils import get_filesnames_in_dir, get_key_of_value
 
 from category_constants import (
-    SEASON_TAGS, STYLE_TAGS, OCCASION_TAGS, WEATHER_TO_SEASON_MAPPINGS
+    ALL_CATEGORIES, SEASON_TAGS, STYLE_TAGS, OCCASION_TAGS, WEATHER_TO_SEASON_MAPPINGS
 )
 from utils_constants import PATH_CLOSET
 
@@ -170,14 +169,32 @@ def get_final_label_from_labels(labels):
 def categorize_wardrobe_style(filepaths):
     pattern_model = load_model('model.hdf5')
     
+    images = []
+    images_processed = []
     for cat in filepaths:
         for filepath in filepaths[cat]: 
             print('Processing image...')
-            processed_image = image_processing(filepath)
-            print('Predicting style of item...')
-            pred = pattern_model.predict(processed_image)
-            st.subheader(pred)
-            st.image(filepath)
+            images.append(filepath)
+            images_processed.append(image_processing(filepath))
+            # processed_image = image_processing()
+            # st.header(processed_image.shape)
+
+    X = np.array(images_processed) / 255
+    img_rows, img_cols = 100, 100
+    input_shape = (img_rows, img_cols, 1)
+
+    X = X.reshape(X.shape[0], img_rows, img_cols, 1)
+    print('Predicting style of item...')
+    preds = pattern_model.predict(X)
+    
+    styles = {}
+    for image, pred in zip(images, preds):
+        cat_pred = np.argmax(pred)  
+        styles[cat_pred] = styles.get(cat_pred, []) + [image]
+        
+    for style in styles:
+        st.header(style)
+        st.image(styles[style], width=150)
 
 
 def categorize_wardrode(filepaths):
