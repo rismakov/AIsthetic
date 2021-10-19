@@ -414,8 +414,11 @@ if option == 1:
         "selecting next option."
     )
     if st.sidebar.button('Show Wardrode Info'):
-        print('Printing wardrobe info...')
-        categorize_wardrobe_style(session_state.filepaths_filtered)
+        if not seasons or not occasions:
+            st.sidebar.error('Please select wardrobe filters first.')
+        else:
+            print('Printing wardrobe info...')
+            categorize_wardrobe_style(session_state.filepaths_filtered)
 
     if st.sidebar.button('Display Clothing Tags'):
         display_article_tags(session_state.filepaths_filtered)
