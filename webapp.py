@@ -189,11 +189,16 @@ def categorize_wardrobe_style(filepaths):
     
     styles = {}
     for image, pred in zip(images, preds):
-        cat_pred = np.argmax(pred)  
+        cat_pred = np.argmax(pred)
+        if cat_pred == 8:
+            cat_pred = 'Basic'
+        else:
+            cat_pred = 'Statement'
+
         styles[cat_pred] = styles.get(cat_pred, []) + [image]
         
     for style in styles:
-        st.header(style)
+        st.header(f'{style} Pieces')
         st.image(styles[style], width=150)
 
 
