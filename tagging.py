@@ -70,17 +70,17 @@ def display_icon_key():
 
     # style key column
     display_icon_types(
-        cols[0], cols[1], sorted(STYLE_TAGS.keys(), STYLE_ICON_PATH
+        cols[0], cols[1], sorted(STYLE_TAGS.keys()), STYLE_ICON_PATH
     ) 
     
     # weather key column
     display_icon_types(
-        cols[2], cols[3], sorted(WEATHER_TAGS.keys(), WEATHER_ICON_PATH
+        cols[2], cols[3], sorted(WEATHER_TAGS.keys()), WEATHER_ICON_PATH
     )
 
     # occasion key column
     display_icon_types(
-        cols[4], cols[5], sorted(OCCASION_TAGS.keys(), OCCASION_ICON_PATH
+        cols[4], cols[5], sorted(OCCASION_TAGS.keys()), OCCASION_ICON_PATH
     )
 
 
