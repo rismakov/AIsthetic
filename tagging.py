@@ -86,7 +86,7 @@ def display_article_tags_for_item(col, image_filename):
     display_key()
     col.image(image_filename, width=150)
 
-    for mapping, tags, path in zip(ALL_TAGS, PATHS, MAPPINGS):
+    for tags, path, mapping in zip(ALL_TAGS, PATHS, MAPPINGS):
         display_tags(col, image_filename, mapping, tags, path)
 
 
