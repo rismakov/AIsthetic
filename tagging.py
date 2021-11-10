@@ -75,7 +75,7 @@ def display_icon_key():
 
     # add key for icon meanings
     i = 0
-    for tags, path in zip(ALL_TAGS, PATHS, MAPPINGS):
+    for tags, path, mapping in zip(ALL_TAGS, PATHS, MAPPINGS):
         display_icon_types(
             cols[i], cols[i + 1], sorted(tags.keys()), path, mapping
         )
