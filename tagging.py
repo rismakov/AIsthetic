@@ -58,9 +58,9 @@ def add_later():
             os.path.rename(filename, f'{filename}_{tag}')
 
 
-def display_icon_types(text_col, icon_col, tags, icon_image_path):
+def display_icon_types(text_col, icon_col, tags, icon_image_path, mapping):
     for tag in tags:
-        icon_filename = f'{icon_image_path}/{tag.lower()}.png'
+        icon_filename = f'{icon_image_path}/{mapping[tag]}.png'
         icon_col.image(icon_filename, ICON_IMAGE_WIDTH)
         text_col.text(f'- {tag}')
 
@@ -69,11 +69,14 @@ def display_icon_key():
     cols = st.columns(6)
 
     # add key for icon meanings
+    mappings = [STYLE_ICON_MAPPING, SEASON_ICON_MAPPING, OCCASION_ICON_MAPPING]
     all_tags = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
     paths = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
     i = 0
-    for tags, path in zip(all_tags, paths):
-        display_icon_types(cols[i], cols[i + 1], sorted(tags.keys()), path)
+    for tags, path in zip(all_tags, paths, mappings):
+        display_icon_types(
+            cols[i], cols[i + 1], sorted(tags.keys()), path, mapping
+        )
         i += 2
 
 
@@ -85,7 +88,7 @@ def display_article_tags_for_item(col, image_filename):
     all_tags = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
     paths = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
     for mapping, tags, path in zip(mappings, all_tags, paths):
-        display_tags(col, image_filename, mapping, tags, path,)
+        display_tags(col, image_filename, mapping, tags, path)
 
 
 def display_article_tags(filepaths):
