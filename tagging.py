@@ -65,7 +65,6 @@ def add_later():
 
 def display_icon_types(text_col, icon_col, icon_image_path, mapping):
     for k in sorted(mapping.keys()):
-        st.header(tag)
         icon_filename = f'{icon_image_path}/{mapping[k]}.png'
         icon_col.image(icon_filename, width=ICON_IMAGE_WIDTH)
         text_col.text(f'- {k}')
