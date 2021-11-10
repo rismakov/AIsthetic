@@ -69,7 +69,7 @@ def display_icon_key():
     cols = st.columns(6)
 
     # add key for icon meanings
-    all_tags = [STYLE_TAGS, WEATHER_TAGS, OCCASION_TAGS]
+    all_tags = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
     paths = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
     i = 0
     for tags, path in zip(all_tags, paths):
