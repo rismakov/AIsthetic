@@ -68,20 +68,13 @@ def display_icon_types(text_col, icon_col, tags, icon_image_path):
 def display_icon_key():
     cols = st.columns(6)
 
-    # style key column
-    display_icon_types(
-        cols[0], cols[1], sorted(STYLE_TAGS.keys()), STYLE_ICON_PATH
-    ) 
-    
-    # weather key column
-    display_icon_types(
-        cols[2], cols[3], sorted(WEATHER_TAGS.keys()), WEATHER_ICON_PATH
-    )
-
-    # occasion key column
-    display_icon_types(
-        cols[4], cols[5], sorted(OCCASION_TAGS.keys()), OCCASION_ICON_PATH
-    )
+    # add key for icon meanings
+    all_tags = [STYLE_TAGS, WEATHER_TAGS, OCCASION_TAGS]
+    paths = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
+    i = 0
+    for tags, path in zip(all_tags, paths):
+        display_icon_types(cols[i], cols[i + 1], sorted(tags.keys()), path)
+        i += 2
 
 
 def display_article_tags_for_item(col, image_filename):
