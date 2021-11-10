@@ -3,10 +3,13 @@ import streamlit as st
 
 from category_constants import OCCASION_TAGS, STYLE_TAGS, SEASON_TAGS
 
+ALL_TAGS = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
 
 STYLE_ICON_PATH = 'icons/style'
 WEATHER_ICON_PATH = 'icons/weather'
 OCCASION_ICON_PATH = 'icons/occasion'
+
+PATHS = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
 
 # to map article season tags to weather icon filenames
 SEASON_ICON_MAPPING = {
@@ -27,6 +30,8 @@ STYLE_ICON_MAPPING = {
     'Basic': 'basic.png',
     'Statement': 'statement.png',
 }
+
+MAPPINGS = [STYLE_ICON_MAPPING, SEASON_ICON_MAPPING, OCCASION_ICON_MAPPING]
 
 ICON_IMAGE_WIDTH = 40
 
@@ -69,11 +74,8 @@ def display_icon_key():
     cols = st.columns(6)
 
     # add key for icon meanings
-    mappings = [STYLE_ICON_MAPPING, SEASON_ICON_MAPPING, OCCASION_ICON_MAPPING]
-    all_tags = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
-    paths = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
     i = 0
-    for tags, path in zip(all_tags, paths, mappings):
+    for tags, path in zip(ALL_TAGS, PATHS, MAPPINGS):
         display_icon_types(
             cols[i], cols[i + 1], sorted(tags.keys()), path, mapping
         )
@@ -83,11 +85,8 @@ def display_icon_key():
 def display_article_tags_for_item(col, image_filename):
     display_key()
     col.image(image_filename, width=150)
-    
-    mappings = [STYLE_ICON_MAPPING, SEASON_ICON_MAPPING, OCCASION_ICON_MAPPING]
-    all_tags = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
-    paths = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
-    for mapping, tags, path in zip(mappings, all_tags, paths):
+
+    for mapping, tags, path in zip(ALL_TAGS, PATHS, MAPPINGS):
         display_tags(col, image_filename, mapping, tags, path)
 
 
