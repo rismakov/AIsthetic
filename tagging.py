@@ -1,10 +1,7 @@
 import os
 import streamlit as st
 
-from category_constants import ALL_CATEGORIES, OCCASION_TAGS, STYLE_TAGS, SEASON_TAGS
-from utils_constants import PATH_CLOSET
-
-from utils import get_filesnames_in_dir
+from category_constants import OCCASION_TAGS, STYLE_TAGS, SEASON_TAGS
 
 
 STYLE_ICON_PATH = 'icons/style'
