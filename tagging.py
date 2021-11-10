@@ -63,11 +63,12 @@ def add_later():
             os.path.rename(filename, f'{filename}_{tag}')
 
 
-def display_icon_types(text_col, icon_col, tags, icon_image_path, mapping):
-    for tag in tags:
-        icon_filename = f'{icon_image_path}/{mapping[tag]}.png'
+def display_icon_types(text_col, icon_col, icon_image_path, mapping):
+    for k in sorted(mapping.keys()):
+        st.header(tag)
+        icon_filename = f'{icon_image_path}/{mapping[k]}.png'
         icon_col.image(icon_filename, width=ICON_IMAGE_WIDTH)
-        text_col.text(f'- {tag}')
+        text_col.text(f'- {k}')
 
 
 def display_icon_key():
@@ -75,10 +76,8 @@ def display_icon_key():
 
     # add key for icon meanings
     i = 0
-    for tags, path, mapping in zip(ALL_TAGS, PATHS, MAPPINGS):
-        display_icon_types(
-            cols[i], cols[i + 1], sorted(tags.keys()), path, mapping
-        )
+    for path, mapping in zip(PATHS, MAPPINGS):
+        display_icon_types(cols[i], cols[i + 1], path, mapping)
         i += 2
 
 
