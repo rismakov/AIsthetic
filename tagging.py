@@ -61,8 +61,8 @@ def add_later():
 def display_icon_types(text_col, icon_col, tags, icon_image_path):
     for tag in tags:
         icon_filename = f'{icon_image_path}/{tag.lower()}.png'
-        col.image(icon_filename, ICON_IMAGE_WIDTH)
-        col.text(f'- {tag}')
+        icon_col.image(icon_filename, ICON_IMAGE_WIDTH)
+        text_col.text(f'- {tag}')
 
 
 def display_icon_key():
