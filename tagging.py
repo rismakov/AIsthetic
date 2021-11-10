@@ -23,12 +23,12 @@ OCCASION_ICON_MAPPING = {
     'Club/Fancy': 'party.png',
 }
 
-ICON_IMAGE_WIDTH = 40
 STYLE_ICON_MAPPING = {
     'Basic': 'basic.png',
     'Statement': 'statement.png',
 }
 
+ICON_IMAGE_WIDTH = 40
 
 
 def display_tags(col, image_filename, icon_image_mapping, tags, icon_path):
@@ -58,13 +58,36 @@ def add_later():
             os.path.rename(filename, f'{filename}_{tag}')
 
 
+def display_icon_types(text_col, icon_col, tags, icon_image_path):
+    for tag in tags:
+        icon_filename = f'{icon_image_path}/{tag.lower()}.png'
+        col.image(icon_filename, ICON_IMAGE_WIDTH)
+        col.text(f'- {tag}')
+
+
+def display_icon_key():
+    cols = st.columns(6)
+
+    # style key column
+    display_icon_types(
+        cols[0], cols[1], sorted(STYLE_TAGS.keys(), STYLE_ICON_PATH
+    ) 
+    
+    # weather key column
+    display_icon_types(
+        cols[2], cols[3], sorted(WEATHER_TAGS.keys(), WEATHER_ICON_PATH
+    )
+
+    # occasion key column
+    display_icon_types(
+        cols[4], cols[5], sorted(OCCASION_TAGS.keys(), OCCASION_ICON_PATH
+    )
+
+
 def display_article_tags_for_item(col, image_filename):
+    display_key()
     col.image(image_filename, width=150)
     
-    )
-    )
-
-
     mappings = [STYLE_ICON_MAPPING, SEASON_ICON_MAPPING, OCCASION_ICON_MAPPING]
     all_tags = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
     paths = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
@@ -73,6 +96,8 @@ def display_article_tags_for_item(col, image_filename):
 
 
 def display_article_tags(filepaths):
+    display_icon_key()
+
     num_cols = 3
 
     for cat in filepaths:
@@ -112,6 +137,7 @@ def choose_filename_to_update(filepaths):
         )
 
         return st.sidebar.selectbox(info, missing_tags)
+
 
 def update_article_tags(filepath):
     cols = st.columns(3)
