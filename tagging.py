@@ -24,12 +24,11 @@ OCCASION_ICON_MAPPING = {
 }
 
 ICON_IMAGE_WIDTH = 40
+STYLE_ICON_MAPPING = {
+    'Basic': 'basic.png',
+    'Statement': 'statement.png',
+}
 
-def display_style_tag(col, image_filename):
-    for style in ['Basic', 'Statement']:
-        if STYLE_TAGS[style] in image_filename:
-            icon_filename = f'{STYLE_ICON_PATH}/{style.lower()}.png'
-            col.image(icon_filename, width=ICON_IMAGE_WIDTH)
 
 
 def display_tags(col, image_filename, icon_image_mapping, tags, icon_path):
@@ -62,21 +61,15 @@ def add_later():
 def display_article_tags_for_item(col, image_filename):
     col.image(image_filename, width=150)
     
-    display_style_tag(col, image_filename)
-    display_tags(
-        col, 
-        image_filename, 
-        SEASON_ICON_MAPPING, 
-        SEASON_TAGS, 
-        WEATHER_ICON_PATH,
     )
-    display_tags(
-        col, 
-        image_filename, 
-        OCCASION_ICON_MAPPING, 
-        OCCASION_TAGS, 
-        OCCASION_ICON_PATH,
     )
+
+
+    mappings = [STYLE_ICON_MAPPING, SEASON_ICON_MAPPING, OCCASION_ICON_MAPPING]
+    all_tags = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
+    paths = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
+    for mapping, tags, path in zip(mappings, all_tags, paths):
+        display_tags(col, image_filename, mapping, tags, path,)
 
 
 def display_article_tags(filepaths):
