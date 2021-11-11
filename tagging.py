@@ -66,11 +66,13 @@ def add_later():
 def display_icon_types(text_col, icon_col, icon_image_path, mapping):
     for k in sorted(mapping.keys()):
         icon_filename = f'{icon_image_path}/{mapping[k]}'
+        text_col.text(f'{k}')
+        text_col.text(f' ')
         icon_col.image(icon_filename, width=ICON_IMAGE_WIDTH)
-        text_col.text(f'- {k}')
 
 
 def display_icon_key():
+    st.subheader('Key')
     cols = st.columns(6)
 
     # add key for icon meanings
@@ -78,6 +80,8 @@ def display_icon_key():
     for path, mapping in zip(PATHS, MAPPINGS):
         display_icon_types(cols[i], cols[i + 1], path, mapping)
         i += 2
+    
+    st.markdown("""---""")
 
 
 def display_article_tags_for_item(col, image_filename):
