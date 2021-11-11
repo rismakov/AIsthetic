@@ -85,7 +85,6 @@ def display_icon_key():
 
 
 def display_article_tags_for_item(col, image_filename):
-    display_key()
     col.image(image_filename, width=150)
 
     for tags, path, mapping in zip(ALL_TAGS, PATHS, MAPPINGS):
