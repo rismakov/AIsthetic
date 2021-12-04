@@ -293,8 +293,8 @@ def get_and_display_outfit_plan():
                 ])
 
                 st.write(
-                    'This trip requires planning for the following season types'
-                    f': {', '.join(season_types)}.'
+                    "This trip requires planning for the following season types"
+                    f": {', '.join(season_types)}."
                 )
 
                 # Make sure items of all necessary season types are available, depending
