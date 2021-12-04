@@ -292,9 +292,9 @@ def get_and_display_outfit_plan():
                     for weather_type in weather_type_set
                 ])
 
-                st.text(
+                st.write(
                     'This trip requires planning for the following season types'
-                    f': {season_types}'
+                    f': {', '.join(season_types)}.'
                 )
 
                 # Make sure items of all necessary season types are available, depending
