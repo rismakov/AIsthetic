@@ -291,6 +291,12 @@ def get_and_display_outfit_plan():
                     WEATHER_TO_SEASON_MAPPINGS[weather_type] 
                     for weather_type in weather_type_set
                 ])
+
+                st.text(
+                    'This trip requires planning for the following season types'
+                    f': {season_types}'
+                )
+
                 # Make sure items of all necessary season types are available, depending
                 # on set of all weather types of trip
                 filepaths_filtered = filter_items_in_all_categories(
