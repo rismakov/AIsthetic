@@ -302,6 +302,11 @@ def get_and_display_outfit_plan():
                 filepaths_filtered = filter_items_in_all_categories(
                     filepaths, seasons=season_types, occasions=occasions
                 )
+
+                info_placeholder = st.container()                
+                st.header('Options Available')
+                count_items(filepaths_filtered, info_placeholder)
+
                 filepaths_filtered = filter_items_based_on_amount(
                     filepaths_filtered, amount, occasions,
                 )
