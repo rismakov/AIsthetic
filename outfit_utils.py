@@ -48,21 +48,22 @@ def filter_items_based_on_amount(filepaths: dict, amount: str, occasions: list):
         basic_item = random.choice(filter_basic_items(filepaths[cat]))
         # Add as many more items as allowed for amount type
         options = [x for x in filepaths[cat] if x != basic_item]
-        subset = [basic_item] + random.choices(options, k=k-1) 
+        subset = [basic_item] + random.choices(options, k=k-1)
 
         # If basic item was not chosen for all occasion types, add one basic 
         # item to missing occasion type:
-        for occasion in occasions:   
-            if all(
-                OCCASION_TAGS[occasion] not in x 
-                for x in filter_basic_items(subset)
+        for occasion in occasions:  
+            if not any(
+                OCCASION_TAGS[occasion] in x for x in filter_basic_items(subset)
             ):
                 # Get all basic items of occasion type `occasion`
                 options = [
                     x for x in filter_basic_items(filepaths[cat])
                     if OCCASION_TAGS[occasion] in x
                 ]
-                subset += [random.choice(options)]
+                # If options exist:
+                if options:
+                    subset += [random.choice(options)]
         filepaths[cat] = subset
     return filepaths
 
