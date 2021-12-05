@@ -331,7 +331,7 @@ def choose_inspo_file():
 
 
 def get_outfit_match_from_inspo(filepath):
-    ps = ProductSearch(**st.secrets.product_search)
+    ps = ProductSearch(**st.secrets['product_search'])
     product_set = ps.getProductSet(st.secrets.product_search['CLOSET_SET'])
     print('reached this step', product_set)
     response = product_set.search("apparel", file_path=filepath)
