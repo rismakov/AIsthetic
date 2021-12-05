@@ -341,6 +341,7 @@ def get_outfit_match_from_inspo(filepath):
         st.secrets['CLOSET_SET'],
     )
     product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
+    print('reached this step', product_set)
     response = product_set.search("apparel", file_path=filepath)
     url_path = 'https://storage.googleapis.com/closet_set/'
 
