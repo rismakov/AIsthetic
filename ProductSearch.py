@@ -49,7 +49,7 @@ class ProductSearch:
         self.project_id = project_id
         self.location = location
         self.product_client = (
-            vision.ProductSearchClient.from_service_account_json(creds_file)
+            vision.ProductSearchClient.from_service_account_json(gcp_account)
         )
         self.image_client = (
             vision.ImageAnnotatorClient.from_service_account_file(gcp_account)
