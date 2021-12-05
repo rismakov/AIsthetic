@@ -407,7 +407,7 @@ session_state = SessionState.get(
     filepath="", button_clicked=False, filepaths_filtered=[],
 )
 
-if option == 1:
+if option == options[0]:
     st.sidebar.header("Filters")
     form = st.sidebar.form('Tags')
     seasons = form.multiselect('Seasons', list(SEASON_TAGS.keys()))
@@ -451,14 +451,14 @@ if option == 1:
             update_article_tags(session_state.filepath)
     else:
         st.sidebar.write('All items have been tagged.')
-elif option == 2:
+elif option == options[1]:
     st.sidebar.header("Options")
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):
         st.header('Selected Outfit')
         outfit_pieces = choose_outfit(filepaths, weather, occasion)
         display_outfit_pieces(outfit_pieces)
-elif option == 3:
+elif option == options[2]:
     st.sidebar.header("Options")
     filename = choose_inspo_file()
     if st.sidebar.button("Select Inspo-Based Outfit"):
