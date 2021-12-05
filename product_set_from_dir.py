@@ -20,7 +20,7 @@ from collections import Counter
 
 from google.cloud import vision
 
-from constants import CLOSET_DIR, CLOSET_SET, CREDS, GCP_PROJECTID, LOCATION
+from constants import CLOSET_DIR
 from ProductSearch import ProductSearch, ProductCategories
 
 # load_dotenv()
@@ -61,13 +61,17 @@ def add_images_to_product_type(product, label):
 
 if __name__ == "__main__":
     print('Initializing Product Search object...')
-    ps_obj = ProductSearch(GCP_PROJECTID, CREDS, CLOSET_SET)
+    ps_obj = ProductSearch(**st.secrets.product_search)
 
     try:
-        product_set = ps_obj.getProductSet(CLOSET_SET)
+        product_set = ps_obj.getProductSet(
+            st.secrets.product_search['CLOSET_SET']
+        )
         print("Got Product Set.")
     except:
-        product_set = ps_obj.createProductSet(CLOSET_SET)
+        product_set = ps_obj.createProductSet(
+            st.secrets.product_search['CLOSET_SET']
+        )
         print("Created Product Set.")
 
     labels = []
