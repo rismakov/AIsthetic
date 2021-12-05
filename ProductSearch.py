@@ -49,12 +49,12 @@ class ProductSearch:
         self.location = location
         self.product_client = (
             vision.ProductSearchClient.from_service_account_json(
-                **st.secrets.gcp_service_account
+                **st.secrets['gcp_service_account']
             )
         )
         self.image_client = (
             vision.ImageAnnotatorClient.from_service_account_file(
-                **st.secrets.gcp_service_account
+                **st.secrets['gcp_service_account']
             )
         )
         self.location_path = self.product_client.location_path(
@@ -62,7 +62,7 @@ class ProductSearch:
         )
         self.storage_client = (
             storage.Client.from_service_account_json(
-                **st.secrets.gcp_service_account
+                **st.secrets['gcp_service_account']
             )
         )
         self.bucket = self.storage_client.bucket(bucket_name)
