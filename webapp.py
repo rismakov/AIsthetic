@@ -352,7 +352,8 @@ def get_outfit_match_from_inspo(filepath):
     for item_matches in response:
         for match in get_viable_matches(
             item_matches['label'], item_matches['matches']
-        ):  
+        ):
+            st.write(match)
             if match['image'] not in image_filenames:
                 print(f"{url_path}{match['image'].split('/')[-1]}")
                 filename = f"{url_path}{match['image'].split('/')[-1]}"
