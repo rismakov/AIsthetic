@@ -203,7 +203,7 @@ def categorize_wardrobe_style(filepaths):
 
 
 def categorize_wardrode(filepaths):
-    ps = ProductSearch(**st.secrets.product_search)
+    ps = get_product_search()
     product_set = ps.getProductSet(st.secrets.product_search['CLOSET_SET'])
 
     # with open('model.hdf5', 'rb') as f:
@@ -330,8 +330,16 @@ def choose_inspo_file():
     return st.sidebar.selectbox('Select your inspo file', filenames)
 
 
+def get_product_search():
+    return ProductSearch(
+        st.secrets['product_search']['GCP_PROJECTID'],
+        st.secrets['product_search']['CREDS'],
+        st.secrets['product_search']['CLOSET_SET'],
+    )
+
+
 def get_outfit_match_from_inspo(filepath):
-    ps = ProductSearch(**st.secrets['product_search'])
+    ps = get_product_search()
     product_set = ps.getProductSet(st.secrets.product_search['CLOSET_SET'])
     print('reached this step', product_set)
     response = product_set.search("apparel", file_path=filepath)
