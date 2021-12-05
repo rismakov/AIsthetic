@@ -388,18 +388,14 @@ info_placeholder.subheader('Entire Wardrobe')
 count_items(filepaths, info_placeholder)
 
 st.header('AIsthetic Algorithm')
-st.write("What would you like to do?")
-st.write(
-    """   
-    1. See all clothing articles in closet.
-    2. Select a random outfit combination from closet.
-    3. Select an outfit based on an inspo-photo.
-    4. Plan a set of outfits for the next weeks.
-    """
-)
+options = [
+    "See all clothing articles in closet.",
+    "Select a random outfit combination from closet.",
+    "Select an outfit based on an inspo-photo.",
+    "Plan a set of outfits for the next weeks.",
+]
 
-options = [1, 2, 3, 4]
-option = st.selectbox("Choose an option:", options)
+option = st.radio("What would you like to do?", options)
 
 ######################################
 ######################################
