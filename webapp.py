@@ -335,6 +335,7 @@ def get_product_search():
         st.secrets['product_search']['GCP_PROJECTID'],
         st.secrets['product_search']['CREDS'],
         st.secrets['product_search']['CLOSET_SET'],
+        st.secrets['gcp_service_account'],
     )
 
 

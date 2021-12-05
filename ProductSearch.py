@@ -32,7 +32,8 @@ class ProductSearch:
         self, 
         project_id, 
         creds_file, 
-        bucket_name, 
+        bucket_name,
+        gcp_account,
         location="us-west1", 
         storage_prefix=None
     ):
@@ -48,22 +49,16 @@ class ProductSearch:
         self.project_id = project_id
         self.location = location
         self.product_client = (
-            vision.ProductSearchClient.from_service_account_json(
-                project_id, creds_file, bucket_name,
-            )
+            vision.ProductSearchClient.from_service_account_json(gcp_account)
         )
         self.image_client = (
-            vision.ImageAnnotatorClient.from_service_account_file(
-                project_id, creds_file, bucket_name,
-            )
+            vision.ImageAnnotatorClient.from_service_account_file(gcp_account)
         )
         self.location_path = self.product_client.location_path(
             project=project_id, location=location
         )
         self.storage_client = (
-            storage.Client.from_service_account_json(
-                project_id, creds_file, bucket_name,
-            )
+            storage.Client.from_service_account_json(gcp_account)
         )
         self.bucket = self.storage_client.bucket(bucket_name)
         self.prefix = storage_prefix
