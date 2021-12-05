@@ -332,10 +332,10 @@ def choose_inspo_file():
 
 def get_product_search():
     return ProductSearch(
-        st.secrets['product_search']['GCP_PROJECTID'],
-        st.secrets['product_search']['CREDS'],
-        st.secrets['product_search']['CLOSET_SET'],
-        st.secrets,
+        st.secrets['GCP_PROJECTID'], 
+        st.secrets['CREDS'], 
+        st.secrets['CLOSET_SET'],
+        st.secrets['gcp_service_account'],
     )
 
 
