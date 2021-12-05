@@ -430,13 +430,16 @@ if option == options[0]:
     )
     if st.sidebar.button('Show Wardrode Info'):
         if not seasons or not occasions:
-            st.sidebar.error('Please select wardrobe filters first.')
+            st.sidebar.error('Please add filters first.')
         else:
             print('Printing wardrobe info...')
             categorize_wardrobe_style(session_state.filepaths_filtered)
 
     if st.sidebar.button('Display Clothing Tags'):
-        display_article_tags(session_state.filepaths_filtered)
+        if not seasons or not occasions:
+            st.sidebar.error('Please add filters first.')
+        else:
+            display_article_tags(session_state.filepaths_filtered)
 
     form = st.sidebar.form('Choose Filename')
     session_state.filepath = choose_filename_to_update(filepaths)
