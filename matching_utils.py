@@ -8,6 +8,19 @@ def is_match_in_same_category(inspo_label, closet_label):
         
 
 def get_viable_matches(label, matches):
+    """Return only matches that are the same label as the clothing item.
+
+    Parameters
+    ----------
+    label : str
+        The clothing item label.
+    matches : list
+        The found matches for the clothing item.
+    
+    Returns
+    -------
+    list
+    """
     return [
         match for match in matches if is_match_in_same_category(
             label, match['product'].labels['type']
