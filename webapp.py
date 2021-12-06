@@ -204,7 +204,7 @@ def categorize_wardrobe_style(filepaths):
 
 def categorize_wardrode(filepaths):
     ps = get_product_search()
-    product_set = ps.getProductSet(st.secrets.product_search['CLOSET_SET'])
+    product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
 
     # with open('model.hdf5', 'rb') as f:
     #    pattern_model = pickle.load(f)
@@ -341,8 +341,7 @@ def get_product_search():
 
 def get_outfit_match_from_inspo(filepath):
     ps = get_product_search()
-    product_set = ps.getProductSet(st.secrets.product_search['CLOSET_SET'])
-    print('reached this step', product_set)
+    product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
     response = product_set.search("apparel", file_path=filepath)
     url_path = 'https://storage.googleapis.com/closet_set/'
 
