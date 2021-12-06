@@ -140,7 +140,8 @@ class ProductSearch:
             productPath = self.product_search.product_client.product_path(
                 project=self.product_search.project_id,
                 location=self.product_search.location,
-                product=self.product_id)
+                product=self.product_id
+            )
             self.product_search.product_client.delete_product(productPath)
             self.deleted = True
 
@@ -190,10 +191,12 @@ class ProductSearch:
             productPath = self.product_search.product_client.product_path(
                 project=self.product_search.project_id,
                 location=self.product_search.location,
-                product=self.product_id)
+                product=self.product_id
+            )
 
             images = self.product_search.product_client.list_reference_images(
-                parent=productPath)
+                parent=productPath
+            )
             return [x.name for x in images]
 
         def _getReferenceImageBlobName(self, name):
