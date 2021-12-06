@@ -353,10 +353,8 @@ def get_outfit_match_from_inspo(filepath):
     score_header = st.empty()
     cols = st.columns(6)
     i = 0
-    for item_matches in response:
-        for match in get_viable_matches(
-            item_matches['label'], item_matches['matches']
-        ):
+    for matches in response:
+        for match in get_viable_matches(matches['label'], matches['matches']):
             st.write(match)
             if match['image'] not in image_filenames:
                 print(f"{url_path}{match['image'].split('/')[-1]}")
