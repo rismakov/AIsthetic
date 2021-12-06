@@ -14,6 +14,7 @@
 
  
 import os
+import streamlit as st
 
 # from dotenv import load_dotenv
 from collections import Counter
@@ -61,17 +62,17 @@ def add_images_to_product_type(product, label):
 
 if __name__ == "__main__":
     print('Initializing Product Search object...')
-    ps_obj = ProductSearch(**st.secrets.product_search)
+    ps_obj = ProductSearch(
+        st.secrets['GCP_PROJECTID'], 
+        st.secrets['CREDS'], 
+        st.secrets['CLOSET_SET'],
+    )
 
     try:
-        product_set = ps_obj.getProductSet(
-            st.secrets.product_search['CLOSET_SET']
-        )
+        product_set = ps_obj.getProductSet(st.secrets['CLOSET_SET'])
         print("Got Product Set.")
     except:
-        product_set = ps_obj.createProductSet(
-            st.secrets.product_search['CLOSET_SET']
-        )
+        product_set = ps_obj.createProductSet(st.secrets['CLOSET_SET'])
         print("Created Product Set.")
 
     labels = []
