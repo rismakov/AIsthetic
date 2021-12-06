@@ -342,10 +342,11 @@ def get_product_search():
 def get_outfit_match_from_inspo(filepath):
     ps = get_product_search()
     product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
+
+    print('product set len:', len(product_set))
+
     response = product_set.search("apparel", file_path=filepath)
     url_path = 'https://storage.googleapis.com/closet_set/'
-
-    print(response[0])
 
     match_scores = []
     image_filenames = set()
