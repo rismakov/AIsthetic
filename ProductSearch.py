@@ -29,13 +29,13 @@ class ProductCategories:
 
 class ProductSearch:
     def __init__(
-        self, 
-        project_id, 
-        creds_file, 
+        self,
+        project_id,
+        creds_file,
         bucket_name,
         gcp_account,
-        location="us-west1", 
-        storage_prefix=None
+        location="us-west1",
+        storage_prefix=None,
     ):
         """Create a new product search object
 
