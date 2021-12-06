@@ -355,6 +355,7 @@ def get_outfit_match_from_inspo(filepath):
     i = 0
     for item in response:
         st.write(item)
+        st.write([match['product'].labels['type'] for match in item['matches']])
         for match in get_viable_matches(item['label'], item['matches']):
             st.write(match)
             if match['image'] not in image_filenames:
