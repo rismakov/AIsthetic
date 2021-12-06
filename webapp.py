@@ -345,6 +345,8 @@ def get_outfit_match_from_inspo(filepath):
     response = product_set.search("apparel", file_path=filepath)
     url_path = 'https://storage.googleapis.com/closet_set/'
 
+    print(response[0])
+
     match_scores = []
     image_filenames = set()
     score_header = st.empty()
