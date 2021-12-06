@@ -424,10 +424,14 @@ if option == options[0]:
             count_items(session_state.filepaths_filtered, info_placeholder)
     
     st.sidebar.header("Options")
-    st.sidebar.write(
-        "NOTE: Select filters above (using `Add Filters` button) before "
-        "selecting next option."
-    )
+    if not seasons or not occasions:
+        st.sidebar.write(
+            "NOTE: No filters selected. Please select filters above and click 
+            'Add Filters'."
+        )
+    else:
+        st.sidebar.write('Filters selected.')
+
     if st.sidebar.button('Show Wardrode Info'):
         if not seasons or not occasions:
             st.sidebar.error('Please add filters first.')
