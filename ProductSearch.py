@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import os
-import streamlit as st
+import json
 
 from google.cloud import storage
 from google.cloud import vision
@@ -48,17 +48,18 @@ class ProductSearch:
         """
         self.project_id = project_id
         self.location = location
+        gcp_json_file = json.dumps(gcp_account)
         self.product_client = (
-            vision.ProductSearchClient.from_service_account_json(gcp_account)
+            vision.ProductSearchClient.from_service_account_json(gcp_json_file)
         )
         self.image_client = (
-            vision.ImageAnnotatorClient.from_service_account_file(gcp_account)
+            vision.ImageAnnotatorClient.from_service_account_file(gcp_json_file)
         )
         self.location_path = self.product_client.location_path(
             project=project_id, location=location
         )
         self.storage_client = (
-            storage.Client.from_service_account_json(gcp_account)
+            storage.Client.from_service_account_json(gcp_json_file)
         )
         self.bucket = self.storage_client.bucket(bucket_name)
         self.prefix = storage_prefix
