@@ -426,8 +426,8 @@ if option == options[0]:
     st.sidebar.header("Options")
     if not seasons or not occasions:
         st.sidebar.write(
-            "NOTE: No filters selected. Please select filters above and click 
-            'Add Filters'."
+            "NOTE: No filters selected. Please select filters above and click " 
+            "'Add Filters'."
         )
     else:
         st.sidebar.write('Filters selected.')
