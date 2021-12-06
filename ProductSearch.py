@@ -48,18 +48,20 @@ class ProductSearch:
         """
         self.project_id = project_id
         self.location = location
-        gcp_json_file = json.dumps(gcp_account)
+        with open('gcp.txt', 'w') as outfile:
+            json.dump(gcp_account, outfile)
+        # gcp_json_file = json.dump(gcp_account)
         self.product_client = (
-            vision.ProductSearchClient.from_service_account_json(gcp_json_file)
+            vision.ProductSearchClient.from_service_account_json('gcp.txt')
         )
         self.image_client = (
-            vision.ImageAnnotatorClient.from_service_account_file(gcp_json_file)
+            vision.ImageAnnotatorClient.from_service_account_file('gcp.txt')
         )
         self.location_path = self.product_client.location_path(
             project=project_id, location=location
         )
         self.storage_client = (
-            storage.Client.from_service_account_json(gcp_json_file)
+            storage.Client.from_service_account_json('gcp.txt')
         )
         self.bucket = self.storage_client.bucket(bucket_name)
         self.prefix = storage_prefix
