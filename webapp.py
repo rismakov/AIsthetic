@@ -179,8 +179,8 @@ def categorize_wardrobe_style(filepaths):
         "into. The algorithm then uses this information to determine how to "
         "style clothing articles together. \n \n"
         "Keep in mind however, that the model may fail at times to categorize " 
-        "properly, and a user has the option to update the tags manually in "
-        "such a case."
+        "properly; in such a case, the user has the option to update the tags " 
+        "manually."
     )
 
     pattern_model = load_model('model.hdf5')
@@ -192,8 +192,6 @@ def categorize_wardrobe_style(filepaths):
             print('Processing image...')
             images.append(filepath)
             images_processed.append(image_processing(filepath))
-            # processed_image = image_processing()
-            # st.header(processed_image.shape)
 
     X = np.array(images_processed) / 255
     img_rows, img_cols = 100, 100
