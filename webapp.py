@@ -347,7 +347,8 @@ def choose_inspo_file():
 
     if option == options[0]:
         filenames = [x for x in os.listdir(INSPO_DIR) if x != '.DS_Store']
-        return st.sidebar.selectbox(options[0], filenames)
+        filename = st.sidebar.selectbox(options[0], filenames)
+        return os.path.join(INSPO_DIR, filename)
     else:
         return st.sidebar.file_uploader(options[1])
 
@@ -486,9 +487,8 @@ elif option == options[1]:
         display_outfit_pieces(outfit_pieces)
 elif option == options[2]:
     st.sidebar.header("Options")
-    filename = choose_inspo_file()
+    filepath = choose_inspo_file()
     if st.sidebar.button("Select Inspo-Based Outfit"):
-        filepath = os.path.join(INSPO_DIR, filename)
         st.header('Inspiration Match')
         st.text(f'You selected the following image as your inspiration outfit:')
         st.image(filepath, width=300)
