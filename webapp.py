@@ -366,7 +366,7 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
     ps = get_product_search()
     product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
     # `response` returns matches for every detected clothing item in image
-    response = product_set.search("apparel", file_path=filepath, uri=uri)
+    response = product_set.search("apparel", file_path=filepath, image_uri=uri)
     # url_path = 'https://storage.googleapis.com/closet_set/'
 
     filepaths = get_all_image_filenames()
