@@ -361,7 +361,7 @@ def get_outfit_match_from_inspo(filepath):
             category = match['product'].labels['type']
             filename = match['image'].split('/')[-1]
             filepath = f"{category}/{filename}"
-            print(filepath)
+            st.header(filepath)
 
             # Add if item has not been added already
             if (
