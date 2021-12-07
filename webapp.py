@@ -352,8 +352,7 @@ def get_outfit_match_from_inspo(filepath):
     filepaths = get_all_image_filenames()
 
     match_scores = []
-    outfit_pieces = []
-    score_header = st.empty()
+    outfit_pieces = {}
     for item in response:
         st.write(item)
         st.write([match['product'].labels['type'] for match in item['matches']])
@@ -371,10 +370,10 @@ def get_outfit_match_from_inspo(filepath):
     
     if match_scores:
         outfit_match_score = sum(match_scores) * 100 / len(match_scores)
-        score_header.subheader(f'Match Score: {outfit_match_score:.2f}')
+        st.subheader(f'Match Score: {outfit_match_score:.2f}')
         display_outfit_pieces(outfit_pieces)
     else:
-        score_header.subheader('No matches found in closet.')
+        st.subheader('No matches found in closet.')
 
 ######################################
 ######################################
