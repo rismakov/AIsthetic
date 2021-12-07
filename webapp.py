@@ -360,6 +360,7 @@ def get_outfit_match_from_inspo(filepath):
         for match in get_viable_matches(item['label'], item['matches']):
             category_label = match['product'].labels['type']
             filepath = f"{category_label}/{match['image'].split('/')[-1]}"
+            print(filepath)
 
             st.write(match)
             if match['image'] not in image_filenames:
