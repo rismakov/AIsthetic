@@ -1,3 +1,4 @@
+# These are labels that the Google Vision API returns
 MATCH_GROUPS = {
     'skirts': ("skirt", "miniskirt"), 
     'pants': ("jeans", "pants", 'trousers'), 
@@ -13,6 +14,7 @@ MATCH_GROUPS = {
     'hats': ("hat", "cowboy hat", "straw hat", "fedora", "sun hat", "sombrero", 'helmet', 'hats'),
 }
 
+# These are labels that the closet set products have been categorized into
 CATEGORIES = {
     'tops': {'shirts'},
     'bottoms': {'skirts', 'pants', 'shorts'},
