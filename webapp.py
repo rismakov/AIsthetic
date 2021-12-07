@@ -413,6 +413,12 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
 st.title("AIsthetic Wardrobe Algorithm")
 st.write('')
 
+st.write(
+    "*This application is currently running on demo data (i.e. my personal "
+    "closet). If there will be a need, it may be updated to intake and run on "
+    "other users' individual wardrobe data."
+)
+
 filepaths = get_all_image_filenames()
 
 st.header('Closet Information')
