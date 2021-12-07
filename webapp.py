@@ -343,28 +343,22 @@ def get_product_search():
 def get_outfit_match_from_inspo(filepath):
     ps = get_product_search()
     product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
-
-    print(product_set)
-
+    # `response` returns matches for every detected clothing item in image
     response = product_set.search("apparel", file_path=filepath)
-    url_path = 'https://storage.googleapis.com/closet_set/'
+    # url_path = 'https://storage.googleapis.com/closet_set/'
 
     filepaths = get_all_image_filenames()
 
     match_scores = []
     outfit_pieces = {}
     for item in response:
-        st.write(item)
-        st.write([match['product'].labels['type'] for match in item['matches']])
         for match in get_viable_matches(item['label'], item['matches']):
             category = match['product'].labels['type']
             filename = match['image'].split('/')[-1]
             filepath = f"closet/{category}/{filename}"
-            st.header(filepath)
 
-            # Add if item has not been added already
+            # Add if item exists in closet set
             if filepath in filepaths[category]:
-                # filename = f"{url_path}{match['image'].split('/')[-1]}"
                 outfit_pieces[category] = filepath  # match['image'])
                 match_scores.append(match['score'])
     
