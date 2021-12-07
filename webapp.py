@@ -410,6 +410,8 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
 # Main Screen ########################
 ######################################
 ######################################
+st.image('lace-borders.png')
+
 st.title("AIsthetic Wardrobe Algorithm")
 st.write('')
 
