@@ -343,12 +343,12 @@ def get_and_display_outfit_plan():
 def check_if_url_valid(url):
     try:
         response = requests.get(url)
-        st.sidebar.success("URL is valid and exists on the internet")
+        st.sidebar.success("URL is valid and exists on the internet.")
         return True
     except requests.ConnectionError as exception:
-        st.sidebar.error("ERROR: URL is not a valid link")
+        st.sidebar.error("ERROR: URL is not a valid link.")
     except requests.exceptions.MissingSchema:
-        st.sidebar.error("ERROR: URL is not a valid link")
+        st.sidebar.error("ERROR: URL is not a valid link.")
     
     return False
 
