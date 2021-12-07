@@ -363,25 +363,15 @@ def get_outfit_match_from_inspo(filepath):
             filepath = f"{category_label}/{filename}"
             print(filepath)
 
-            if match['image'] not in image_filenames:
-                print(f"{url_path}{match['image'].split('/')[-1]}")
+            if (filepath not in outfit_pieces) and (filepath in filepaths):
                 # filename = f"{url_path}{match['image'].split('/')[-1]}"
-                try:
-                    st.write(filepath)
-                    cols[i].image(filepath, width=200)
-                except:
-                    print(f'{filepath} doesnt exist.')
-                image_filenames.add(filepath)  # match['image'])
-
-                i += 2
-                if i > 4:
-                    i = 0
-
-            match_scores.append(match['score'])
+                outfit_pieces.append(filepath)  # match['image'])
+                match_scores.append(match['score'])
     
     if match_scores:
         outfit_match_score = sum(match_scores) * 100 / len(match_scores)
         score_header.subheader(f'Match Score: {outfit_match_score:.2f}')
+        display_outfit_pieces(outfit_pieces)
     else:
         score_header.subheader('No matches found in closet.')
 
