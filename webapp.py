@@ -340,17 +340,17 @@ def get_and_display_outfit_plan():
 
 
 def choose_inspo_file():
-    options = ['Select an example inspo file', 'Upload my own inspo photo']
+    options = ['Select an example inspo file', 'Input my own inspo photo URL']
     option = st.sidebar.radio(
-        'Which inspo photo would you like to upload?', options
+        'How would you like to select your inspo photo?', options
     )
 
     if option == options[0]:
         filenames = [x for x in os.listdir(INSPO_DIR) if x != '.DS_Store']
         filename = st.sidebar.selectbox(options[0], filenames)
-        return os.path.join(INSPO_DIR, filename)
+        return os.path.join(INSPO_DIR, filename), 'filepath'
     else:
-        return st.sidebar.file_uploader(options[1])
+        return st.sidebar.text_input(options[1]), 'uri'
 
 
 def get_product_search():
@@ -362,11 +362,11 @@ def get_product_search():
     )
 
 
-def get_outfit_match_from_inspo(filepath):
+def get_outfit_match_from_inspo(filepath=None, uri=None):
     ps = get_product_search()
     product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
     # `response` returns matches for every detected clothing item in image
-    response = product_set.search("apparel", file_path=filepath)
+    response = product_set.search("apparel", file_path=filepath, uri=uri)
     # url_path = 'https://storage.googleapis.com/closet_set/'
 
     filepaths = get_all_image_filenames()
@@ -487,12 +487,15 @@ elif option == options[1]:
         display_outfit_pieces(outfit_pieces)
 elif option == options[2]:
     st.sidebar.header("Options")
-    filepath = choose_inspo_file()
+    image, image_type = choose_inspo_file()
     if st.sidebar.button("Select Inspo-Based Outfit"):
         st.header('Inspiration Match')
         st.text(f'You selected the following image as your inspiration outfit:')
-        st.image(filepath, width=300)
-        get_outfit_match_from_inspo(filepath)
+        st.image(image, width=300)
+        if image_type == 'filepath':
+            get_outfit_match_from_inspo(filepath=image)
+        else:
+            get_outfit_match_from_inspo(uri=image)
 else:
     st.sidebar.header("Options")
     get_and_display_outfit_plan()   
