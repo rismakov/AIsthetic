@@ -366,7 +366,10 @@ def get_outfit_match_from_inspo(filepath):
             if match['image'] not in image_filenames:
                 print(f"{url_path}{match['image'].split('/')[-1]}")
                 # filename = f"{url_path}{match['image'].split('/')[-1]}"
-                cols[i].image(filepath, width=200)
+                try:
+                    cols[i].image(filepath, width=200)
+                except:
+                    print(f'{filepath} doesnt exist.')
                 image_filenames.add(filepath)  # match['image'])
 
                 i += 2
