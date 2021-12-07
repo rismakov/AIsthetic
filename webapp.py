@@ -364,12 +364,9 @@ def get_outfit_match_from_inspo(filepath):
             st.header(filepath)
 
             # Add if item has not been added already
-            if (
-                (filepath not in outfit_pieces) 
-                and (filepath in filepaths[category])
-            ):
+            if filepath in filepaths[category]:
                 # filename = f"{url_path}{match['image'].split('/')[-1]}"
-                outfit_pieces.append(filepath)  # match['image'])
+                outfit_pieces[category] = filepath  # match['image'])
                 match_scores.append(match['score'])
     
     if match_scores:
