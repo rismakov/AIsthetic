@@ -167,6 +167,7 @@ def get_final_label_from_labels(labels):
 
 
 def categorize_wardrobe_style(filepaths):
+    st.subheader('About')
     st.write(
         "Items here are separated into 'Basic' pieces (i.e. items that are "
         "simple, solid colored, and able to match to many other items) and "
