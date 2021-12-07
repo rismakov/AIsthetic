@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import requests
 import streamlit as st
 import SessionState
 
@@ -168,6 +167,21 @@ def get_final_label_from_labels(labels):
 
 
 def categorize_wardrobe_style(filepaths):
+    st.write(
+        "Items here are separated into 'Basic' pieces (i.e. items that are "
+        "simple, solid colored, and able to match to many other items) and "
+        "'Statement' pieces (items that are colorful, patterned, and not likely"
+        " to match to many other items. \n \n"                
+        "In order to limit manual user oversight and prevent user fatigue, a "
+        "CNN Image Classification model was trained on 15000+ labeled images "
+        "and is used to predict the appropriate category an item should fall "
+        "into. The algorithm then uses this information to determine how to "
+        "style clothing articles together. \n \n"
+        "Keep in mind however, that the model may fail at times to categorize " 
+        "properly, and a user has the option to update the tags manually in "
+        "such a case."
+    )
+
     pattern_model = load_model('model.hdf5')
     
     images = []
