@@ -340,7 +340,7 @@ def get_and_display_outfit_plan():
 
 
 def choose_inspo_file():
-    filenames = os.listdir(INSPO_DIR)
+    filenames = [x for x in os.listdir(INSPO_DIR) if x != '.DS_Store']
     return st.sidebar.selectbox('Select your inspo file', filenames)
 
 
