@@ -343,7 +343,7 @@ def choose_inspo_file():
     filenames = [x for x in os.listdir(INSPO_DIR) if x != '.DS_Store']
 
     filename = st.sidebar.selectbox('Select an example inspo file', filenames)
-    filename_upload = st.file_uploader('Or upload your own inspo photo')
+    filename_upload = st.sidebar.file_uploader('Or upload your own inspo photo')
 
     return filename if filename else filename_upload
 
