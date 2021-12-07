@@ -434,7 +434,7 @@ options = [
     "See all clothing articles in closet.",
     "Select a random outfit combination from closet.",
     "Select an outfit based on an inspo-photo.",
-    "Plan a set of outfits for the next weeks.",
+    "Plan a set of outfits for a trip.",
 ]
 
 option = st.radio("What would you like to do?", options)
