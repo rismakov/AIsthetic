@@ -131,7 +131,7 @@ def display_outfit_pieces(outfit_pieces: dict):
     """
     cols = st.columns(6)
     for i, filename in zip(OUTFIT_COLS, outfit_pieces.values()):
-        cols[i].image(filename, width=200)
+        cols[i].image(filename, width=250)
     st.button("This doesn't match together.")
 
 
