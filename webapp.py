@@ -410,14 +410,14 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
 # Main Screen ########################
 ######################################
 ######################################
-st.image('lace-borders.png')
+st.image('header4.jpeg')
 
-st.title("AIsthetic Wardrobe Algorithm")
+st.title("AIsthetic: Wardrobe Algorithm")
 st.write('')
 
 st.write(
     "*This application is currently running on demo data (i.e. my personal "
-    "closet). If there will be a need, it may be updated to intake and run on "
+    "closet). If there will be a need, it can be updated to intake and run on "
     "other users' individual wardrobe data."
 )
 
