@@ -14,8 +14,6 @@ def image_processing(filepath):
     The image will get cropped along the biggest red contour (4 line polygon) 
     tagged on the original image (if any).
     """
-
-    print('DEBUG', filepath)
     # load image file and import as a numpy array
     # type of `uint8` so values will be between 0-255
     # image = np.asarray(Image.open(filepath), dtype='uint8')     
