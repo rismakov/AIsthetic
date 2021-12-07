@@ -172,7 +172,7 @@ def categorize_wardrobe_style(filepaths):
         "Items here are separated into 'Basic' pieces (i.e. items that are "
         "simple, solid colored, and able to match to many other items) and "
         "'Statement' pieces (items that are colorful, patterned, and not likely"
-        " to match to many other items. \n \n"                
+        " to match to many other items). \n \n"                
         "In order to limit manual user oversight and prevent user fatigue, a "
         "CNN Image Classification model was trained on 15000+ labeled images "
         "and is used to predict the appropriate category an item should fall "
@@ -214,7 +214,7 @@ def categorize_wardrobe_style(filepaths):
         styles[cat_pred] = styles.get(cat_pred, []) + [image]
         
     for style in styles:
-        st.header(f'{style} Pieces')
+        st.subheader(f'{style} Pieces')
         st.image(styles[style], width=150)
 
 
