@@ -344,10 +344,13 @@ def check_if_url_valid(url):
     try:
         response = requests.get(url)
         st.sidebar.success("URL is valid and exists on the internet")
+        return True
     except requests.ConnectionError as exception:
         st.sidebar.error("ERROR: URL is not a valid link")
     except requests.exceptions.MissingSchema:
         st.sidebar.error("ERROR: URL is not a valid link")
+    
+    return False
 
 
 def choose_inspo_file():
@@ -502,15 +505,19 @@ elif option == options[2]:
     if st.sidebar.button("Select Inspo-Based Outfit"):
         st.header('Inspiration Match')
 
+        is_valid = True
         if image_type == 'uri':
-            check_if_url_valid(image)
+            is_valid = check_if_url_valid(image)
 
-        st.text(f'You selected the following image as your inspiration outfit:')
-        st.image(image, width=300)
-        if image_type == 'filepath':
-            get_outfit_match_from_inspo(filepath=image)
-        else:
-            get_outfit_match_from_inspo(uri=image)
+        if is_valid:
+            st.text(
+                f'You selected the following image as your inspiration outfit:'
+            )
+            st.image(image, width=300)
+            if image_type == 'filepath':
+                get_outfit_match_from_inspo(filepath=image)
+            else:
+                get_outfit_match_from_inspo(uri=image)
 else:
     st.sidebar.header("Options")
     get_and_display_outfit_plan()   
