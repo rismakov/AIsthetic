@@ -360,7 +360,7 @@ def get_outfit_match_from_inspo(filepath):
         for match in get_viable_matches(item['label'], item['matches']):
             category = match['product'].labels['type']
             filename = match['image'].split('/')[-1]
-            filepath = f"{category}/{filename}"
+            filepath = f"closet/{category}/{filename}"
             st.header(filepath)
 
             # Add if item has not been added already
