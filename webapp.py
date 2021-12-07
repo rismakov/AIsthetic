@@ -176,7 +176,7 @@ def categorize_wardrobe_style(filepaths):
         " to match to many other items). \n \n"                
         "In order to limit manual user oversight and prevent user fatigue, a "
         "CNN Image Classification model was trained on 15000+ labeled images "
-        "and is used to predict the appropriate category an item should fall "
+        "and was used to predict the appropriate category an item should fall "
         "into. The algorithm then uses this information to determine how to "
         "style clothing articles together. \n \n"
         "Keep in mind however, that the model may fail at times to categorize " 
