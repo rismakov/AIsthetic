@@ -345,7 +345,9 @@ def check_if_url_valid(url):
         response = requests.get(url)
         st.sidebar.success("URL is valid and exists on the internet")
     except requests.ConnectionError as exception:
-        st.sidebar.error("URL does not exist on Internet")
+        st.sidebar.error("ERROR: URL is not a valid link")
+    except requests.exceptions.MissingSchem:
+        st.sidebar.error("ERROR: URL is not a valid link")
 
 
 def choose_inspo_file():
