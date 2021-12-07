@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import requests
 import streamlit as st
 import SessionState
 
@@ -339,6 +340,14 @@ def get_and_display_outfit_plan():
                     display_outfit_plan(dates, outfits, weather_info, days_in_week)
 
 
+def check_if_url_valid(url):
+    try:
+        response = requests.get(url)
+        st.sidebar.success("URL is valid and exists on the internet")
+    except requests.ConnectionError as exception:
+        st.sidebar.error("URL does not exist on Internet")
+
+
 def choose_inspo_file():
     options = ['Select an example inspo file', 'Input my own inspo photo URL']
     option = st.sidebar.radio(
@@ -490,6 +499,10 @@ elif option == options[2]:
     image, image_type = choose_inspo_file()
     if st.sidebar.button("Select Inspo-Based Outfit"):
         st.header('Inspiration Match')
+
+        if image_type == 'uri':
+            check_if_url_valid(image)
+
         st.text(f'You selected the following image as your inspiration outfit:')
         st.image(image, width=300)
         if image_type == 'filepath':
