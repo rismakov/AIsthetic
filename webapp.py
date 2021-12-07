@@ -346,7 +346,7 @@ def check_if_url_valid(url):
         st.sidebar.success("URL is valid and exists on the internet")
     except requests.ConnectionError as exception:
         st.sidebar.error("ERROR: URL is not a valid link")
-    except requests.exceptions.MissingSchem:
+    except requests.exceptions.MissingSchema:
         st.sidebar.error("ERROR: URL is not a valid link")
 
 
