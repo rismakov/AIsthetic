@@ -134,7 +134,7 @@ class ProductSearch:
                     "Cannot perform operation on already deleted product")
 
         def delete(self):
-            """Deletes a product
+            """Deletes a product.
             """
             self._checkDeleted()
             productPath = self.product_search.product_client.product_path(
@@ -216,15 +216,24 @@ class ProductSearch:
             blobName = self._getReferenceImageBlobName(name)
             return self.product_search.bucket.blob(blobName).public_url
 
-        def deleteReferenceImage(self, name):
-            """Deletes a reference image
+        def delete_reference_image(self, image_name):
+            """Deletes a reference image.
 
             Args:
                 name (string): name of reference image to delete
             """
-            blobName = self._getReferenceImageBlobName(name)
-            self.product_search.product_client.delete_reference_image(name=name)
-            self.product_search.bucket.blob(blobName).delete()
+            reference_image_path = (
+                self.product_search.product_client.reference_image_path(
+                    project=self.product_search.project_id, 
+                    location=self.product_search.location, 
+                    product=self.product_id,
+                    reference_image=image_name
+                )
+            )
+            self.product_search.product_client.delete_reference_image(
+                name=reference_image_path
+            )
+            # self.product_search.bucket.blob(blob_name).delete()
 
     def createProduct(
         self, 
@@ -326,7 +335,7 @@ class ProductSearch:
             )
             self.deleted = True
 
-        def addProduct(self, product):
+        def add_product(self, product):
             """Add a product to this product set
 
             Args:
