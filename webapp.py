@@ -349,21 +349,25 @@ def get_outfit_match_from_inspo(filepath):
     response = product_set.search("apparel", file_path=filepath)
     url_path = 'https://storage.googleapis.com/closet_set/'
 
+    filepaths = get_all_image_filenames()
+
     match_scores = []
-    image_filenames = set()
+    outfit_pieces = []
     score_header = st.empty()
-    cols = st.columns(6)
-    i = 0
     for item in response:
         st.write(item)
         st.write([match['product'].labels['type'] for match in item['matches']])
         for match in get_viable_matches(item['label'], item['matches']):
-            category_label = match['product'].labels['type']
+            category = match['product'].labels['type']
             filename = match['image'].split('/')[-1]
-            filepath = f"{category_label}/{filename}"
+            filepath = f"{category}/{filename}"
             print(filepath)
 
-            if (filepath not in outfit_pieces) and (filepath in filepaths):
+            # Add if item has not been added already
+            if (
+                (filepath not in outfit_pieces) 
+                and (filepath in filepaths[category])
+            ):
                 # filename = f"{url_path}{match['image'].split('/')[-1]}"
                 outfit_pieces.append(filepath)  # match['image'])
                 match_scores.append(match['score'])
