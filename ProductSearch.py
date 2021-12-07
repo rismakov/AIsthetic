@@ -377,7 +377,8 @@ class ProductSearch:
             # This little hack checks that exactly one of file_path or image_uri is set
             if bool(file_path) == bool(image_uri):
                 raise Exception(
-                    "Must provide one of either a file path or an image uri")
+                    "Must provide one of either a file path or an image uri"
+                )
 
             if file_path:
                 with open(file_path, 'rb') as image_file:
