@@ -340,8 +340,10 @@ def get_and_display_outfit_plan():
 
 
 def choose_inspo_file():
-    options = ['Select an example inspo file', 'Upload own inspo photo']
-    option = st.sidebar.radio(options)
+    options = ['Select an example inspo file', 'Upload my own inspo photo']
+    option = st.sidebar.radio(
+        'Which inspo photo would you like to upload?', options
+    )
 
     if option == options[0]:
         filenames = [x for x in os.listdir(INSPO_DIR) if x != '.DS_Store']
