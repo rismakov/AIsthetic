@@ -340,12 +340,14 @@ def get_and_display_outfit_plan():
 
 
 def choose_inspo_file():
-    filenames = [x for x in os.listdir(INSPO_DIR) if x != '.DS_Store']
+    options = ['Select an example inspo file', 'Upload own inspo photo']
+    option = st.sidebar.radio(options)
 
-    filename = st.sidebar.selectbox('Select an example inspo file', filenames)
-    filename_upload = st.sidebar.file_uploader('Or upload your own inspo photo')
-
-    return filename if filename else filename_upload
+    if option == options[0]:
+        filenames = [x for x in os.listdir(INSPO_DIR) if x != '.DS_Store']
+        return st.sidebar.selectbox(options[0], filenames)
+    else:
+        return st.sidebar.file_uploader(options[1])
 
 
 def get_product_search():
