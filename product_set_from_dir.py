@@ -21,11 +21,12 @@ from collections import Counter
 
 from google.cloud import vision
 
-from constants import CLOSET_DIR
 from ProductSearch import ProductSearch, ProductCategories
 
 # load_dotenv()
 
+
+CLOSET_LOCAL_DIR = 'closet/'
 
 def get_product_type(ps, label):
     """
@@ -49,16 +50,21 @@ def get_product_type(ps, label):
 
 
 def add_images_to_product_type(product, label):
-    img_folder = os.path.join(CLOSET_DIR, label) 
+    img_folder = os.path.join(CLOSET_LOCAL_DIR, label) 
     
     for filename in os.listdir(img_folder):
         if filename != '.DS_Store':
+            filepath = os.path.join(img_folder, filename)
             try:
-                product.add_reference_image(os.path.join(img_folder, filename))
-                print(f"Added image {img_folder}/{filename} to set")
+                product.add_reference_image(filepath)
+                print(f"Added image {filepath} to set")
             except:
-                print(f"Couldn't add reference image {img_folder}/{filename}")
-
+                print(f"Couldn't add reference image {filepath}")
+                product.delete_reference_image(filename)
+                print(f"Deleted image {filepath} from set")
+                product.add_reference_image(filepath)
+                print(f"Re-added image {filepath} to set")
+                
 
 if __name__ == "__main__":
     print('Initializing Product Search object...')
@@ -66,6 +72,7 @@ if __name__ == "__main__":
         st.secrets['GCP_PROJECTID'], 
         st.secrets['CREDS'], 
         st.secrets['CLOSET_SET'],
+        st.secrets['gcp_service_account'],
     )
 
     try:
@@ -76,13 +83,13 @@ if __name__ == "__main__":
         print("Created Product Set.")
 
     labels = []
-    for label in os.listdir(CLOSET_DIR):
+    for label in os.listdir(CLOSET_LOCAL_DIR):
         if label not in '.DS_Store':
             labels.append(label)
             product = get_product_type(ps_obj, label)
         
             add_images_to_product_type(product, label)
-            product_set.addProduct(product)
+            product_set.add_product(product)
             print(f"Added product {product.display_name} to set")
 
             num_products_added = len(product_set.list_products())
