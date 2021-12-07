@@ -412,7 +412,7 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
 ######################################
 st.image('header4.jpeg')
 
-st.title("AIsthetic: Wardrobe Algorithm")
+st.title("AIsthetic: Wardrobe App")
 st.write('')
 
 st.write(
