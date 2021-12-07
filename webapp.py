@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import requests
 import streamlit as st
 import SessionState
 
@@ -357,12 +358,15 @@ def get_outfit_match_from_inspo(filepath):
         st.write(item)
         st.write([match['product'].labels['type'] for match in item['matches']])
         for match in get_viable_matches(item['label'], item['matches']):
+            category_label = match['product'].labels['type']
+            filepath = f'{category_label}/{match['image'].split('/')[-1]}'
+
             st.write(match)
             if match['image'] not in image_filenames:
                 print(f"{url_path}{match['image'].split('/')[-1]}")
-                filename = f"{url_path}{match['image'].split('/')[-1]}"
-                cols[i].image(filename, width=200)
-                image_filenames.add(match['image'])
+                # filename = f"{url_path}{match['image'].split('/')[-1]}"
+                cols[i].image(filepath, width=200)
+                image_filenames.add(filepath)  # match['image'])
 
                 i += 2
                 if i > 4:
@@ -370,8 +374,11 @@ def get_outfit_match_from_inspo(filepath):
 
             match_scores.append(match['score'])
     
-    outfit_match_score = sum(match_scores) * 100 / len(match_scores) 
-    score_header.subheader(f'Match Score: {outfit_match_score:.2f}')
+    if match_scores:
+        outfit_match_score = sum(match_scores) * 100 / len(match_scores)
+        score_header.subheader(f'Match Score: {outfit_match_score:.2f}')
+    else:
+        score_header.subheader('No matches found in closet.')
 
 ######################################
 ######################################
