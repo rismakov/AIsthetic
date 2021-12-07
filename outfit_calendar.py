@@ -121,6 +121,14 @@ def choose_outfit(
 
 
 def display_outfit_pieces(outfit_pieces: dict):
+    """Display outfit pieces.
+
+    Parameters
+    ----------
+    outfit_pieces : dict
+        Dict of outfit pieces, with the category the key and the image filepath
+        the value.
+    """
     cols = st.columns(6)
     for i, filename in zip(OUTFIT_COLS, outfit_pieces.values()):
         cols[i].image(filename, width=250)
