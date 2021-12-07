@@ -363,11 +363,11 @@ def get_outfit_match_from_inspo(filepath):
             filepath = f"{category_label}/{filename}"
             print(filepath)
 
-            st.write(match)
             if match['image'] not in image_filenames:
                 print(f"{url_path}{match['image'].split('/')[-1]}")
                 # filename = f"{url_path}{match['image'].split('/')[-1]}"
                 try:
+                    st.write(filepath)
                     cols[i].image(filepath, width=200)
                 except:
                     print(f'{filepath} doesnt exist.')
