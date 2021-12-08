@@ -252,7 +252,7 @@ def option_one_questions():
     options = ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy']
     weather = st.sidebar.selectbox("What is the weather today?", options)
 
-    options = ['Work', 'Casual', 'Dinner/Bar', 'Club/Fancy']
+    options = ['Casual', 'Work', 'Dinner/Bar', 'Club/Fancy']
     occasion = st.sidebar.selectbox("What is the occasion?", options)
 
     return season, weather, occasion
