@@ -4,12 +4,12 @@ from category_constants import OCCASION_TAGS, SEASON_TAGS, STYLE_TAGS
 
 CARRY_ON = {
     'outerwear': 2,
-    'shoes': 1,
+    'shoes': 2,
 }
 
 SUITCASE = {
     'outerwear': 3,
-    'shoes': 2,
+    'shoes': 3,
 }
 
 AMOUNT_MAPPINGS = {
