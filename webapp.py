@@ -258,6 +258,30 @@ def option_one_questions():
     return season, weather, occasion
 
 
+def get_season_types_from_weather_info(weather_types):
+    """Return season types based on scraped weather.
+
+    Parameters
+    ----------
+    weather_info
+
+    Returns
+    -------
+    set
+    """
+    weather_type_set = set(weather_types)
+    season_types = set([
+        WEATHER_TO_SEASON_MAPPINGS[weather_type] 
+        for weather_type in weather_type_set
+    ])
+
+    st.write(
+        "This trip requires planning for the following season types"
+        f": {', '.join(season_types)}."
+    )
+    
+    return season_types
+
 def get_and_display_outfit_plan():
     side = st.sidebar
     form = side.form('Plan')
@@ -266,10 +290,7 @@ def get_and_display_outfit_plan():
     q = "What occasions are you planning for?"
     occasions = form.multiselect(q, options)
 
-    accessories_mapping = {
-        'Yes': True,
-        'No': False,
-    }
+    accessories_mapping = {'Yes': True, 'No': False}
 
     options = ['Yes', 'No']
     include = form.selectbox("Would you like to include accessories?", options)
@@ -288,28 +309,20 @@ def get_and_display_outfit_plan():
             form.error("ERROR: end date cannot be before start date.")
         else:
             weather_info = get_projected_weather(
-                city, country, start_date, end_date,
+                city, country, start_date, end_date
             )
             if not weather_info['temps']:
                 st.error(
-                    'ERROR: Weather information not found. Confirm that city '
-                    'and country names are filled in and spelled correctly.'
+                    "ERROR: Weather information not found. Confirm that city "
+                    "and country names are filled in and spelled correctly."
                 )
-
             else:
-                weather_type_set = set(weather_info['weather_types'])
-                season_types = set([
-                    WEATHER_TO_SEASON_MAPPINGS[weather_type] 
-                    for weather_type in weather_type_set
-                ])
-
-                st.write(
-                    "This trip requires planning for the following season types"
-                    f": {', '.join(season_types)}."
+                season_types = get_season_types_from_weather_info(
+                    weather_info['weather_types']
                 )
 
-                # Make sure items of all necessary season types are available, depending
-                # on set of all weather types of trip
+                # Make sure items of all necessary season types are available, 
+                # depending on set of all weather types of trip
                 filepaths_filtered = filter_items_in_all_categories(
                     filepaths, seasons=season_types, occasions=occasions
                 )
