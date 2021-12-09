@@ -413,7 +413,12 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
     
     if match_scores:
         outfit_match_score = sum(match_scores) * 100 / len(match_scores)
-        st.subheader(f'Match Score: {outfit_match_score:.2f}')
+        st.subheader('Outfit Match')
+        st.write(
+            "These are the items in your closet that most closely resemble the "
+            "above outfit."
+        )
+        st.write(f'Match Score: {outfit_match_score:.2f}')
         display_outfit_pieces(outfit_pieces)
     else:
         st.subheader('No matches found in closet.')
