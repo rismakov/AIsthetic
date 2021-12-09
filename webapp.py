@@ -317,14 +317,14 @@ def get_and_display_outfit_plan():
                     "and country names are filled in and spelled correctly."
                 )
             else:
-                season_types = get_season_types_from_weather_info(
+                seasons = get_season_types_from_weather_info(
                     weather_info['weather_types']
                 )
 
                 # Make sure items of all necessary season types are available, 
                 # depending on set of all weather types of trip
                 filepaths_filtered = filter_items_in_all_categories(
-                    filepaths, seasons=season_types, occasions=occasions
+                    filepaths, seasons=seasons, occasions=occasions
                 )
 
                 st.subheader('Options Available')
@@ -332,7 +332,7 @@ def get_and_display_outfit_plan():
                 count_items(filepaths_filtered, info_placeholder)
 
                 filepaths_filtered = filter_items_based_on_amount(
-                    filepaths_filtered, amount, occasions,
+                    filepaths_filtered, amount, occasions, seasons,
                 )
 
                 for occasion in occasions:
