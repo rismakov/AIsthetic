@@ -16,11 +16,20 @@ result:
 'Mary'
 """
 try:
-    import streamlit.ReportThread as ReportThread
+    from streamlit.ReportThread import get_report_ctx
     from streamlit.server.Server import Server
 except Exception:
     # Streamlit >= 0.65.0
-    import streamlit.report_thread as ReportThread
+
+    # streamlit < 1.8
+    try:
+        from streamlit.script_run_context import (
+            get_script_run_ctx as get_report_ctx
+        )
+    except ModuleNotFoundError:
+        # streamlit < 1.4
+        from streamlit.report_thread import get_report_ctx
+
     from streamlit.server.server import Server
 
 
@@ -67,7 +76,7 @@ def get(**kwargs):
     """
     # Hack to get the session object from Streamlit.
 
-    ctx = ReportThread.get_report_ctx()
+    ctx = get_report_ctx()
 
     this_session = None
 
