@@ -1,15 +1,13 @@
 import os
 import streamlit as st
 
-from category_constants import OCCASION_TAGS, STYLE_TAGS, SEASON_TAGS
+from category_constants import TAGS
 
-ALL_TAGS = [STYLE_TAGS, SEASON_TAGS, OCCASION_TAGS]
-
-STYLE_ICON_PATH = 'icons/style'
-WEATHER_ICON_PATH = 'icons/weather'
-OCCASION_ICON_PATH = 'icons/occasion'
-
-PATHS = [STYLE_ICON_PATH, WEATHER_ICON_PATH, OCCASION_ICON_PATH]
+ALL_TAGS = []
+PATHS = []
+for tag_type in ['style', 'season', 'occasion']:
+    ALL_TAGS.append(TAGS[tag_type])
+    PATHS.append(f'icons/{TAGS[tag_type]}')
 
 # to map article season tags to weather icon filenames
 SEASON_ICON_MAPPING = {
@@ -54,11 +52,11 @@ def add_later():
         occasions = form.multiselect('Occasion?', ['Casual', 'Work'])
 
         if form.form_submit_button(f'{i}'):
-            tag = f'{STYLE_TAGS[style]}'
+            tag = f'{TAGS['style'][style]}'
             for season in seasons:
-                tag += SEASON_TAGS[season]
+                tag += TAGS['season'][season]
             for occasion in occasions:
-                tag += OCCASION_TAGS[occasion]
+                tag += TAGS['occasion'][occasion]
             
             os.path.rename(filename, f'{filename}_{tag}')
 
@@ -121,9 +119,9 @@ def choose_filename_to_update(filepaths):
 
     missing_tags = [
         x for x in image_filenames if (
-            not any(tag in x for tag in STYLE_TAGS.values()) 
-            or not any(tag in x for tag in SEASON_TAGS.values()) 
-            or not any(tag in x for tag in OCCASION_TAGS.values()) 
+            not any(tag in x for tag in TAGS['style'].values()) 
+            or not any(tag in x for tag in TAGS['season'].values()) 
+            or not any(tag in x for tag in TAGS['occasion'].values()) 
         )
     ]
     if missing_tags:
@@ -140,18 +138,18 @@ def update_article_tags(filepath):
     display_article_tags_for_item(cols[0], filepath)
 
     form = st.form('tags')
-    style = form.selectbox('Style?', list(STYLE_TAGS.keys()))
-    seasons = form.multiselect('Season?', list(SEASON_TAGS.keys()))
-    occasions = form.multiselect('Occasion?', list(OCCASION_TAGS.keys()))
+    style = form.selectbox('Style?', list(TAGS['style'].keys()))
+    seasons = form.multiselect('Season?', list(TAGS['season'].keys()))
+    occasions = form.multiselect('Occasion?', list(TAGS['occasion'].keys()))
     
     filename_parts = filepath.split('.')
         
     if form.form_submit_button('Finished Adding Tags'):
-        tag = STYLE_TAGS[style]
+        tag = TAGS['style'][style]
         for season in seasons:
-            tag += SEASON_TAGS[season]
+            tag += TAGS['season'][season]
         for occasion in occasions:
-            tag += OCCASION_TAGS[occasion]
+            tag += TAGS['occasion'][occasion]
         
         os.rename(
             filepath, f'{filename_parts[0]}_{tag}.{filename_parts[1]}'

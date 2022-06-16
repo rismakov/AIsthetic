@@ -24,10 +24,7 @@ from tagging import (
 )
 from utils import get_filesnames_in_dir, get_key_of_value
 
-from category_constants import (
-    ALL_CATEGORIES, SEASON_TAGS, STYLE_TAGS, OCCASION_TAGS, WEATHER_TO_SEASON_MAPPINGS
-)
-from utils_constants import PATH_CLOSET
+from category_constants import ALL_CATEGORIES, TAGS, WEATHER_TO_SEASON_MAPPINGS
 
 DAYS_IN_WEEK = {
     'Casual': 7,
@@ -65,9 +62,9 @@ def get_basics_and_statements(filepaths):
     for cat in filepaths:
         count += len(filepaths[cat])
         for path in filepaths[cat]:
-            if STYLE_TAGS['Basic'] in path: 
+            if TAGS['style']['Basic'] in path: 
                 basics.append(path)
-            elif STYLE_TAGS['Statement'] in path: 
+            elif TAGS['style']['Statement'] in path: 
                 statements.append(path)
     return count, basics, statements
 
@@ -470,8 +467,8 @@ session_state = SessionState.get(
 if option == options[0]:
     st.sidebar.header("Filters")
     form = st.sidebar.form('Tags')
-    seasons = form.multiselect('Seasons', list(SEASON_TAGS.keys()))
-    occasions = form.multiselect('Occasions', list(OCCASION_TAGS.keys()))
+    seasons = form.multiselect('Seasons', list(TAGS['season'].keys()))
+    occasions = form.multiselect('Occasions', list(TAGS['occasion'].keys()))
 
     if form.form_submit_button('Add Filters'):
         if not occasions:

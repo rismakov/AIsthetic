@@ -1,6 +1,6 @@
 import random
 
-from category_constants import OCCASION_TAGS, SEASON_TAGS, STYLE_TAGS
+from category_constants import TAGS
 
 CARRY_ON = {
     'outerwear': 2,
@@ -20,11 +20,11 @@ AMOUNT_MAPPINGS = {
 
 
 def filter_basic_items(items):
-    return [x for x in items if STYLE_TAGS['Basic'] in x]
+    return [x for x in items if TAGS['style']['Basic'] in x]
 
 
 def filter_statement_items(items):
-    return [x for x in items if STYLE_TAGS['Statement'] in x]
+    return [x for x in items if TAGS['style']['Statement'] in x]
 
 
 def add_to_chosen_basic_items(filepaths, basic_items, cat, occasion, season):
@@ -87,8 +87,8 @@ def filter_items_based_on_amount(
 
 def filter_items(
     filepaths: list, 
-    seasons: list=list(SEASON_TAGS.keys()), 
-    occasions: list=list(OCCASION_TAGS.keys())
+    seasons: list=list(TAGS['season'].keys()), 
+    occasions: list=list(TAGS['occasion'].keys())
 ) -> list:
     """Filter list to only include items with specfic tags.
     
@@ -106,8 +106,8 @@ def filter_items(
         Returns filepaths that have at least one of the `seasons` tags and one
         of the `occasions` tags.
     """
-    season_tags = [SEASON_TAGS[season] for season in seasons]
-    occasion_tags = [OCCASION_TAGS[occasion] for occasion in occasions]
+    season_tags = [TAGS['season'][season] for season in seasons]
+    occasion_tags = [TAGS['occasion'][occasion] for occasion in occasions]
     
     return [
         x for x in filepaths if (

@@ -3,23 +3,29 @@ ACCESSORIES = ['hats', 'bags']
 
 ALL_CATEGORIES = MAIN_CATEGORIES + ACCESSORIES
 
-OCCASION_TAGS = {
+_occasion_tags = {
     'Casual': 'ca_',
     'Work': 'wo_',
     'Dinner/Bar': 'bar_',
     'Club/Fancy': 'f_',
 }
 
-SEASON_TAGS = {
+_season_tags = {
     'Summer': 'su_',
     'Fall': 'fa_',
     'Winter': 'wi_',
     'Spring': 'sp_',
 }
 
-STYLE_TAGS = {
+_style_tags = {
     'Basic': 'bas_',
     'Statement': 'st_',
+}
+
+TAGS = {
+    'season': _season_tags,
+    'occasion': _occasion_tags,
+    'style': _style_tags,
 }
 
 WEATHER_ICON_MAPPING = {

@@ -8,9 +8,7 @@ from category_constants import (
     ACCESSORIES, 
     CADENCES,
     MAIN_CATEGORIES, 
-    OCCASION_TAGS, 
-    SEASON_TAGS, 
-    STYLE_TAGS, 
+    TAGS, 
     WEATHER_ICON_MAPPING,
     WEATHER_TO_SEASON_MAPPINGS,
 )
@@ -94,8 +92,8 @@ def choose_outfit(
         # and that have not been recently worn
         options = [
             x for x in filepaths[cat] if (
-                (OCCASION_TAGS[occasion] in x)
-                and (SEASON_TAGS[season] in x) 
+                (TAGS['occasion'][occasion] in x)
+                and (TAGS['season'][season] in x) 
                 and (x not in exclude_items.get(cat, []))
             )
         ]
@@ -115,7 +113,7 @@ def choose_outfit(
         outfit_pieces[cat] = choice
         
         # If this item or any of the previous items were 'statement' pieces
-        is_statement = (STYLE_TAGS['Statement'] in choice) or is_statement
+        is_statement = (TAGS['style']['Statement'] in choice) or is_statement
 
     return outfit_pieces
 
