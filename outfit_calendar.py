@@ -4,6 +4,9 @@ import streamlit as st
 
 from datetime import date
 
+from outfit_utils import filter_basic_items, filter_items
+from utils import daterange, get_filenames_in_dir
+
 from category_constants import (
     ACCESSORIES, 
     CADENCES,
@@ -14,9 +17,6 @@ from category_constants import (
 )
 from utils_constants import PATH_CLOSET
 
-from outfit_utils import filter_basic_items, filter_items
-from utils import daterange
-
 # References:
 # https://daleonai.com/social-media-fashion-ai
 
@@ -24,43 +24,12 @@ OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
 
 WEEKDAY_MAPPING = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
 
-def choose_outfit_type(ratio: int, include_accessories: bool=True) -> list:
-    """Choose outfit combination type and return outfit categories.
-
-    Can either choose top + bottom combo, or dress/set combo.
-
-    Parameters
-    ----------
-    ratio : int
-        The number of top-bottom outfit types you want to see for every dresses 
-        outfit type. To be used as the weight when randoming choosing between 
-        the two outfit combination types.
-    include_accessories : bool
-        Whether you want to add accessories to the outfit. Default is True.
-
-    Returns
-    -------
-    List(str)
-        The clothing categories for one outfit.
-    """
-    # If no `dresses`, always choose top/bottom outfit type
-    if not ratio:
-        choice = 2
-    else:
-        choice = random.randint(1, ratio)
-
-    additional_categories = ACCESSORIES if include_accessories else []
-
-    if choice != 1:
-        categories = [x for x in MAIN_CATEGORIES if x not in ('dresses')]
-        return categories + additional_categories
-
-    categories = [x for x in MAIN_CATEGORIES if x not in ('tops', 'bottoms')]
-    return categories + additional_categories
+def _are_tags_in_item(item, season, occasion):
+    return TAGS['season'][season] in item and TAGS['occasion'][occasion] in item
 
 
 def choose_outfit(
-    filepaths,
+    outfits,
     weather_type, 
     occasion,
     include_accessories=True,
@@ -73,49 +42,48 @@ def choose_outfit(
     """
     season = WEATHER_TO_SEASON_MAPPINGS[weather_type]
 
-    tops_count = len(filter_items(filepaths['tops'], [season], [occasion]))
-    bottoms_count = len(filter_items(filepaths['bottoms'], [season], [occasion]))
-    dresses_count = len(filter_items(filepaths['dresses'], [season], [occasion]))
-    
-    # Avoid `division by zero` error 
-    if dresses_count == 0:
-        ratio = None
-    else:
-        ratio = round(((tops_count + bottoms_count) / 2) / dresses_count) + 1
-    
-    categories = choose_outfit_type(ratio, include_accessories)
+    # Get clothing items that are the proper occasion and season type
+    appropriate_outfits = [
+        outfit for outfit in outfits if (
+            season in outfit['tags']['season']
+            and occasion in outfit['tags']['occasion']
+        )
+    ]
+    # Get clothing items that have not been recently worn
+    options = [
+        outfit for outfit in appropriate_outfits if all(
+            outfit[cat] != item for cat, item in exclude_items.items()
+        )
+    ]
 
-    outfit_pieces = {}
-    is_statement = False
-    for cat in categories:
-        # Get clothing items that are the proper occasion and season type 
-        # and that have not been recently worn
-        options = [
-            x for x in filepaths[cat] if (
-                (TAGS['occasion'][occasion] in x)
-                and (TAGS['season'][season] in x) 
-                and (x not in exclude_items.get(cat, []))
+    if not options:
+        print(f"NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
+        return
+
+    choice = random.choice(options)
+    
+    cats = ['shoes']
+    if include_accessories:
+        cats += ACCESSORIES
+    
+    for cat in cats:
+        item_options = get_filenames_in_dir(f'{PATH_CLOSET}/{cat}')
+        item_options = [
+            item for item in item_options if _are_tags_in_item(
+                item, season, occasion
             )
         ]
+        if choice['tags']['is_statement']:
+            item_options = [
+                option for option in item_options 
+                if TAGS['style']['Statement'] not in option
+            ]
+        if item_options:
+            choice[cat] = random.choice(item_options)
+    
+    del choice['tags']
 
-        if (cat == 'outerwear') and (weather_type in ('Hot')):
-            continue
-        
-        # If previous item was 'statement' piece, only choose from 'basics'
-        if is_statement:
-            options = filter_basic_items(options)
-        
-        if not options:
-            print(f"NO MATCHING OPTIONS FOR CATEGORY '{cat}'.")
-            continue
-
-        choice = random.choice(options)
-        outfit_pieces[cat] = choice
-        
-        # If this item or any of the previous items were 'statement' pieces
-        is_statement = (TAGS['style']['Statement'] in choice) or is_statement
-
-    return outfit_pieces
+    return choice
 
 
 def display_outfit_pieces(outfit_pieces: dict):

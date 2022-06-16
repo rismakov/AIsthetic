@@ -1,13 +1,27 @@
+import json
 import os
-
 from datetime import timedelta
 
-def get_filesnames_in_dir(dir):
+from category_constants import ALL_CATEGORIES
+from utils_constants import PATH_CLOSET
+
+def load_outfits():
+    with open('outfits', 'r') as f:
+        return json.load(f)
+
+
+def get_filenames_in_dir(dir):
     return [
-        name for name in os.listdir(dir) 
+        f'{dir}/{name}' for name in os.listdir(dir) 
         if os.path.isfile(os.path.join(dir, name)) and name != '.DS_Store'
     ]
 
+
+def get_all_image_filenames() -> dict:
+    return {
+        cat: get_filenames_in_dir(f'{PATH_CLOSET}/{cat}') 
+        for cat in ALL_CATEGORIES
+    }
 
 def get_key_of_value(d: dict, v: str) -> str: 
     """

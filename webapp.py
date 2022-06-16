@@ -22,7 +22,12 @@ from outfit_utils import (
 from tagging import (
     choose_filename_to_update, display_article_tags, update_article_tags
 )
-from utils import get_filesnames_in_dir, get_key_of_value
+from utils import (
+    get_all_image_filenames, 
+    get_filenames_in_dir, 
+    get_key_of_value, 
+    load_outfits,
+)
 
 from category_constants import ALL_CATEGORIES, TAGS, WEATHER_TO_SEASON_MAPPINGS
 
@@ -40,20 +45,11 @@ INSPO_DIR = 'inspo/'
 
 INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;'
 
-IMAGE_SIZE = (96, 96) # (224, 224)
+IMAGE_SIZE = (96, 96)
 
 OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
 
-
-def get_all_image_filenames() -> dict:
-    filepaths = {}
-    for cat in ALL_CATEGORIES:
-        directory = f'{PATH_CLOSET}/{cat}'
-        filepaths[cat] = [
-            f'{directory}/{fn}' for fn in get_filesnames_in_dir(directory)
-        ]
-    return filepaths
-
+OUTFITS = load_outfits()
 
 def get_basics_and_statements(filepaths):
     count = 0
@@ -68,33 +64,33 @@ def get_basics_and_statements(filepaths):
                 statements.append(path)
     return count, basics, statements
 
+def is_statement_item(item):
+    return TAGS['style']['Statement'] in item
 
-def count_items(filepaths, info_placeholder):
-    count, basics, statements = get_basics_and_statements(filepaths)
+def count_items(items, outfits, info_placeholder):
+    count, basics, statements = get_basics_and_statements(items)
 
-    combo_count = (
-        # basic tops + basic bottoms
-        (
-            len(filter_basic_items(filepaths['tops'])) 
-            * len(filter_basic_items(filepaths['bottoms']))
-        )
-        # basic tops + statement bottoms
-        + (
-            len(filter_statement_items(filepaths['tops'])) 
-            * len(filter_basic_items(filepaths['bottoms']))
-        ) 
-        # statement tops + basic bottoms
-        + (
-            len(filter_basic_items(filepaths['tops'])) 
-            * len(filter_statement_items(filepaths['bottoms']))
-        )
-        # dresses + sets
-        + len(filepaths['dresses'])
+    outfit_count = len(outfits)
+    # count non-statement outfits
+    basic_outfit_count = sum(
+        not outfit['tags']['is_statement'] for outfit in outfits
     )
+    # count distinct statement pieces in statement outfits
+    statement_outfits = [
+        outfit for outfit in outfits if outfit['tags']['is_statement']
+    ]
+    unique_statement_pieces = [
+        [
+            item for item in outfit.values() if is_statement_item(item)
+        ][0] for outfit in statement_outfits
+    ]
+    unique_statement_piece_count = len(set(unique_statement_pieces))
+    outfit_count_2 = basic_outfit_count + unique_statement_piece_count
 
     info_placeholder.write(
-        f'You have {count} items in your closet and {combo_count} unique '
-        'top/bottom outfit combinations.'
+        f'You have {count} items in your closet and {outfit_count} unique '
+        f'top/bottom outfit combinations ({outfit_count_2} outfit combinations '
+        'if only calculating distinct statement items once).'
     )
 
     basic_count, statement_count = len(basics), len(statements)
@@ -398,6 +394,7 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
     match_scores = []
     outfit_pieces = {}
     for item in response:
+        st.write(item)
         for match in get_viable_matches(item['label'], item['matches']):
             category = match['product'].labels['type']
             filename = match['image'].split('/')[-1]
@@ -419,6 +416,32 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
         display_outfit_pieces(outfit_pieces)
     else:
         st.subheader('No matches found in closet.')
+
+def upload_closet_questions():
+    st.sidebar.subheader('Add an item')
+    options = ['Tops', 'Bottoms', 'Dresses/Jumpsuits', 'Shoes', 'Hats', 'Bags']
+    category = st.sidebar.selectbox("What category is the item?", options)
+
+    if category == 'Tops':
+        options = ['Tank', 'Short Sleeve', 'Long Sleeve']
+    elif category == 'Bottoms':
+        options = ['Pants', 'Shorts', 'Maxi Skirt', 'Mini Skirt']
+    elif category == 'Dresses/Jumpsuits':
+        options = ['Short Dress', 'Long Dress', 'Romper', 'Jumpsuit']
+    elif category == 'Shoes':
+        options = ['Sneakers', 'Booties', 'Boots', 'Heels']
+    elif category == 'Bags':
+        options = ['Purse', 'Bag']
+    else:
+        options = ['Cap', 'Beanie', 'Sunhat']
+
+    item_type = st.sidebar.selectbox("What type of item is it?", options)
+
+    options = ['Black', 'White', 'Colored', 'Floral', 'Plaid', 'Patterned']
+    color = st.sidebar.selectbox("What color/pattern is the item?", options)
+
+    return category, item_type, color
+
 
 ######################################
 ######################################
@@ -442,10 +465,26 @@ st.header('Closet Information')
 info_placeholder = st.container()
 print('Counting items...')
 info_placeholder.subheader('Entire Wardrobe')
-count_items(filepaths, info_placeholder)
+count_items(filepaths, OUTFITS, info_placeholder)
 
 st.header('AIsthetic Algorithm')
 options = [
+    'Use mock data for testing',
+    'Upload my own closet',
+]
+
+closet_option = st.radio("Which closet would you like to use", options)
+
+if closet_option == options[1]:
+    options = ['Yes', 'No']
+    option = st.selectbox("Have you already uploaded your closet?", options)
+
+    if option == 'No':
+        st.write("Select 'Upload and/or update closet' below to proceed.")
+        
+
+options = [
+    "Upload and/or update closet.",
     "See all clothing articles in closet.",
     "Select a random outfit combination from closet.",
     "Select an outfit based on an inspo-photo.",
@@ -465,6 +504,8 @@ session_state = SessionState.get(
 )
 
 if option == options[0]:
+    category, item_type, color = upload_closet_questions()
+elif option == options[1]:
     st.sidebar.header("Filters")
     form = st.sidebar.form('Tags')
     seasons = form.multiselect('Seasons', list(TAGS['season'].keys()))
@@ -477,8 +518,19 @@ if option == options[0]:
             session_state.filepaths_filtered = filter_items_in_all_categories(
                 filepaths, seasons, occasions
             )
+            session_state.outfits_filtered = [outfit for outfit in OUTFITS if
+                any(season in outfit['tags']['season'] for season in seasons)
+                and any(
+                    occasion in outfit['tags']['occasion'] 
+                    for occasion in occasions
+                )
+            ]
             info_placeholder.subheader('Post Filter')
-            count_items(session_state.filepaths_filtered, info_placeholder)
+            count_items(
+                session_state.filepaths_filtered,
+                session_state.outfits_filtered,
+                info_placeholder
+            )
     
     st.sidebar.header("Options")
     if not seasons or not occasions:
@@ -515,14 +567,17 @@ if option == options[0]:
             update_article_tags(session_state.filepath)
     else:
         st.sidebar.write('All items have been tagged.')
-elif option == options[1]:
+elif option == options[2]:
     st.sidebar.header("Options")
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):
         st.header('Selected Outfit')
-        outfit_pieces = choose_outfit(filepaths, weather, occasion)
-        display_outfit_pieces(outfit_pieces)
-elif option == options[2]:
+        outfit_pieces = choose_outfit(OUTFITS, weather, occasion)
+        if outfit_pieces:
+            display_outfit_pieces(outfit_pieces)
+        else:
+            st.text("NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
+elif option == options[3]:
     st.sidebar.header("Options")
     image, image_type = choose_inspo_file()
     if st.sidebar.button("Select Inspo-Based Outfit"):

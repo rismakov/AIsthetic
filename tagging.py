@@ -3,45 +3,42 @@ import streamlit as st
 
 from category_constants import TAGS
 
-ALL_TAGS = []
-PATHS = []
-for tag_type in ['style', 'season', 'occasion']:
-    ALL_TAGS.append(TAGS[tag_type])
-    PATHS.append(f'icons/{TAGS[tag_type]}')
 
-# to map article season tags to weather icon filenames
-SEASON_ICON_MAPPING = {
+# to map article season types to weather icon filenames
+_style_icon_filenames = {
+    'Basic': 'basic.png',
+    'Statement': 'statement.png',
+}
+
+_season_icon_filenames = {
     'Summer': 'sunny.png',
     'Fall': 'cloudy.png',
     'Winter': 'cold.png',
     'Spring': 'partly_cloudy.png',
 }
 
-OCCASION_ICON_MAPPING = {
+_occasion_icon_filenames = {
     'Casual': 'casual.png',
     'Work': 'work.png',
     'Dinner/Bar': 'bar.png',
     'Club/Fancy': 'party.png',
 }
 
-STYLE_ICON_MAPPING = {
-    'Basic': 'basic.png',
-    'Statement': 'statement.png',
+FILENAME_MAPPINGS = {
+    'style': _style_icon_filenames, 
+    'season': _season_icon_filenames, 
+    'occasion': _occasion_icon_filenames
 }
 
-MAPPINGS = [STYLE_ICON_MAPPING, SEASON_ICON_MAPPING, OCCASION_ICON_MAPPING]
+ALL_TAGS = []
+# includes icon paths
+ICON_PATHS = {}
+for icon_type, filenames in FILENAME_MAPPINGS.items():
+    ICON_PATHS[icon_type] = {}
+    for description, filename in filenames.items():
+        ICON_PATHS[icon_type][description] = f'icons/{icon_type}/{filename}'
 
 ICON_IMAGE_WIDTH = 40
-
-
-def display_tags(col, image_filename, icon_image_mapping, tags, icon_path):
-    icons = []
-    for k in sorted(icon_image_mapping.keys()):
-        if tags[k] in image_filename:
-            icon_filename = f'{icon_path}/{icon_image_mapping[k]}'
-            icons.append(icon_filename)
-    
-    col.image(icons, width=ICON_IMAGE_WIDTH)
 
 
 def add_later():
@@ -52,7 +49,7 @@ def add_later():
         occasions = form.multiselect('Occasion?', ['Casual', 'Work'])
 
         if form.form_submit_button(f'{i}'):
-            tag = f'{TAGS['style'][style]}'
+            tag = f"{TAGS['style'][style]}"
             for season in seasons:
                 tag += TAGS['season'][season]
             for occasion in occasions:
@@ -61,22 +58,20 @@ def add_later():
             os.path.rename(filename, f'{filename}_{tag}')
 
 
-def display_icon_types(text_col, icon_col, icon_image_path, mapping):
-    for k in sorted(mapping.keys()):
-        icon_filename = f'{icon_image_path}/{mapping[k]}'
-        text_col.text(f'{k}')
-        text_col.text(f' ')
-        icon_col.image(icon_filename, width=ICON_IMAGE_WIDTH)
-
-
 def display_icon_key():
+    """Display all icon descriptions and icon images for all categories.
+
+    Icon categories include 'style', 'season', and 'occasion'.
+    """
     st.subheader('Key')
     cols = st.columns(6)
 
-    # add key for icon meanings
     i = 0
-    for path, mapping in zip(PATHS, MAPPINGS):
-        display_icon_types(cols[i], cols[i + 1], path, mapping)
+    for _, icon_paths in ICON_PATHS.items():
+        for k in sorted(icon_paths.keys()):
+            cols[i].text(k)
+            cols[i].text(' ')
+            cols[i+1].image(icon_paths[k], width=ICON_IMAGE_WIDTH)
         i += 2
     
     st.markdown("""---""")
@@ -85,31 +80,34 @@ def display_icon_key():
 def display_article_tags_for_item(col, image_filename):
     col.image(image_filename, width=150)
 
-    for tags, path, mapping in zip(ALL_TAGS, PATHS, MAPPINGS):
-        display_tags(col, image_filename, mapping, tags, path)
+    for icon_type, icon_paths in ICON_PATHS.items():
+        icons = []
+        for k in sorted(icon_paths.keys()):
+            if TAGS[icon_type][k] in image_filename:
+                icons.append(icon_paths[k])
+    
+        col.image(icons, width=ICON_IMAGE_WIDTH)
 
 
 def display_article_tags(filepaths):
     display_icon_key()
 
     num_cols = 3
-
     for cat in filepaths:
         st.subheader(cat)
         st.markdown("""---""")
 
         cols = st.columns(num_cols)
         col_i = 0
-        for i, image_filename in enumerate(filepaths[cat]):
-            col = cols[col_i]
-            display_article_tags_for_item(col, image_filename)
+        for image_filename in filepaths[cat]:
+            display_article_tags_for_item(cols[col_i], image_filename)
 
             if col_i == num_cols - 1:
                 col_i = 0
             else:
                 col_i += 1
         
-            col.markdown("""---""")
+            cols[col_i].markdown("""---""")
  
 
 def choose_filename_to_update(filepaths):
