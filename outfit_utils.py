@@ -18,13 +18,16 @@ AMOUNT_MAPPINGS = {
     'entire closet': {},
 }
 
+def is_statement_item(item):
+    return TAGS['style']['Statement'] in item
+
 
 def filter_basic_items(items):
-    return [x for x in items if TAGS['style']['Basic'] in x]
+    return [item for item in items if not is_statement_item(item)]
 
 
 def filter_statement_items(items):
-    return [x for x in items if TAGS['style']['Statement'] in x]
+    return [item for item in items if is_statement_item(item)]
 
 
 def add_to_chosen_basic_items(filepaths, basic_items, cat, occasion, season):
@@ -86,7 +89,7 @@ def filter_items_based_on_amount(
 
 
 def filter_items(
-    filepaths: list, 
+    items: list, 
     seasons: list=list(TAGS['season'].keys()), 
     occasions: list=list(TAGS['occasion'].keys())
 ) -> list:
@@ -97,7 +100,7 @@ def filter_items(
 
     Parameters
     ----------
-    filepaths : list
+    items : list
     seasons : list
     occasions : list
 
@@ -110,12 +113,19 @@ def filter_items(
     occasion_tags = [TAGS['occasion'][occasion] for occasion in occasions]
     
     return [
-        x for x in filepaths if (
-            any(tag in x for tag in season_tags)
-            and any(tag in x for tag in occasion_tags)
+        item for item in items if (
+            any(tag in item for tag in season_tags)
+            and any(tag in item for tag in occasion_tags)
         )
     ]
 
+def filter_appropriate_outfits(outfits, seasons, occasions):
+    return [
+        outfit for outfit in outfits if (
+            any(season in outfit['tags']['season'] for season in seasons)
+            and any(occsn in outfit['tags']['occasion'] for occsn in occasions)
+        )
+    ]
 
 def filter_items_in_all_categories(
     filepaths: dict, seasons: list, occasions: list
