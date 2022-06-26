@@ -13,12 +13,12 @@ from count_closet import count_item_info, count_outfits
 from image_processing import image_processing
 from matching_utils import get_viable_matches
 from outfit_calendar import (
-    choose_outfit, 
+    choose_outfit,
     filter_appropriate_outfits,
     get_outfit_plan_for_all_occasions,
     get_weather_info_for_outfitplans,
-    display_outfit_pieces, 
-    display_outfit_plan, 
+    display_outfit_pieces,
+    display_outfit_plan,
 )
 from outfit_utils import filter_items_in_all_categories
 from tagging import (
@@ -316,7 +316,6 @@ def get_outfit_match_from_inspo(items, filepath=None, uri=None):
     match_scores = []
     outfit_pieces = {}
     for item in response:
-        st.write(item)
         for match in get_viable_matches(item['label'], item['matches']):
             category = match['product'].labels['type']
             filename = match['image'].split('/')[-1]
@@ -326,7 +325,7 @@ def get_outfit_match_from_inspo(items, filepath=None, uri=None):
             if filepath in items[category]:
                 outfit_pieces[category] = filepath  # match['image'])
                 match_scores.append(match['score'])
- 
+
     if match_scores:
         outfit_match_score = sum(match_scores) * 100 / len(match_scores)
         st.subheader('Outfit Match')
