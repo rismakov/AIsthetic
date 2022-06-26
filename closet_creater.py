@@ -7,6 +7,7 @@ from utils import get_filenames_in_dir
 from category_constants import TAGS
 from utils_constants import OUTFIT_PATH, CLOSET_PATH
 
+
 class Closet():
 
     def __init__(self):
@@ -46,7 +47,7 @@ class Closet():
         bool
         """
         return sum(is_statement_item(item) for item in items) <= 1
-    
+
     @staticmethod
     def is_statement_outfit(items):
         return sum(is_statement_item(item) for item in items) > 0
@@ -60,8 +61,8 @@ class Closet():
         season_tag_overlap = self._get_tag_overlap(items, TAGS['season'])
         occasion_tag_overlap = self._get_tag_overlap(items, TAGS['occasion'])
         return (
-            season_tag_overlap 
-            and occasion_tag_overlap 
+            season_tag_overlap
+            and occasion_tag_overlap
             and self._is_style_match(items)
         ), season_tag_overlap, occasion_tag_overlap
 
@@ -110,8 +111,6 @@ class Closet():
                                 ),
                             }
                         })
-        
-        self.save_outfits('outfits')
 
     def remove_item(self, cat, item):
         # remove item
@@ -127,8 +126,10 @@ class Closet():
         self.outfits = [outfit for outfit in self.outfits if not all(
             outfit.get(cat) == outfit_to_remove[cat] for cat in outfit_to_remove
         )]
-        self.save_outfits('outfits')
+        self.save_outfits(OUTFIT_PATH)
+
 
 if __name__ == "__main__":
     closet = Closet()
     closet.create_outfits()
+    closet.save_outfits(OUTFIT_PATH)
