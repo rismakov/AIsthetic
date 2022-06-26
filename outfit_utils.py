@@ -18,6 +18,7 @@ AMOUNT_MAPPINGS = {
     'entire closet': {},
 }
 
+
 def is_statement_item(item):
     return TAGS['style']['Statement'] in item
 
@@ -38,12 +39,12 @@ def add_to_chosen_basic_items(filepaths, basic_items, cat, occasion, season):
 
     if season_occasion_basic_items:
         basic_items += [random.choice(season_occasion_basic_items)]
-    
+
     return basic_items
 
 
 def filter_items_based_on_amount(
-    filepaths: dict, amount: str, occasions: list, seasons:list
+    filepaths: dict, amount: str, occasions: list, seasons: list
 ):
     """Choose only a specific amount of possible items from options.
 

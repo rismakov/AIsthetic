@@ -16,14 +16,11 @@
 import os
 import streamlit as st
 
-# from dotenv import load_dotenv
 from collections import Counter
 
 from google.cloud import vision
 
 from ProductSearch import ProductSearch, ProductCategories
-
-# load_dotenv()
 
 
 CLOSET_LOCAL_DIR = 'closet/'

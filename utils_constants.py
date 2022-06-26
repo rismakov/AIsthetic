@@ -1,1 +1,2 @@
-PATH_CLOSET = 'closet'
+CLOSET_PATH = 'closet'
+OUTFIT_PATH = 'outfits'

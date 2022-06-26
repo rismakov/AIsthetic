@@ -48,28 +48,35 @@ WEATHER_TO_SEASON_MAPPINGS = {
 }
 
 _high_cadence = {
-    'tops': 4,
-    'bottoms': 4,
-    'dresses': 4,
+    'top': 4,
+    'bottom': 4,
+    'dress': 4,
     'outerwear': 0,
 }
 
 _med_cadence = {
-    'tops': 5,
-    'bottoms': 5,
-    'dresses': 6,
+    'top': 5,
+    'bottom': 5,
+    'dress': 6,
     'outerwear': 1,
 }
 
 _low_cadence = {
-    'tops': 6,
-    'bottoms': 6,
-    'dresses': 9, 
+    'top': 6,
+    'bottom': 6,
+    'dress': 9, 
     'outerwear': 3,
-} 
+}
+
+OUTFIT_AMOUNT = {
+    'small carry-on suitcase': 7,
+    'medium suitcase': 12,
+    'large suitcase': 20,
+}
 
 CADENCES = {
     'small carry-on suitcase': _high_cadence,
     'medium suitcase': _med_cadence,
+    'large suitcase': _med_cadence,
     'entire closet': _low_cadence,
 }

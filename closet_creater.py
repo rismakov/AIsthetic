@@ -1,18 +1,30 @@
 import json
+import os
 
+from outfit_utils import is_statement_item
 from utils import get_filenames_in_dir
 
 from category_constants import TAGS
-from utils_constants import PATH_CLOSET
-
+from utils_constants import OUTFIT_PATH, CLOSET_PATH
 
 class Closet():
 
     def __init__(self):
         # open or create
-        self.outfits = []
+        if os.path.isfile(OUTFIT_PATH):
+            with open(OUTFIT_PATH, 'r') as f:
+                self.outfits = json.load(f)
+        else:
+            self.create_outfits()
 
-    def get_tag_overlap(items, tags: dict) -> list:
+    def get_outfits(self):
+        return self.outfits
+
+    def save_outfits(self, filename):
+        with open(filename, 'w') as f:
+            json.dump(self.outfits, f)
+
+    def _get_tag_overlap(self, items, tags: dict) -> list:
         """
         Returns
         -------
@@ -24,7 +36,7 @@ class Closet():
             )
         ]
 
-    def is_style_match(items):
+    def _is_style_match(self, items):
         """Check if items are a style match.
 
         Considered a 'style match' if no more than one are 'Statement' pieces.
@@ -33,35 +45,36 @@ class Closet():
         -------
         bool
         """
-        return sum(TAGS['style']['Statement'] in item for item in items) <= 1
+        return sum(is_statement_item(item) for item in items) <= 1
     
+    @staticmethod
     def is_statement_outfit(items):
-        return sum(TAGS['style']['Statement'] in item for item in items) > 0
+        return sum(is_statement_item(item) for item in items) > 0
 
-    def item_match_info(items: list):
+    def _item_match_info(self, items: list):
         """Check if items are a match together.
 
         Considered a match if they contain an overlapping season tag, contain
         an overlapping occasion tag, and are a style match.
         """
-        season_tag_overlap = Closet.get_tag_overlap(items, TAGS['season'])
-        occasion_tag_overlap = Closet.get_tag_overlap(items, TAGS['occasion'])
+        season_tag_overlap = self._get_tag_overlap(items, TAGS['season'])
+        occasion_tag_overlap = self._get_tag_overlap(items, TAGS['occasion'])
         return (
             season_tag_overlap 
             and occasion_tag_overlap 
-            and Closet.is_style_match(items)
+            and self._is_style_match(items)
         ), season_tag_overlap, occasion_tag_overlap
 
     def create_outfits(self):
-        outerwear = get_filenames_in_dir(f'{PATH_CLOSET}/outerwear')
+        outerwear = get_filenames_in_dir(f'{CLOSET_PATH}/outerwear')
 
         # add 'one-piece' outfits
-        dresses = get_filenames_in_dir(f'{PATH_CLOSET}/dresses')
+        dresses = get_filenames_in_dir(f'{CLOSET_PATH}/dresses')
         for dress in dresses:
             for outer in outerwear:
                 items = [dress, outer]
                 is_match, season_tag_overlap, occasion_tag_overlap = (
-                    Closet.item_match_info(items)
+                    self._item_match_info(items)
                 )
                 if is_match:
                     self.outfits.append({
@@ -75,14 +88,14 @@ class Closet():
                     })
 
         # add 'two-piece' outfits
-        tops = get_filenames_in_dir(f'{PATH_CLOSET}/tops')
-        bottoms = get_filenames_in_dir(f'{PATH_CLOSET}/bottoms')
+        tops = get_filenames_in_dir(f'{CLOSET_PATH}/tops')
+        bottoms = get_filenames_in_dir(f'{CLOSET_PATH}/bottoms')
         for top in tops:
             for bottom in bottoms:
                 for outer in outerwear:
                     items = [top, bottom, outer] 
                     is_match, season_tag_overlap, occasion_tag_overlap = (
-                        Closet.item_match_info(items)
+                        self._item_match_info(items)
                     )
                     if is_match:
                         self.outfits.append({
@@ -98,11 +111,23 @@ class Closet():
                             }
                         })
         
-        with open('outfits', 'w') as f:
-            json.dump(self.outfits, f)
+        self.save_outfits('outfits')
 
-    def remove_outfit():
-        pass
+    def remove_item(self, cat, item):
+        # remove item
+        os.remove(item)
+
+        # remove outfits that include item
+        self.outfits = [
+            outfit for outfit in self.outfits if outfit.get(cat, '') != item
+        ]
+        self.save_outfits('outfits')
+
+    def remove_outfit(self, outfit_to_remove):
+        self.outfits = [outfit for outfit in self.outfits if not all(
+            outfit.get(cat) == outfit_to_remove[cat] for cat in outfit_to_remove
+        )]
+        self.save_outfits('outfits')
 
 if __name__ == "__main__":
     closet = Closet()

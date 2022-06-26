@@ -3,11 +3,7 @@ import os
 from datetime import timedelta
 
 from category_constants import ALL_CATEGORIES
-from utils_constants import PATH_CLOSET
-
-def load_outfits():
-    with open('outfits', 'r') as f:
-        return json.load(f)
+from utils_constants import CLOSET_PATH
 
 
 def get_filenames_in_dir(dir):
@@ -19,7 +15,7 @@ def get_filenames_in_dir(dir):
 
 def get_all_image_filenames() -> dict:
     return {
-        cat: get_filenames_in_dir(f'{PATH_CLOSET}/{cat}') 
+        cat: get_filenames_in_dir(f'{CLOSET_PATH}/{cat}') 
         for cat in ALL_CATEGORIES
     }
 

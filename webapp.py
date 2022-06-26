@@ -1,3 +1,4 @@
+import json
 import os
 import numpy as np
 import requests
@@ -7,104 +8,40 @@ import SessionState
 from tensorflow.keras.models import load_model
 
 from ProductSearch import ProductSearch, ProductCategories
-from get_weather import get_projected_weather
+from closet_creater import Closet
+from count_closet import count_item_info, count_outfits
 from image_processing import image_processing
 from matching_utils import get_viable_matches
 from outfit_calendar import (
-    choose_outfit, get_outfit_plan, display_outfit_pieces, display_outfit_plan, 
+    choose_outfit, 
+    filter_appropriate_outfits,
+    get_outfit_plan_for_all_occasions,
+    get_weather_info_for_outfitplans,
+    display_outfit_pieces, 
+    display_outfit_plan, 
 )
-from outfit_utils import (
-    filter_basic_items,
-    filter_items_based_on_amount, 
-    filter_items_in_all_categories,
-    filter_statement_items,
-)
+from outfit_utils import filter_items_in_all_categories
 from tagging import (
     choose_filename_to_update, display_article_tags, update_article_tags
 )
 from utils import (
-    get_all_image_filenames, 
-    get_filenames_in_dir, 
-    get_key_of_value, 
-    load_outfits,
+    get_all_image_filenames, get_filenames_in_dir, get_key_of_value, 
 )
 
-from category_constants import ALL_CATEGORIES, TAGS, WEATHER_TO_SEASON_MAPPINGS
-
-DAYS_IN_WEEK = {
-    'Casual': 7,
-    'Dinner/Bar': 7,
-    'Club/Fancy': 7,
-    'Work': 5,
-}
+from category_constants import TAGS
 
 # References:
 # https://daleonai.com/social-media-fashion-ai
 
 INSPO_DIR = 'inspo/'
 
-INDENT = '&nbsp;&nbsp;&nbsp;&nbsp;'
+OUTFITS = Closet().get_outfits()
 
-IMAGE_SIZE = (96, 96)
-
-OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
-
-OUTFITS = load_outfits()
-
-def get_basics_and_statements(filepaths):
-    count = 0
-    basics = []
-    statements = []
-    for cat in filepaths:
-        count += len(filepaths[cat])
-        for path in filepaths[cat]:
-            if TAGS['style']['Basic'] in path: 
-                basics.append(path)
-            elif TAGS['style']['Statement'] in path: 
-                statements.append(path)
-    return count, basics, statements
-
-def is_statement_item(item):
-    return TAGS['style']['Statement'] in item
-
-def count_items(items, outfits, info_placeholder):
-    count, basics, statements = get_basics_and_statements(items)
-
-    outfit_count = len(outfits)
-    # count non-statement outfits
-    basic_outfit_count = sum(
-        not outfit['tags']['is_statement'] for outfit in outfits
-    )
-    # count distinct statement pieces in statement outfits
-    statement_outfits = [
-        outfit for outfit in outfits if outfit['tags']['is_statement']
-    ]
-    unique_statement_pieces = [
-        [
-            item for item in outfit.values() if is_statement_item(item)
-        ][0] for outfit in statement_outfits
-    ]
-    unique_statement_piece_count = len(set(unique_statement_pieces))
-    outfit_count_2 = basic_outfit_count + unique_statement_piece_count
-
-    info_placeholder.write(
-        f'You have {count} items in your closet and {outfit_count} unique '
-        f'top/bottom outfit combinations ({outfit_count_2} outfit combinations '
-        'if only calculating distinct statement items once).'
-    )
-
-    basic_count, statement_count = len(basics), len(statements)
-    total = basic_count + statement_count
-    info_placeholder.write(
-        f'- This includes {basic_count} basic pieces '
-        f'({basic_count * 100 / total:.2f}%) and {statement_count} statement '
-        f'pieces ({statement_count * 100 / total:.2f}%).'
-    )
-    info = '- '
-    for cat in ALL_CATEGORIES:
-        info += f'{len(filepaths[cat])} {cat}, '
-    
-    info_placeholder.write(f'{info[:-2]}.')
+PLURAL_TO_SINGULAR_MAPPING = {
+    'tops': 'top',
+    'bottoms': 'bottom', 
+    'dresses': 'dress',   
+}
 
 
 def init_category_display(images_per_row):
@@ -148,9 +85,9 @@ def get_final_label_from_labels(labels):
         return 'Outerwear'
     if any(label in category_mapping['Tops'] for label in labels):
         return 'Tops'
-    
+
     labels = [
-        x for x in labels 
+        x for x in labels
         if get_key_of_value(category_mapping, x) not in ('Shoes', 'Bags')
     ]
     if len(set(labels)) == 1:
@@ -160,7 +97,7 @@ def get_final_label_from_labels(labels):
     return 'Unknown'
 
 
-def categorize_wardrobe_style(filepaths):
+def categorize_wardrobe_style(items):
     st.subheader('About')
     st.write(
         "Items here are separated into 'Basic' pieces (i.e. items that are "
@@ -178,23 +115,22 @@ def categorize_wardrobe_style(filepaths):
     )
 
     pattern_model = load_model('model.hdf5')
-    
+
     images = []
     images_processed = []
-    for cat in filepaths:
-        for filepath in filepaths[cat]: 
+    for cat in items:
+        for item in items[cat]: 
             print('Processing image...')
-            images.append(filepath)
-            images_processed.append(image_processing(filepath))
+            images.append(item)
+            images_processed.append(image_processing(item))
 
     X = np.array(images_processed) / 255
     img_rows, img_cols = 100, 100
-    input_shape = (img_rows, img_cols, 1)
 
     X = X.reshape(X.shape[0], img_rows, img_cols, 1)
     print('Predicting style of item...')
     preds = pattern_model.predict(X)
-    
+
     styles = {}
     for image, pred in zip(images, preds):
         cat_pred = np.argmax(pred)
@@ -204,7 +140,7 @@ def categorize_wardrobe_style(filepaths):
             cat_pred = 'Statement'
 
         styles[cat_pred] = styles.get(cat_pred, []) + [image]
-        
+
     for style in styles:
         st.subheader(f'{style} Pieces')
         st.image(styles[style], width=150)
@@ -227,7 +163,7 @@ def categorize_wardrode(filepaths):
     for filepath in all_paths:
         response = product_set.search("apparel", file_path=filepath)
         labels = [x['label'] for x in response]
-        
+
         label = get_final_label_from_labels(labels)
         cols_info[label][col_inds[label]].image(filepath)
 
@@ -236,7 +172,7 @@ def categorize_wardrode(filepaths):
         col_inds[label] += 1
         if col_inds[label] >= images_per_row:
             col_inds[label] = 0
-    
+
 
 def option_one_questions():
     options = ['Summer', 'Autumn', 'Winter', 'Spring']
@@ -251,31 +187,7 @@ def option_one_questions():
     return season, weather, occasion
 
 
-def get_season_types_from_weather_info(weather_types):
-    """Return season types based on scraped weather.
-
-    Parameters
-    ----------
-    weather_info
-
-    Returns
-    -------
-    set
-    """
-    weather_type_set = set(weather_types)
-    season_types = set([
-        WEATHER_TO_SEASON_MAPPINGS[weather_type] 
-        for weather_type in weather_type_set
-    ])
-
-    st.write(
-        "This trip requires planning for the following season types"
-        f": {', '.join(season_types)}."
-    )
-    
-    return season_types
-
-def get_and_display_outfit_plan():
+def get_outfit_plan_question_responses():
     side = st.sidebar
     form = side.form('Plan')
 
@@ -283,12 +195,22 @@ def get_and_display_outfit_plan():
     q = "What occasions are you planning for?"
     occasions = form.multiselect(q, options)
 
-    accessories_mapping = {'Yes': True, 'No': False}
+    options = ['Sun', 'Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat']
+    q = "If you chose work above, what days of the week are you in the office?"
+    work_dow = form.multiselect(q, options)
 
     options = ['Yes', 'No']
     include = form.selectbox("Would you like to include accessories?", options)
 
-    options = ['small carry-on suitcase', 'medium suitcase', 'entire closet']
+    accessories_mapping = {'Yes': True, 'No': False}
+    include = accessories_mapping[include]
+
+    options = [
+        'small carry-on suitcase', 
+        'medium suitcase', 
+        'large suitcase', 
+        'entire closet',
+    ]
     amount = form.selectbox("How much are you looking to bring?", options)
 
     city = form.text_input("Which city are you traveling to?").lower().strip()
@@ -300,50 +222,52 @@ def get_and_display_outfit_plan():
     if form.form_submit_button("Create Outfit Plan"):
         if end_date < start_date:
             form.error("ERROR: end date cannot be before start date.")
-        else:
-            weather_info = get_projected_weather(
-                city, country, start_date, end_date
-            )
-            if not weather_info['temps']:
-                st.error(
-                    "ERROR: Weather information not found. Confirm that city "
-                    "and country names are filled in and spelled correctly."
-                )
-            else:
-                seasons = get_season_types_from_weather_info(
-                    weather_info['weather_types']
-                )
+            return [], None, None, None, None, None, None
+        if 'Work' in occasions and not work_dow:
+            form.error("ERROR: you must specific the work days of the week.")
 
-                # Make sure items of all necessary season types are available, 
-                # depending on set of all weather types of trip
-                filepaths_filtered = filter_items_in_all_categories(
-                    filepaths, seasons=seasons, occasions=occasions
-                )
+        return occasions, include, amount, city, country, start_date, end_date, work_dow
 
-                st.subheader('Options Available')
-                info_placeholder = st.container()           
-                count_items(filepaths_filtered, info_placeholder)
+    return [], None, None, None, None, None, None, None
 
-                filepaths_filtered = filter_items_based_on_amount(
-                    filepaths_filtered, amount, occasions, seasons,
-                )
 
-                for occasion in occasions:
-                    st.header(f'{occasion}')
-                    st.markdown("""---""")
-                    days_in_week = DAYS_IN_WEEK[occasion]
-                    dates, outfits = get_outfit_plan(
-                        filepaths_filtered, 
-                        weather_info['weather_types'], 
-                        occasion,
-                        city, 
-                        start_date, 
-                        end_date,
-                        amount, 
-                        accessories_mapping[include],
-                    )
+def get_and_display_outfit_plan():
+    occasions, include, amount, city, country, start_date, end_date, work_dow = (
+        get_outfit_plan_question_responses()
+    )
 
-                    display_outfit_plan(dates, outfits, weather_info, days_in_week)
+    if occasions:  # if above responses were received
+        weather_info = get_weather_info_for_outfitplans(
+            city, country, start_date, end_date
+        )
+
+        outfit_plans = get_outfit_plan_for_all_occasions(
+            OUTFITS, 
+            occasions,
+            work_dow,
+            weather_info['weather_types'],
+            start_date, 
+            end_date,
+            amount, 
+            include,
+        )
+
+        st.session_state['outfit_plans'] = outfit_plans
+        for occasion, outfit_plan in outfit_plans.items():
+            st.header(f'{occasion}')
+            st.markdown("""---""")
+
+            days_in_week = 7
+            if occasion == 'Work':
+                days_in_week = len(work_dow)
+
+            dates = outfit_plan['dates']
+            outfits = outfit_plan['outfits']
+            display_outfit_plan(dates, outfits, weather_info, days_in_week)
+
+        st.session_state.outfit_plans = outfit_plans
+        return st.session_state.outfit_plans
+    return st.session_state.outfit_plans
 
 
 def check_if_url_valid(url):
@@ -382,14 +306,12 @@ def get_product_search():
     )
 
 
-def get_outfit_match_from_inspo(filepath=None, uri=None):
+def get_outfit_match_from_inspo(items, filepath=None, uri=None):
     ps = get_product_search()
     product_set = ps.getProductSet(st.secrets['CLOSET_SET'])
     # `response` returns matches for every detected clothing item in image
     response = product_set.search("apparel", file_path=filepath, image_uri=uri)
     # url_path = 'https://storage.googleapis.com/closet_set/'
-
-    filepaths = get_all_image_filenames()
 
     match_scores = []
     outfit_pieces = {}
@@ -401,10 +323,10 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
             filepath = f"closet/{category}/{filename}"
 
             # Add if item exists in closet set
-            if filepath in filepaths[category]:
+            if filepath in items[category]:
                 outfit_pieces[category] = filepath  # match['image'])
                 match_scores.append(match['score'])
-    
+ 
     if match_scores:
         outfit_match_score = sum(match_scores) * 100 / len(match_scores)
         st.subheader('Outfit Match')
@@ -414,98 +336,12 @@ def get_outfit_match_from_inspo(filepath=None, uri=None):
         )
         st.write(f'Match Score: {outfit_match_score:.2f}')
         display_outfit_pieces(outfit_pieces)
+        st.button("This doesn't match together.")
     else:
         st.subheader('No matches found in closet.')
 
-def upload_closet_questions():
-    st.sidebar.subheader('Add an item')
-    options = ['Tops', 'Bottoms', 'Dresses/Jumpsuits', 'Shoes', 'Hats', 'Bags']
-    category = st.sidebar.selectbox("What category is the item?", options)
 
-    if category == 'Tops':
-        options = ['Tank', 'Short Sleeve', 'Long Sleeve']
-    elif category == 'Bottoms':
-        options = ['Pants', 'Shorts', 'Maxi Skirt', 'Mini Skirt']
-    elif category == 'Dresses/Jumpsuits':
-        options = ['Short Dress', 'Long Dress', 'Romper', 'Jumpsuit']
-    elif category == 'Shoes':
-        options = ['Sneakers', 'Booties', 'Boots', 'Heels']
-    elif category == 'Bags':
-        options = ['Purse', 'Bag']
-    else:
-        options = ['Cap', 'Beanie', 'Sunhat']
-
-    item_type = st.sidebar.selectbox("What type of item is it?", options)
-
-    options = ['Black', 'White', 'Colored', 'Floral', 'Plaid', 'Patterned']
-    color = st.sidebar.selectbox("What color/pattern is the item?", options)
-
-    return category, item_type, color
-
-
-######################################
-######################################
-# Main Screen ########################
-######################################
-######################################
-st.image('header4.jpeg')
-
-st.title("AIsthetic: Wardrobe App")
-st.write('')
-
-st.write(
-    "*This application is currently running on demo data (i.e. my personal "
-    "closet). If there will be a need, it can be updated to intake and run on "
-    "other users' individual wardrobe data."
-)
-
-filepaths = get_all_image_filenames()
-
-st.header('Closet Information')
-info_placeholder = st.container()
-print('Counting items...')
-info_placeholder.subheader('Entire Wardrobe')
-count_items(filepaths, OUTFITS, info_placeholder)
-
-st.header('AIsthetic Algorithm')
-options = [
-    'Use mock data for testing',
-    'Upload my own closet',
-]
-
-closet_option = st.radio("Which closet would you like to use", options)
-
-if closet_option == options[1]:
-    options = ['Yes', 'No']
-    option = st.selectbox("Have you already uploaded your closet?", options)
-
-    if option == 'No':
-        st.write("Select 'Upload and/or update closet' below to proceed.")
-        
-
-options = [
-    "Upload and/or update closet.",
-    "See all clothing articles in closet.",
-    "Select a random outfit combination from closet.",
-    "Select an outfit based on an inspo-photo.",
-    "Plan a set of outfits for a trip.",
-]
-
-option = st.radio("What would you like to do?", options)
-
-######################################
-######################################
-# Side Bar ###########################
-######################################
-######################################
-
-session_state = SessionState.get(
-    filepath="", button_clicked=False, filepaths_filtered=[],
-)
-
-if option == options[0]:
-    category, item_type, color = upload_closet_questions()
-elif option == options[1]:
+def get_and_add_filters(session_state):
     st.sidebar.header("Filters")
     form = st.sidebar.form('Tags')
     seasons = form.multiselect('Seasons', list(TAGS['season'].keys()))
@@ -514,70 +350,149 @@ elif option == options[1]:
     if form.form_submit_button('Add Filters'):
         if not occasions:
             st.error('Please select occasion types above first.')
-        else: 
-            session_state.filepaths_filtered = filter_items_in_all_categories(
-                filepaths, seasons, occasions
+        else:
+            session_state.items_filtered = filter_items_in_all_categories(
+                items, seasons, occasions
             )
-            session_state.outfits_filtered = [outfit for outfit in OUTFITS if
-                any(season in outfit['tags']['season'] for season in seasons)
-                and any(
-                    occasion in outfit['tags']['occasion'] 
-                    for occasion in occasions
-                )
-            ]
-            info_placeholder.subheader('Post Filter')
-            count_items(
-                session_state.filepaths_filtered,
-                session_state.outfits_filtered,
-                info_placeholder
+            session_state.outfits_filtered = filter_appropriate_outfits(
+                OUTFITS, seasons, occasions,
             )
-    
+
+        info_placeholder.subheader('Post Filter')
+        count_outfits(
+            info_placeholder,
+            session_state.outfits_filtered,
+            session_state.items_filtered,
+        )
+
     st.sidebar.header("Options")
     if not seasons or not occasions:
-        st.sidebar.write(
+        st.sidebar.warning(
             "NOTE: No filters selected. Please select filters above and click " 
             "'Add Filters'."
         )
     else:
-        st.sidebar.write('Filters selected.')
+        st.sidebar.success('Filters selected.')
+
+    return session_state, seasons, occasions
+
+
+def init_session_state():
+    return SessionState.get(
+        item='', 
+        button_clicked=False, 
+        scroll_items=False, 
+        i=0,
+        items_filtered=None,
+        outfits_filtered=None,
+    )
+
+######################################
+######################################
+# Main Screen ########################
+######################################
+######################################
+
+
+st.image('header4.jpeg')
+
+st.title("AIsthetic: Wardrobe Optimization")
+st.write('')
+
+with st.expander("Information on Wardrobe Data"):
+    st.write(
+        "*This application is currently running on demo data (i.e. my personal "
+        "closet). If there will be a need, it can be updated to intake and run "
+        "on other users' individual wardrobe data."
+    )
+
+items = get_all_image_filenames()
+
+st.header('Closet Information')
+
+info_placeholder = st.container()
+print('Counting items...')
+info_placeholder.subheader('Entire Wardrobe')
+count_outfits(info_placeholder, OUTFITS, items)
+
+st.header('AIsthetic Algorithm')
+options = [
+    'Use mock data for testing',
+    'Upload my own closet',
+]
+
+closet_option = st.radio("Which closet would you like to use?", options)
+
+if closet_option == options[1]:
+    st.write(
+        "The app currently runs on demo data only. If you would like to upload "
+        "and run on your personal wardrobe data, please have some investors "
+        "send over funding in order for me to continue developing this "
+        "further;) \n\n Or if you would really like to use this app for "
+        "personal use, let me know and I can send over the beta version for you"
+        " to test out (as long as you don't mind a few bugs and potential "
+        "tweaks that will need to be made)."
+    )
+
+options = [
+    "See all clothing articles in closet.",
+    "Select a random outfit combination from closet.",
+    "Select an outfit based on an inspo-photo.",
+    "Plan a set of outfits for a trip.",
+]
+
+option = st.radio("What would you like to do?", options)
+
+
+######################################
+######################################
+# Side Bar ###########################
+######################################
+######################################
+
+
+if option == options[0]:
+    session_state = init_session_state()
+    session_state, seasons, occasions = get_and_add_filters(session_state)
 
     if st.sidebar.button('Show Wardrode Info'):
         if not seasons or not occasions:
             st.sidebar.error('Please add filters first.')
         else:
             print('Printing wardrobe info...')
-            categorize_wardrobe_style(session_state.filepaths_filtered)
+            categorize_wardrobe_style(session_state.items_filtered)
 
     if st.sidebar.button('Display Clothing Tags'):
         if not seasons or not occasions:
             st.sidebar.error('Please add filters first.')
         else:
-            display_article_tags(session_state.filepaths_filtered)
+            display_article_tags(session_state.items_filtered)
 
     form = st.sidebar.form('Choose Filename')
-    session_state.filepath = choose_filename_to_update(filepaths)
+    session_state.item = choose_filename_to_update(items)
 
     # If there are items that are untagged, include options to review
-    if session_state.filepath:
+    if session_state.item:
         button_clicked = st.sidebar.button('Review Article Tags')
         if button_clicked:
             session_state.button_clicked = True
-        
+
         if session_state.button_clicked:
-            update_article_tags(session_state.filepath)
+            update_article_tags(session_state.item)
     else:
         st.sidebar.write('All items have been tagged.')
-elif option == options[2]:
+elif option == options[1]:
     st.sidebar.header("Options")
     season, weather, occasion = option_one_questions()
     if st.sidebar.button('Select Random Outfit'):
         st.header('Selected Outfit')
-        outfit_pieces = choose_outfit(OUTFITS, weather, occasion)
-        if outfit_pieces:
-            display_outfit_pieces(outfit_pieces)
+        outfit = choose_outfit(OUTFITS, weather, occasion)
+        if outfit:
+            display_outfit_pieces(outfit)
+            st.button("This doesn't match together.")
         else:
             st.text("NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
-elif option == options[3]:
+elif option == options[2]:
     st.sidebar.header("Options")
     image, image_type = choose_inspo_file()
     if st.sidebar.button("Select Inspo-Based Outfit"):
@@ -593,9 +508,17 @@ elif option == options[3]:
             )
             st.image(image, width=300)
             if image_type == 'filepath':
-                get_outfit_match_from_inspo(filepath=image)
+                get_outfit_match_from_inspo(items, filepath=image)
             else:
-                get_outfit_match_from_inspo(uri=image)
+                get_outfit_match_from_inspo(items, uri=image)
 else:
     st.sidebar.header("Options")
-    get_and_display_outfit_plan()   
+    st.session_state.outfit_plans = {}
+    st.session_state.outfit_plans = get_and_display_outfit_plan() 
+
+    if st.session_state.outfit_plans:
+        if st.button('Save Outfit Plan'):
+            with open('outfit_plans', 'w') as f:
+                json.dump(st.session_state.outfit_plans, f)
+
+            print('Outfit Plan saved to file.')

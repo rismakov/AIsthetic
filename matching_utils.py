@@ -21,7 +21,6 @@ def get_viable_matches(label, matches):
     -------
     list
     """
-    print([match['product'].labels['type'] for match in matches])
     return [
         match for match in matches if is_match_in_same_category(
             label, match['product'].labels['type']
