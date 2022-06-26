@@ -314,7 +314,7 @@ def get_outfit_match_from_inspo(items, filepath=None, uri=None):
     # url_path = 'https://storage.googleapis.com/closet_set/'
 
     match_scores = []
-    outfit_pieces = {}
+    outfit = {}
     for item in response:
         for match in get_viable_matches(item['label'], item['matches']):
             category = match['product'].labels['type']
@@ -323,7 +323,7 @@ def get_outfit_match_from_inspo(items, filepath=None, uri=None):
 
             # Add if item exists in closet set
             if filepath in items[category]:
-                outfit_pieces[category] = filepath  # match['image'])
+                outfit[category] = filepath  # match['image'])
                 match_scores.append(match['score'])
 
     if match_scores:
@@ -334,7 +334,7 @@ def get_outfit_match_from_inspo(items, filepath=None, uri=None):
             "above outfit."
         )
         st.write(f'Match Score: {outfit_match_score:.2f}')
-        display_outfit_pieces(outfit_pieces)
+        display_outfit_pieces(outfit)
         st.button("This doesn't match together.")
     else:
         st.subheader('No matches found in closet.')

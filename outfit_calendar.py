@@ -192,18 +192,18 @@ def get_outfit_plan_for_all_occasions(
     return outfit_plan
 
 
-def display_outfit_pieces(outfit_pieces: dict):
+def display_outfit_pieces(outfit: dict):
     """Display outfit pieces.
 
     Parameters
     ----------
-    outfit_pieces : dict
+    outfit : dict
         Dict of outfit pieces, with the category the key and the image filepath
         the value.
     """
     cols = st.columns(6)
-    for i, filename in zip(OUTFIT_COLS, outfit_pieces.values()):
-        cols[i].image(filename, width=250)
+    for i, item in zip(OUTFIT_COLS, outfit.values()):
+        cols[i].image(item, width=250)
 
 
 def get_weather_icon_filename(weather_type, weather):
@@ -220,12 +220,12 @@ def init_most_recently_worn():
 
 
 def update_most_recently_worn(
-    outfit_pieces: dict, amount: str, recently_worn: dict
+    outfit: dict, amount: str, recently_worn: dict
 ) -> dict:
     for cat, cadence in CADENCES[amount].items():
-        if outfit_pieces.get(cat):
+        if outfit.get(cat):
             recently_worn[cat] = (
-                [outfit_pieces[cat]] + recently_worn[cat]
+                [outfit[cat]] + recently_worn[cat]
             )[:cadence]
     return recently_worn
 
@@ -240,7 +240,7 @@ def display_outfit_plan(
     )
 
     num_cols = 3
-    for i, outfit_date, outfit_pieces in zip(range(len(dates)), dates, outfits):
+    for i, outfit_date, outfit in zip(range(len(dates)), dates, outfits):
         if i % days_in_week == 0:
             st.header(f'Week {int((i / days_in_week)) + 1}')
             cols = st.columns(num_cols)
@@ -259,7 +259,7 @@ def display_outfit_plan(
 
         cols[col_i].image(f'icons/season/{weather_icon_filename}', width=30)
         cols[col_i].text(weather_text)
-        cols[col_i].image(list(outfit_pieces.values()), width=70)
+        cols[col_i].image(list(outfit.values()), width=70)
 
         cols[col_i].markdown("""---""")
 
@@ -326,17 +326,15 @@ def get_outfit_plan(
             continue
 
         occasion_outfit_plan['dates'].append(outfit_date)
-        outfit_pieces = choose_outfit(
+        outfit = choose_outfit(
             outfits,
             weather_type,
             occasion,
             include_accessories,
             exclude_items=recently_worn,
         )
-        occasion_outfit_plan['outfits'].append(outfit_pieces)
+        occasion_outfit_plan['outfits'].append(outfit)
 
-        recently_worn = update_most_recently_worn(
-            outfit_pieces, amount, recently_worn
-        )
+        recently_worn = update_most_recently_worn(outfit, amount, recently_worn)
 
     return occasion_outfit_plan
