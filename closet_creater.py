@@ -67,6 +67,8 @@ class Closet():
         ), season_tag_overlap, occasion_tag_overlap
 
     def create_outfits(self):
+        self.outfits = []
+
         outerwear = get_filenames_in_dir(f'{CLOSET_PATH}/outerwear')
 
         # add 'one-piece' outfits
