@@ -12,7 +12,7 @@
 #  * See the License for the specific language governing permissions and
 #  * limitations under the License.
 
- 
+
 import os
 import streamlit as st
 
@@ -24,6 +24,7 @@ from ProductSearch import ProductSearch, ProductCategories
 
 
 CLOSET_LOCAL_DIR = 'closet/'
+
 
 def get_product_type(ps, label):
     """
@@ -42,13 +43,13 @@ def get_product_type(ps, label):
     except:
         product = ps.getProduct(label)
         print(f"Got product type: {label}")
-    
+
     return product
 
 
 def add_images_to_product_type(product, label):
-    img_folder = os.path.join(CLOSET_LOCAL_DIR, label) 
-    
+    img_folder = os.path.join(CLOSET_LOCAL_DIR, label)
+
     for filename in os.listdir(img_folder):
         if filename != '.DS_Store':
             filepath = os.path.join(img_folder, filename)
@@ -61,7 +62,7 @@ def add_images_to_product_type(product, label):
                 print(f"Deleted image {filepath} from set")
                 product.add_reference_image(filepath)
                 print(f"Re-added image {filepath} to set")
-                
+
 
 if __name__ == "__main__":
     print('Initializing Product Search object...')
@@ -84,7 +85,7 @@ if __name__ == "__main__":
         if label not in '.DS_Store':
             labels.append(label)
             product = get_product_type(ps_obj, label)
-        
+
             add_images_to_product_type(product, label)
             product_set.add_product(product)
             print(f"Added product {product.display_name} to set")

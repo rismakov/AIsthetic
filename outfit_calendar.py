@@ -52,10 +52,10 @@ def is_any_exclude_item_in_outfit(outfit: dict, exclude_items: dict) -> bool:
 
 def choose_outfit(
     outfits: list,
-    weather_type: str, 
+    weather_type: str,
     occasion: str,
-    include_accessories: bool=True,
-    exclude_items: dict={},
+    include_accessories: bool = True,
+    exclude_items: dict = {},
 ):
     """
     Parameters
@@ -79,7 +79,7 @@ def choose_outfit(
 
     # Get clothing items that have not been recently worn
     options = [
-        outfit for outfit in appropriate_outfits 
+        outfit for outfit in appropriate_outfits
         if not is_any_exclude_item_in_outfit(outfit, exclude_items)
     ]
 
@@ -92,22 +92,22 @@ def choose_outfit(
     choose_from = [{k: v for k, v in option.items()} for option in options]
     random_ind = random.randint(0, len(options) - 1)
     choice = choose_from[random_ind]
-    
+
     cats = ['shoes']
     if include_accessories:
         cats += ACCESSORIES
-    
+
     for cat in cats:
         item_options = get_filenames_in_dir(f'{CLOSET_PATH}/{cat}')
         item_options = filter_items(item_options, [season], [occasion])
- 
+
         if choice['tags']['is_statement']:
             item_options = [
                 item for item in item_options if not is_statement_item(item)
             ]
         if item_options:
             choice[cat] = random.choice(item_options)
-    
+
     del choice['tags']
 
     return choice
@@ -134,7 +134,7 @@ def get_season_types_from_weather_info(weather_types):
         "This trip requires planning for the following season types"
         f": {', '.join(season_types)}."
     )
-    
+
     return season_types
 
 
@@ -266,17 +266,19 @@ def display_outfit_plan(
         else:
             col_i = 0
 
+
 def save_outfit_plan(outfits, city, start_date, end_date):
     path = f'outfit_plans/{city}_{start_date}_{end_date}.json'
     with open(path, 'w') as f:
-        json.dump(outfits , f)
+        json.dump(outfits, f)
+
 
 def get_outfit_plan(
     outfits: list,
-    weather_types: list, 
+    weather_types: list,
     occasion: str,
     work_dow,
-    start_date: date, 
+    start_date: date,
     end_date: date, 
     amount: str, 
     include_accessories: bool,
@@ -296,7 +298,7 @@ def get_outfit_plan(
     end_date : date
         The date when to end the outfit plan.
     amount : str
-        The amount to pack for (i.e. 'small carry-on suitcase', 
+        The amount to pack for (i.e. 'small carry-on suitcase',
         'medium suitcase').
     include_accessories : bool
         Whether to add accessories to the outfit plan.
@@ -324,9 +326,9 @@ def get_outfit_plan(
         occasion_outfit_plan['dates'].append(outfit_date)
         outfit_pieces = choose_outfit(
             outfits,
-            weather_type, 
-            occasion, 
-            include_accessories, 
+            weather_type,
+            occasion,
+            include_accessories,
             exclude_items=recently_worn,
         )
         occasion_outfit_plan['outfits'].append(outfit_pieces)

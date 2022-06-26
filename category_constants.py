@@ -64,7 +64,7 @@ _med_cadence = {
 _low_cadence = {
     'top': 6,
     'bottom': 6,
-    'dress': 9, 
+    'dress': 9,
     'outerwear': 3,
 }
 
