@@ -226,7 +226,7 @@ def update_most_recently_worn(
                 [outfit_pieces[cat]] + recently_worn[cat]
             )[:cadence]
     return recently_worn
-    
+
 
 def display_outfit_plan(
     dates: list, outfits: list, weather_info: dict, days_in_week: int
