@@ -41,23 +41,6 @@ for icon_type, filenames in FILENAME_MAPPINGS.items():
 ICON_IMAGE_WIDTH = 40
 
 
-def add_later():
-    for button in buttons:
-        
-        style = form.selectbox('Style?', ['Basic', 'Statement'])
-        seasons = form.multiselect('Season?', SEASON_ICON_MAPPING.keys())
-        occasions = form.multiselect('Occasion?', ['Casual', 'Work'])
-
-        if form.form_submit_button(f'{i}'):
-            tag = f"{TAGS['style'][style]}"
-            for season in seasons:
-                tag += TAGS['season'][season]
-            for occasion in occasions:
-                tag += TAGS['occasion'][occasion]
-            
-            os.path.rename(filename, f'{filename}_{tag}')
-
-
 def display_icon_key():
     """Display all icon descriptions and icon images for all categories.
 
@@ -76,31 +59,30 @@ def display_icon_key():
     
     st.markdown("""---""")
 
-
-def display_article_tags_for_item(col, image_filename):
-    col.image(image_filename, width=150)
-
+def display_article_tags_for_item(col, item):
+    """Display item image with tags below.
+    """
+    col.image(item, width=150)
     for icon_type, icon_paths in ICON_PATHS.items():
         icons = []
         for k in sorted(icon_paths.keys()):
-            if TAGS[icon_type][k] in image_filename:
+            if TAGS[icon_type][k] in item:
                 icons.append(icon_paths[k])
     
         col.image(icons, width=ICON_IMAGE_WIDTH)
 
-
-def display_article_tags(filepaths):
+def display_article_tags(items):
     display_icon_key()
 
     num_cols = 3
-    for cat in filepaths:
+    for cat in items:
         st.subheader(cat)
         st.markdown("""---""")
 
         cols = st.columns(num_cols)
         col_i = 0
-        for image_filename in filepaths[cat]:
-            display_article_tags_for_item(cols[col_i], image_filename)
+        for item in items[cat]:
+            display_article_tags_for_item(cols[col_i], item)
 
             if col_i == num_cols - 1:
                 col_i = 0
@@ -108,7 +90,7 @@ def display_article_tags(filepaths):
                 col_i += 1
         
             cols[col_i].markdown("""---""")
- 
+
 
 def choose_filename_to_update(filepaths):
     image_filenames = []
