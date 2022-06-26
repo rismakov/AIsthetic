@@ -6,15 +6,17 @@ from datetime import date
 
 from count_closet import count_outfits
 from get_weather import get_projected_weather
-from outfit_utils import filter_appropriate_outfits, filter_items, is_statement_item
+from outfit_utils import (
+    filter_appropriate_outfits, filter_items, is_statement_item
+)
 from utils import daterange, get_filenames_in_dir
 
 from category_constants import (
-    ACCESSORIES, 
+    ACCESSORIES,
     CADENCES,
     MAIN_CATEGORIES,
-    OUTFIT_AMOUNT, 
-    TAGS, 
+    OUTFIT_AMOUNT,
+    TAGS,
     WEATHER_ICON_MAPPING,
     WEATHER_TO_SEASON_MAPPINGS,
 )
@@ -151,18 +153,18 @@ def get_weather_info_for_outfitplans(city, country, start_date, end_date):
 
 
 def get_outfit_plan_for_all_occasions(
-    outfits, 
+    outfits,
     occasions,
     work_dow,
     weather_types,
-    start_date, 
+    start_date,
     end_date,
-    amount, 
+    amount,
     include,
-):  
+):
     seasons = get_season_types_from_weather_info(weather_types)
 
-    # Make sure items of all necessary season types are available, 
+    # Make sure items of all necessary season types are available,
     # depending on set of all weather types of trip
     appropriate_outfits = filter_appropriate_outfits(
         outfits, seasons, occasions,
@@ -176,16 +178,16 @@ def get_outfit_plan_for_all_occasions(
     for occasion in occasions:
         outfit_plan[occasion] = []
         outfit_plan[occasion] = get_outfit_plan(
-            appropriate_outfits, 
-            weather_types, 
+            appropriate_outfits,
+            weather_types,
             occasion,
             work_dow,
-            start_date, 
+            start_date,
             end_date,
-            amount, 
+            amount,
             include,
         )
-        
+
     # save_outfit_plan(outfit_plan, city, start_date, end_date)
     return outfit_plan
 
@@ -236,7 +238,7 @@ def display_outfit_plan(
         weather_info['weathers'], 
         weather_info['weather_types'],
     )
-    
+
     num_cols = 3
     for i, outfit_date, outfit_pieces in zip(range(len(dates)), dates, outfits):
         if i % days_in_week == 0:
@@ -247,7 +249,7 @@ def display_outfit_plan(
         dow = WEEKDAY_MAPPING[outfit_date.weekday()]
         month_day = f'{outfit_date.month}/{outfit_date.day}'
         cols[col_i].subheader(f'Day {i + 1} - {dow} - {month_day}')
-        
+
         weather_text = (
             f'{weathers[i]} - {temps[i]}° ({weather_types[i]})'
         )
