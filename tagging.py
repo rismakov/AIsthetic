@@ -25,12 +25,12 @@ _occasion_icon_filenames = {
 }
 
 FILENAME_MAPPINGS = {
-    'style': _style_icon_filenames, 
-    'season': _season_icon_filenames, 
+    'style': _style_icon_filenames,
+    'season': _season_icon_filenames,
     'occasion': _occasion_icon_filenames
 }
 
-ALL_TAGS = []
+
 # includes icon paths
 ICON_PATHS = {}
 for icon_type, filenames in FILENAME_MAPPINGS.items():
@@ -56,8 +56,9 @@ def display_icon_key():
             cols[i].text(' ')
             cols[i+1].image(icon_paths[k], width=ICON_IMAGE_WIDTH)
         i += 2
-    
+
     st.markdown("""---""")
+
 
 def display_article_tags_for_item(col, item):
     """Display item image with tags below.
@@ -68,8 +69,9 @@ def display_article_tags_for_item(col, item):
         for k in sorted(icon_paths.keys()):
             if TAGS[icon_type][k] in item:
                 icons.append(icon_paths[k])
-    
+
         col.image(icons, width=ICON_IMAGE_WIDTH)
+
 
 def display_article_tags(items):
     display_icon_key()
@@ -88,7 +90,7 @@ def display_article_tags(items):
                 col_i = 0
             else:
                 col_i += 1
-        
+
             cols[col_i].markdown("""---""")
 
 
@@ -99,15 +101,15 @@ def choose_filename_to_update(filepaths):
 
     missing_tags = [
         x for x in image_filenames if (
-            not any(tag in x for tag in TAGS['style'].values()) 
-            or not any(tag in x for tag in TAGS['season'].values()) 
-            or not any(tag in x for tag in TAGS['occasion'].values()) 
+            not any(tag in x for tag in TAGS['style'].values())
+            or not any(tag in x for tag in TAGS['season'].values())
+            or not any(tag in x for tag in TAGS['occasion'].values())
         )
     ]
     if missing_tags:
         info = (
-            f'These {len(missing_tags)} clothing articles have not been tagged with'
-            ' a style, season, or occasion type yet:'
+            f"These {len(missing_tags)} clothing articles have not been tagged"
+            "with a style, season, or occasion type yet:"
         )
 
         return st.sidebar.selectbox(info, missing_tags)
@@ -121,16 +123,16 @@ def update_article_tags(filepath):
     style = form.selectbox('Style?', list(TAGS['style'].keys()))
     seasons = form.multiselect('Season?', list(TAGS['season'].keys()))
     occasions = form.multiselect('Occasion?', list(TAGS['occasion'].keys()))
-    
+
     filename_parts = filepath.split('.')
-        
+
     if form.form_submit_button('Finished Adding Tags'):
         tag = TAGS['style'][style]
         for season in seasons:
             tag += TAGS['season'][season]
         for occasion in occasions:
             tag += TAGS['occasion'][occasion]
-        
+
         os.rename(
             filepath, f'{filename_parts[0]}_{tag}.{filename_parts[1]}'
         )
