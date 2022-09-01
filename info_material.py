@@ -22,6 +22,8 @@ def finished_tagging_info():
 
 
 def categorize_wardrobe_info():
+    """Used in "Show Wardrobe Info" option.
+    """
     st.subheader('About')
     st.write(
         "Items here are separated into 'Basic' pieces (i.e. items that are "
@@ -36,4 +38,13 @@ def categorize_wardrobe_info():
         "Keep in mind however, that the model may fail at times to categorize "
         "properly; in such a case, the user has the option to update the tags "
         "manually."
+    )
+
+
+def select_filters_info():
+    """Used in "View all clothing articles in closet" option sidebar.
+    """
+    st.sidebar.header("Filters")
+    st.sidebar.write(
+        "Please select either seasons and occasions filters"
     )
