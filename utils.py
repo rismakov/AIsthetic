@@ -39,12 +39,12 @@ def get_key_of_value(d: dict, v: str) -> str:
             return k
 
 
-def increment_i(i: int, max_i: int) -> int:
+def increment_i(i: int, max_i: int, increment_by=1) -> int:
     """Add one to `col_i`. If `col_i` is at max, return 0.
     """
     if i == max_i:
         return 0
-    return i + 1
+    return i + increment_by
 
 
 def daterange(start_date, end_date):

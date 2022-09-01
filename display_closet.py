@@ -1,5 +1,7 @@
 import streamlit as st
 
+from utils import increment_i
+
 
 def display_outfits(outfits: list):
     num_cols = 3
@@ -10,10 +12,7 @@ def display_outfits(outfits: list):
         cols[col_i].image(list(outfit.values()), width=70)
         cols[col_i].markdown("""---""")
 
-        if col_i == num_cols - 1:
-            col_i = 0
-        else:
-            col_i += 1
+        col_i = increment_i(col_i, num_cols - 1)
 
 
 def display_outfit_pieces(outfit: dict):
@@ -30,7 +29,4 @@ def display_outfit_pieces(outfit: dict):
     for item in outfit.values():
         cols[i].image(item, width=250)
 
-        if i == 4:
-            i = 0
-        else:
-            i += 2
+        col_i = increment_i(col_i, 4, increment_by=2)
