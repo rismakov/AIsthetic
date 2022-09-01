@@ -1,8 +1,11 @@
 import os
 import streamlit as st
 
-from category_constants import TAGS
+from typing import Dict, List, Tuple
 
+from utils import increment_i
+
+from category_constants import TAGS
 
 # to map article season types to weather icon filenames
 _style_icon_filenames = {
@@ -30,13 +33,11 @@ FILENAME_MAPPINGS = {
     'occasion': _occasion_icon_filenames
 }
 
-
-# includes icon paths
 ICON_PATHS = {}
-for icon_type, filenames in FILENAME_MAPPINGS.items():
-    ICON_PATHS[icon_type] = {}
-    for description, filename in filenames.items():
-        ICON_PATHS[icon_type][description] = f'icons/{icon_type}/{filename}'
+for tag_type, icons in FILENAME_MAPPINGS.items():
+    ICON_PATHS[tag_type] = {
+        k: f'icons/{tag_type}/{v}' for k, v in icons.items()
+    }
 
 ICON_IMAGE_WIDTH = 40
 
@@ -45,6 +46,8 @@ def display_icon_key():
     """Display all icon descriptions and icon images for all categories.
 
     Icon categories include 'style', 'season', and 'occasion'.
+
+    Used within 'View all clothing articles' view.
     """
     st.subheader('Key')
     cols = st.columns(6)
@@ -60,20 +63,36 @@ def display_icon_key():
     st.markdown("""---""")
 
 
-def display_article_tags_for_item(col, item):
+def display_article_tags_for_item(col, item, item_tags=None):
     """Display item image with tags below.
+
+    If `item_tags` not passed in, uses tags within item names.
+
+    Used within 'View all clothing articles' view and within 'Update tags' view.
     """
     col.image(item, width=150)
-    for icon_type, icon_paths in ICON_PATHS.items():
-        icons = []
-        for k in sorted(icon_paths.keys()):
-            if TAGS[icon_type][k] in item:
-                icons.append(icon_paths[k])
+    if item_tags:
+        for tag_type in item_tags:
+            icons = []
+            for tag in item_tags[tag_type]:
+                icons.append(ICON_PATHS[tag_type][tag])
 
-        col.image(icons, width=ICON_IMAGE_WIDTH)
+            col.image(icons, width=ICON_IMAGE_WIDTH)
+    else:
+        for tag_type, icon_paths in ICON_PATHS.items():
+            icons = []
+            for k in sorted(icon_paths.keys()):
+                if TAGS[tag_type][k] in item:
+                    icons.append(icon_paths[k])
+
+            col.image(icons, width=ICON_IMAGE_WIDTH)
 
 
-def display_article_tags(items):
+def display_article_tags(items, items_tags=None):
+    """Display article tags.
+
+    If `item_tags` is null, takes tags information from item filenames.
+    """
     display_icon_key()
 
     num_cols = 3
@@ -83,56 +102,14 @@ def display_article_tags(items):
 
         cols = st.columns(num_cols)
         col_i = 0
-        for item in items[cat]:
-            display_article_tags_for_item(cols[col_i], item)
-
-            if col_i == num_cols - 1:
-                col_i = 0
-            else:
-                col_i += 1
-
-            cols[col_i].markdown("""---""")
-
-
-def choose_filename_to_update(filepaths):
-    image_filenames = []
-    for cat in filepaths:
-        image_filenames += [x for x in filepaths[cat]]
-
-    missing_tags = [
-        x for x in image_filenames if (
-            not any(tag in x for tag in TAGS['style'].values())
-            or not any(tag in x for tag in TAGS['season'].values())
-            or not any(tag in x for tag in TAGS['occasion'].values())
-        )
-    ]
-    if missing_tags:
-        info = (
-            f"These {len(missing_tags)} clothing articles have not been tagged"
-            "with a style, season, or occasion type yet:"
-        )
-
-        return st.sidebar.selectbox(info, missing_tags)
-
-
-def update_article_tags(filepath):
-    cols = st.columns(3)
-    display_article_tags_for_item(cols[0], filepath)
-
-    form = st.form('tags')
-    style = form.selectbox('Style?', list(TAGS['style'].keys()))
-    seasons = form.multiselect('Season?', list(TAGS['season'].keys()))
-    occasions = form.multiselect('Occasion?', list(TAGS['occasion'].keys()))
-
-    filename_parts = filepath.split('.')
-
-    if form.form_submit_button('Finished Adding Tags'):
-        tag = TAGS['style'][style]
-        for season in seasons:
-            tag += TAGS['season'][season]
-        for occasion in occasions:
-            tag += TAGS['occasion'][occasion]
-
-        os.rename(
-            filepath, f'{filename_parts[0]}_{tag}.{filename_parts[1]}'
-        )
+        if items_tags:
+            for item, item_tags in zip(items[cat], items_tags[cat]):
+                display_article_tags_for_item(cols[col_i], item, item_tags)
+                col_i = increment_i(col_i, num_cols - 1)
+                cols[col_i].markdown("""---""")
+        else:
+            for item in items[cat]:
+                display_article_tags_for_item(cols[col_i], item)
+                col_i = increment_i(col_i, num_cols - 1)
+                print(col_i)
+                cols[col_i].markdown("""---""")
