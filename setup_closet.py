@@ -3,7 +3,7 @@ import streamlit as st
 from typing import Dict, List, Tuple
 
 from info_material import tagging_session_info
-from tagging import display_icon_key, is_missing_tag, select_article_tags
+from tagging import display_icon_key, select_article_tags
 
 from category_constants import ALL_CATEGORIES, TAGS
 
@@ -15,8 +15,7 @@ def upload_items() -> List[str]:
             f'Please select all {cat} items',
             key=cat,
             accept_multiple_files=True,
-        )
-        
+        ) 
     return uploaded_items
 
 
@@ -48,6 +47,20 @@ def get_next_cat_i(items, cats, ss):
         get_next_cat_i(items, cats, ss)
 
     return ss.cat_i
+
+
+def select_article_tags() -> Tuple[int, Dict[str, List[str]]]:
+    form = st.form('tags')
+    style = form.selectbox('Style?', list(TAGS['style'].keys()))
+    seasons = form.multiselect('Season?', list(TAGS['season'].keys()))
+    occasions = form.multiselect('Occasion?', list(TAGS['occasion'].keys()))
+
+    if form.form_submit_button('Finished Adding Tags'):
+        return {
+            'style': style,
+            'season': seasons,
+            'occasion': occasions,
+        }
 
 
 def tag_items(ss, items: Dict[str, list]) -> Dict[str, list]:
