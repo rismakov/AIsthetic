@@ -22,7 +22,7 @@ from outfit_utils import (
     filter_appropriate_outfits,
     filter_appropriate_items,
 )
-from setup_closet import tag_items, upload_items
+from setup_closet import download_json, tag_items, upload_items
 from tagging import display_article_tags
 from utils import get_all_image_filenames
 
@@ -206,13 +206,6 @@ def confirm_filters_added(seasons, occasions):
         st.sidebar.error('Please add filters first.')
         return False
     return True
-
-
-def download_json(label, info_to_save, filename):
-    json_string = json.dumps(info_to_save)
-    st.download_button(
-        label=label, data=json_string, mime="application/json", file_name=filename
-    )
 
 
 def init_session_state():

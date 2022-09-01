@@ -1,3 +1,4 @@
+import json
 import streamlit as st
 
 from typing import Dict, List, Tuple
@@ -62,6 +63,28 @@ def select_article_tags() -> Tuple[int, Dict[str, List[str]]]:
         }
 
 
+def get_cat_and_item_inds(ss, cats, items):
+    cat = cats[ss.cat_i]
+    # continue to next non-empty category if end of items in current category
+    if ss.item_i == len(items[cat]):
+        ss.cat_i = get_next_cat_i(items, cats, ss)
+        ss.item_i = 0
+
+    # exit function if finished scrolling through all categories
+    if ss.cat_i is None:
+        ss.is_item_tag_session = False
+        ss.finished_tag_session = True
+
+    return ss
+
+
+def download_json(label, info_to_save, filename):
+    json_string = json.dumps(info_to_save)
+    st.download_button(
+        label=label, data=json_string, mime="application/json", file_name=filename
+    )
+
+
 def tag_items(ss, items: Dict[str, list]) -> Dict[str, list]:
     """Add tags to items missing tags.
 
@@ -88,37 +111,31 @@ def tag_items(ss, items: Dict[str, list]) -> Dict[str, list]:
     display_icon_key()
 
     cats = list(items.keys())
-    cat = cats[ss.cat_i]
 
-    if not ss.finished_tag_session:
-        tagging_session_info(cat)
-
-    # continue to next non-empy category if current category includes no items
-    if len(items[cat]) == 0:
-        ss.cat_i = get_next_cat_i(items, cats, ss)
-        ss.item_i = 0
-
+    ss = get_cat_and_item_inds(ss, cats, items)
+    if ss.cat_i is None:
+        return ss
+      
     # create image placeholder and display tagging form
     placeholder = st.container()
     ss.current_tags = select_article_tags()
 
     # if user submitted tags, append tags to list and increment item index
     if ss.current_tags:
+        cat = cats[ss.cat_i]
         ss.items_tags[cat] = ss.items_tags.get(cat, []) + [ss.current_tags]
         ss.item_i += 1
 
-    # continue to next non-empty category if end of items in current category
-    if ss.item_i == len(items[cat]):
-        ss.cat_i = get_next_cat_i(items, cats, ss)
-        ss.item_i = 0
-
-    # exit function if finished scrolling through all categories
+    # need this here again
+    ss = get_cat_and_item_inds(ss, cats, items)
     if ss.cat_i is None:
-        ss.is_item_tag_session = False
-        ss.finished_tag_session = True
         return ss
 
-    # display image
+    # display header, info and image
+    cat = cats[ss.cat_i]
+    if not ss.finished_tag_session:
+        tagging_session_info(placeholder, cat)
+
     placeholder.image(items[cat][ss.item_i], width=300)
 
     return ss

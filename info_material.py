@@ -1,9 +1,9 @@
 import streamlit as st
 
 
-def tagging_session_info(cat):
-    st.subheader(cat)
-    st.write(
+def tagging_session_info(placeholder, cat):
+    placeholder.subheader(cat)
+    placeholder.write(
         "Please tag the following item accordingly by style (basic vs "
         "statement), occasion (where you would wear it), and season (when you "
         "would wear it).\n\n A clothing article is considered a 'Basic' piece "
@@ -17,7 +17,7 @@ def finished_tagging_info():
     st.write(
         "Yay! You finished tagging all items in your closet! Your closet setup "
         "is complete. \n\n Click the button below to download the information "
-        "and easily access your closet when you enter this app next."
+        "and easily access your closet when you next enter this app."
     )
 
 
