@@ -34,7 +34,6 @@ def get_next_cat_i(items, cats, ss):
     -------
     int
     """
-    print('we are inside get next i func', ss.cat_i, len(cats))
     ss.cat_i += 1
 
     # return null if `cat_i` is greater than number of categories
