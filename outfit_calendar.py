@@ -9,7 +9,7 @@ from get_weather import get_projected_weather
 from outfit_utils import (
     filter_appropriate_outfits, filter_category_of_items, filter_basic_items,
 )
-from utils import daterange, get_filenames_in_dir, incrememt_i
+from utils import daterange, get_filenames_in_dir, increment_i
 
 from category_constants import (
     ACCESSORIES,
@@ -255,7 +255,7 @@ def display_outfit_plan(
 
         cols[col_i].markdown("""---""")
 
-        col_i = incrememt_i(col_i, num_cols - 1)
+        col_i = increment_i(col_i, num_cols - 1)
 
 
 def save_outfit_plan(outfits, city, start_date, end_date):
