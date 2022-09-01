@@ -29,4 +29,4 @@ def display_outfit_pieces(outfit: dict):
     for item in outfit.values():
         cols[i].image(item, width=250)
 
-        col_i = increment_i(col_i, 4, increment_by=2)
+        i = increment_i(i, 4, increment_by=2)
