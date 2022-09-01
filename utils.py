@@ -1,9 +1,12 @@
 import json
 import os
+import streamlit as st
 from datetime import timedelta
 
+from ProductSearch import ProductSearch
 from category_constants import ALL_CATEGORIES
-from utils_constants import CLOSET_PATH
+
+plt.style.use('fivethirtyeight')
 
 
 def get_filenames_in_dir(dir):
@@ -13,13 +16,14 @@ def get_filenames_in_dir(dir):
     ]
 
 
-def get_all_image_filenames() -> dict:
+def get_all_image_filenames(path) -> dict:
     return {
-        cat: get_filenames_in_dir(f'{CLOSET_PATH}/{cat}') 
+        cat: get_filenames_in_dir(f'{path}/{cat}')
         for cat in ALL_CATEGORIES
     }
 
-def get_key_of_value(d: dict, v: str) -> str: 
+
+def get_key_of_value(d: dict, v: str) -> str:
     """
     Parameters
     ----------
@@ -35,6 +39,24 @@ def get_key_of_value(d: dict, v: str) -> str:
             return k
 
 
+def increment_i(i: int, max_i: int) -> int:
+    """Add one to `col_i`. If `col_i` is at max, return 0.
+    """
+    if i == max_i:
+        return 0
+    return i + 1
+
+
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days) + 1):
         yield start_date + timedelta(n)
+
+
+def get_product_search():
+    return ProductSearch(
+        st.secrets['GCP_PROJECTID'],
+        st.secrets['CREDS'],
+        st.secrets['CLOSET_SET'],
+        st.secrets['gcp_service_account'],
+    )
+
