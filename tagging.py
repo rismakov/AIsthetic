@@ -111,5 +111,4 @@ def display_article_tags(items, items_tags=None):
             for item in items[cat]:
                 display_article_tags_for_item(cols[col_i], item)
                 col_i = increment_i(col_i, num_cols - 1)
-                print(col_i)
                 cols[col_i].markdown("""---""")
