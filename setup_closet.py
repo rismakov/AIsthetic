@@ -3,7 +3,7 @@ import streamlit as st
 from typing import Dict, List, Tuple
 
 from info_material import tagging_session_info
-from tagging import display_icon_key, select_article_tags
+from tagging import display_icon_key
 
 from category_constants import ALL_CATEGORIES, TAGS
 
