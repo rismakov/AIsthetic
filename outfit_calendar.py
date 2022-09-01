@@ -7,7 +7,7 @@ from datetime import date
 from count_closet import count_outfits
 from get_weather import get_projected_weather
 from outfit_utils import (
-    filter_appropriate_outfits, filter_items, is_statement_item
+    filter_appropriate_outfits, filter_category_of_items, filter_basic_items,
 )
 from utils import daterange, get_filenames_in_dir
 
@@ -16,7 +16,6 @@ from category_constants import (
     CADENCES,
     MAIN_CATEGORIES,
     OUTFIT_AMOUNT,
-    TAGS,
     WEATHER_ICON_MAPPING,
     WEATHER_TO_SEASON_MAPPINGS,
 )
@@ -25,20 +24,18 @@ from utils_constants import CLOSET_PATH
 # References:
 # https://daleonai.com/social-media-fashion-ai
 
-OUTFIT_COLS = [0, 2, 4, 0, 2, 4]
-
 WEEKDAY_MAPPING = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
 
 
-def is_any_exclude_item_in_outfit(outfit: dict, exclude_items: dict) -> bool:
-    """Check if any items from `exclude_items` are in `outfit`.
+def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict) -> bool:
+    """Check if any items from `recently_worn` are in `outfit`.
 
-    Checks for all categories in `outfit` and `exclude_items`.
+    Checks for all categories in `outfit` and `recently_worn`.
 
     Parameters
     ----------
     outfit : Dict[str]
-    exclude_items : Dict[List[str]]
+    recently_worn : Dict[List[str]]
 
     Returns
     -------
@@ -47,9 +44,27 @@ def is_any_exclude_item_in_outfit(outfit: dict, exclude_items: dict) -> bool:
     # any exclude item in any of the categories
     return any(
         any(
-            exclude_item == item for exclude_item in exclude_items.get(cat, [])
+            exclude_item == item for exclude_item in recently_worn.get(cat, [])
         ) for cat, item in outfit.items()
     )
+
+
+def get_non_recently_worn_options(options: list, recently_worn: dict):
+    """Remove outfits from `options` that include recently-worn items.
+
+    If all options were recently-worn, keep recursively removing a day from
+    the recently-worn items (i.e. if 'recently' is defined as 3 days, check 2
+    days, then 1 day).
+    """
+    filtered_options = [
+        outfit for outfit in options
+        if not is_any_exclude_item_in_outfit(outfit, recently_worn)
+    ]
+    if filtered_options:
+        return filtered_options
+
+    recently_worn = {cat: items[:-1] for cat, items in recently_worn.items()}
+    return get_non_recently_worn_options(options, recently_worn)
 
 
 def choose_outfit(
@@ -57,12 +72,12 @@ def choose_outfit(
     weather_type: str,
     occasion: str,
     include_accessories: bool = True,
-    exclude_items: dict = {},
+    recently_worn: dict = {},
 ):
     """
     Parameters
     ----------
-    exclude_items : Dict[List[str]]
+    recently_worn : Dict[List[str]]
 
     Returns
     -------
@@ -79,34 +94,24 @@ def choose_outfit(
         print(f"NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
         return {}
 
-    # Get clothing items that have not been recently worn
-    options = [
-        outfit for outfit in appropriate_outfits
-        if not is_any_exclude_item_in_outfit(outfit, exclude_items)
-    ]
-
-    # If no non-recently worn outfits available, allow recently-worn options
-    if not options:
-        print(f"ONLY RECENTLY WORN ITEMS AVAILABLE.")
-        options = appropriate_outfits
+    options = get_non_recently_worn_options(appropriate_outfits, recently_worn)
 
     # create deep copy
     choose_from = [{k: v for k, v in option.items()} for option in options]
     random_ind = random.randint(0, len(options) - 1)
     choice = choose_from[random_ind]
 
+    # add shoes and accessories to outfit
     cats = ['shoes']
     if include_accessories:
         cats += ACCESSORIES
 
     for cat in cats:
         item_options = get_filenames_in_dir(f'{CLOSET_PATH}/{cat}')
-        item_options = filter_items(item_options, [season], [occasion])
+        item_options = filter_category_of_items(item_options, [season], [occasion])
 
         if choice['tags']['is_statement']:
-            item_options = [
-                item for item in item_options if not is_statement_item(item)
-            ]
+            item_options = filter_basic_items(item_options)
         if item_options:
             choice[cat] = random.choice(item_options)
 
@@ -192,20 +197,6 @@ def get_outfit_plan_for_all_occasions(
     return outfit_plan
 
 
-def display_outfit_pieces(outfit: dict):
-    """Display outfit pieces.
-
-    Parameters
-    ----------
-    outfit : dict
-        Dict of outfit pieces, with the category the key and the image filepath
-        the value.
-    """
-    cols = st.columns(6)
-    for i, item in zip(OUTFIT_COLS, outfit.values()):
-        cols[i].image(item, width=250)
-
-
 def get_weather_icon_filename(weather_type, weather):
     if weather_type == 'Really Cold':
         return WEATHER_ICON_MAPPING['Really Cold']
@@ -216,7 +207,7 @@ def get_weather_icon_filename(weather_type, weather):
 
 def init_most_recently_worn():
     categories = ['top', 'bottom', 'dress', 'outerwear']
-    return {cat: [] for cat in categories} 
+    return {cat: [] for cat in categories}
 
 
 def update_most_recently_worn(
@@ -234,13 +225,14 @@ def display_outfit_plan(
     dates: list, outfits: list, weather_info: dict, days_in_week: int
 ):
     temps, weathers, weather_types = (
-        weather_info['temps'], 
-        weather_info['weathers'], 
+        weather_info['temps'],
+        weather_info['weathers'],
         weather_info['weather_types'],
     )
 
     num_cols = 3
     for i, outfit_date, outfit in zip(range(len(dates)), dates, outfits):
+        # display week number
         if i % days_in_week == 0:
             st.header(f'Week {int((i / days_in_week)) + 1}')
             cols = st.columns(num_cols)
@@ -263,7 +255,7 @@ def display_outfit_plan(
 
         cols[col_i].markdown("""---""")
 
-        if col_i in list(range(num_cols - 1)):
+        if col_i <= num_cols - 2:
             col_i += 1
         else:
             col_i = 0
@@ -281,10 +273,10 @@ def get_outfit_plan(
     occasion: str,
     work_dow,
     start_date: date,
-    end_date: date, 
-    amount: str, 
+    end_date: date,
+    amount: str,
     include_accessories: bool,
-):   
+):
     """Get outfit plan from `start_date` to `end_date`.
 
     Parameters
@@ -322,7 +314,7 @@ def get_outfit_plan(
         work_dow_ints = [
             i for i, day in enumerate(WEEKDAY_MAPPING) if day in work_dow
         ]
-        if (outfit_date.weekday() not in work_dow_ints) and (occasion == 'Work'):
+        if outfit_date.weekday() not in work_dow_ints and occasion == 'Work':
             continue
 
         occasion_outfit_plan['dates'].append(outfit_date)
@@ -331,7 +323,7 @@ def get_outfit_plan(
             weather_type,
             occasion,
             include_accessories,
-            exclude_items=recently_worn,
+            recently_worn=recently_worn,
         )
         occasion_outfit_plan['outfits'].append(outfit)
 
