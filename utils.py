@@ -6,8 +6,6 @@ from datetime import timedelta
 from ProductSearch import ProductSearch
 from category_constants import ALL_CATEGORIES
 
-plt.style.use('fivethirtyeight')
-
 
 def get_filenames_in_dir(dir):
     return [
@@ -59,4 +57,3 @@ def get_product_search():
         st.secrets['CLOSET_SET'],
         st.secrets['gcp_service_account'],
     )
-
