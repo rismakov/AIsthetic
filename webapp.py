@@ -22,7 +22,7 @@ from outfit_utils import (
     filter_appropriate_outfits,
     filter_appropriate_items,
 )
-from setup_closet import download_json, tag_items, upload_items
+from setup_closet import download_button, tag_items, upload_items
 from tagging import display_article_tags
 from utils import get_all_image_filenames
 
@@ -299,7 +299,10 @@ if closet_option == "Use own personal closet":
 
     if ss.finished_tag_session:
         finished_tagging_info()
-        download_json("Download Tags", ss.items_tags, 'aisthethic_tags.json')
+        download_button_str = download_button(
+            ss.items_tags, 'aisthethic_tags.json', "Download Closet Tags"
+        )
+        st.markdown(download_button_str, unsafe_allow_html=True)
 
 ######################################
 ######################################

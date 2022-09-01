@@ -14,6 +14,7 @@ def tagging_session_info(placeholder, cat):
 
 
 def finished_tagging_info():
+    st.subheader('Closet Setup: Complete')
     st.write(
         "Yay! You finished tagging all items in your closet! Your closet setup "
         "is complete. \n\n Click the button below to download the information "
