@@ -3,6 +3,9 @@ ACCESSORIES = ['hats', 'bags']
 
 ALL_CATEGORIES = MAIN_CATEGORIES + ACCESSORIES
 
+OCCASIONS = ['Casual', 'Work', 'Dinner/Bar', 'Club/Fancy']
+SEASONS = ['Summer', 'Fall', 'Winter', 'Spring']
+
 _occasion_tags = {
     'Casual': 'ca_',
     'Work': 'wo_',
