@@ -6,13 +6,13 @@ from utils import increment_i
 def display_outfits(outfits: list):
     num_cols = 3
     cols = st.columns(num_cols)
-    col_i = 0
+    i = 0
     for outfit in outfits:
         outfit = {cat: item for cat, item in outfit.items() if cat != 'tags'}
-        cols[col_i].image(list(outfit.values()), width=70)
-        cols[col_i].markdown("""---""")
+        cols[i].image(list(outfit.values()), width=70)
+        cols[i].markdown("""---""")
 
-        col_i = increment_i(col_i, num_cols - 1)
+        i = increment_i(i, num_cols - 1)
 
 
 def display_outfit_pieces(outfit: dict):
