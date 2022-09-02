@@ -22,7 +22,7 @@ from outfit_utils import (
     filter_appropriate_outfits,
     filter_appropriate_items,
 )
-from setup_closet import download_button, tag_items, upload_items
+from setup_closet import download_json, tag_items, upload_items
 from tagging import display_article_tags
 from utils import get_all_image_filenames
 
@@ -273,7 +273,7 @@ options = [
 closet_option = st.radio("Which closet would you like to use?", options)
 
 if closet_option == "Use own personal closet":
-    has_already_setup = st.radio("Have you set up your closet yet?", ['Yep', 'Not yet'])
+    has_already_setup = st.radio("Have you set up your closet?", ['Yep', 'Not yet'])
     if has_already_setup == 'Yep':
         ss.is_closet_upload = False
     elif has_already_setup == 'Not yet':
@@ -299,10 +299,7 @@ if closet_option == "Use own personal closet":
 
     if ss.finished_tag_session:
         finished_tagging_info()
-        download_button_str = download_button(
-            ss.items_tags, 'aisthethic_tags.json', "Download Closet Tags"
-        )
-        st.markdown(download_button_str, unsafe_allow_html=True)
+        download_json(ss.items_tags, 'aisthetic_tags.json', 'Download Tags')
 
 ######################################
 ######################################

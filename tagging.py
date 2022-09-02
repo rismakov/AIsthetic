@@ -102,13 +102,11 @@ def display_article_tags(items, items_tags=None):
 
         cols = st.columns(num_cols)
         col_i = 0
-        if items_tags:
-            for item, item_tags in zip(items[cat], items_tags[cat]):
-                display_article_tags_for_item(cols[col_i], item, item_tags)
-                col_i = increment_i(col_i, num_cols - 1)
-                cols[col_i].markdown("""---""")
-        else:
-            for item in items[cat]:
-                display_article_tags_for_item(cols[col_i], item)
-                col_i = increment_i(col_i, num_cols - 1)
-                cols[col_i].markdown("""---""")
+        for item in items[cat]:
+            if items_tags:
+                item_tags = items_tags[cat][item.name]
+            else:
+                item_tags = None
+            display_article_tags_for_item(cols[col_i], item, item_tags)
+            col_i = increment_i(col_i, num_cols - 1)
+            cols[col_i].markdown("""---""")
