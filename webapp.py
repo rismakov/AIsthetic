@@ -213,8 +213,8 @@ def init_session_state():
         is_closet_upload=False,
         is_item_tag_session=False,
         finished_tag_session=False,
-        uploaded_items=None,
-        items_tags={},
+        items=None,
+        items_tags=None,
         finished_button_clicked=False,
         cat_i=0,  # for closet setup - tagging
         item_i=0,  # for closet setup - tagging
@@ -241,7 +241,7 @@ about_info()
 # st.header('Closet Information')
 
 info_placeholder = st.container()
-print('Counting items...')
+# print('Counting items...')
 # info_placeholder.subheader('Entire Wardrobe')
 # count_outfits(info_placeholder, OUTFITS, items)
 
@@ -254,14 +254,16 @@ ss = init_session_state()
 
 st.header('App Options')
 
-options = [
-    'Use mock data for testing',
-    'Use own personal closet',
-]
-closet_option = st.radio("Which closet would you like to use?", options)
+closet_option = st.radio(
+    "Which closet would you like to use?", 
+    ['Use mock data for testing', 'Use own personal closet'],
+)
 
-if closet_option == "Use own personal closet":
-    has_already_setup = st.radio("Have you set up your closet?", ['Yep', 'Not yet'])
+if closet_option == 'Use mock data for testing':
+    ss.items = get_all_image_filenames(CLOSET_PATH)
+elif closet_option == 'Use own personal closet':
+    ss.items = None
+    has_already_setup = st.radio('Have you set up your closet?', ['Yes', 'Not yet'])
     if has_already_setup == 'Yep':
         ss.is_closet_upload = False
     elif has_already_setup == 'Not yet':
@@ -272,9 +274,28 @@ if closet_option == "Use own personal closet":
             ss.is_item_tag_session = True
         else:
             st.subheader('Upload Closet')
-
-            ss.uploaded_items = upload_items()
+            items = upload_items()
             ss.finished_button_clicked = st.button('Finished uploading closet.')
+            if ss.finished_button_clicked:
+                ss.items = items
+    else:
+        if not ss.items_tags:
+            st.subheader('Upload Closet Item Tags')
+            st.write("""
+                If you have previously set up your closet, you should have
+                your closet item tags (occasion, season, etc.) saved. Please
+                upload those tags here.
+            """)
+            st.file_uploader('Please select your closet tags json file')
+
+        if not ss.items:
+            st.subheader('Upload Closet')
+
+            items = upload_items()
+            ss.finished_button_clicked = st.button('Finished uploading closet.')
+            if ss.finished_button_clicked:
+                ss.items = items
+                ss.has_uploaded_closet
 
     # need this twice
     if ss.finished_button_clicked:
@@ -283,12 +304,14 @@ if closet_option == "Use own personal closet":
     if ss.is_item_tag_session and not ss.finished_tag_session:
         ss.is_closet_upload = False
 
-        ss = tag_items(ss, ss.uploaded_items)
+        ss = tag_items(ss, ss.items)
 
     if ss.finished_tag_session:
         finished_tagging_info()
-        download_json(ss.items_tags, 'aisthetic_tags.json', 'Download Tags')
+        if download_json(ss.items_tags, 'aisthetic_tags.json', 'Download Tags'):
+            ss.is_closet_upload = False
 
+print(ss.is_closet_upload, ss.has_uploaded_closet)
 ######################################
 ######################################
 
@@ -309,8 +332,7 @@ if ss.has_uploaded_closet or closet_option == "Use mock data for testing":
     ######################################
 
     if option == "View all clothing articles in closet":
-        session_state = init_session_state()
-        session_state, seasons, occasions = get_and_add_filters(session_state)
+        ss, seasons, occasions = get_and_add_filters(ss)
 
         st.sidebar.header("Options")
 
@@ -356,9 +378,9 @@ if ss.has_uploaded_closet or closet_option == "Use mock data for testing":
                 )
                 st.image(image, width=300)
                 if image_type == 'filepath':
-                    get_outfit_match_from_inspo(items, filepath=image)
+                    get_outfit_match_from_inspo(ss.items, filepath=image)
                 else:
-                    get_outfit_match_from_inspo(items, uri=image)
+                    get_outfit_match_from_inspo(ss.items, uri=image)
     elif option == "Plan a set of outfits for a trip":
         st.sidebar.header("Options")
         st.session_state.outfit_plans = {}
