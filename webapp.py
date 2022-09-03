@@ -43,13 +43,21 @@ INSPO_DIR = 'inspo/'
 
 OUTFITS = Closet().get_outfits()
 
+WEATHER_OPTIONS = ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy']
+DOWS = ['Sun', 'Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat']
+YES_OR_NO = ['Yes', 'No']
+YES_NO_BOOL_MAPPING = {'Yes': True, 'No': False}
+AMOUNTS = [
+    'small carry-on suitcase',
+    'medium suitcase',
+    'large suitcase',
+    'entire closet',
+]
+
 
 def option_one_questions():
     season = st.sidebar.selectbox("What's the season?", SEASONS)
-    weather = st.sidebar.selectbox(
-        "What is the weather today?", 
-        ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy'],
-    )
+    weather = st.sidebar.selectbox("What is the weather today?", WEATHER_OPTIONS)
     occasion = st.sidebar.selectbox("What is the occasion?", OCCASIONS)
 
     return season, weather, occasion
@@ -59,26 +67,21 @@ def get_outfit_plan_question_responses():
     side = st.sidebar
     form = side.form('Plan')
 
-    q = "What occasions are you planning for?"
-    occasions = form.multiselect(q, OCCASIONS)
+    occasions = form.multiselect(
+        "What occasions are you planning for?", OCCASIONS
+    )
 
-    options = ['Sun', 'Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat']
-    q = "If you chose work above, what days of the week are you in the office?"
-    work_dow = form.multiselect(q, options)
+    work_dow = form.multiselect(
+        "If you chose work above, what days of the week are you in the office?", 
+        DOWS,
+    )
 
-    options = ['Yes', 'No']
-    include = form.selectbox("Would you like to include accessories?", options)
+    include = form.selectbox(
+        "Would you like to include accessories?", YES_OR_NO
+    )
+    include = YES_NO_BOOL_MAPPING[include]
 
-    accessories_mapping = {'Yes': True, 'No': False}
-    include = accessories_mapping[include]
-
-    options = [
-        'small carry-on suitcase',
-        'medium suitcase',
-        'large suitcase',
-        'entire closet',
-    ]
-    amount = form.selectbox("How much are you looking to bring?", options)
+    amount = form.selectbox("How much are you looking to bring?", AMOUNTS)
 
     city = form.text_input("Which city are you traveling to?").lower().strip()
     country = form.text_input("Country?").lower().strip()
@@ -103,7 +106,8 @@ def get_and_display_outfit_plan():
         get_outfit_plan_question_responses()
     )
 
-    if occasions:  # if above responses were received
+    # if above responses were received
+    if occasions:  
         weather_info = get_weather_info_for_outfitplans(
             city, country, start_date, end_date
         )
