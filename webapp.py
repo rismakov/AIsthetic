@@ -9,7 +9,7 @@ from categorize_wardrobe import categorize_wardrobe_style
 from closet_creater import Closet
 from count_closet import count_outfits
 from display_closet import display_outfit_pieces
-from info_material import finished_tagging_info, select_filters_info
+from info_material import about_info, finished_tagging_info, select_filters_info
 from inspo_finder import get_outfit_match_from_inspo
 from outfit_calendar import (
     choose_outfit,
@@ -235,20 +235,8 @@ def init_session_state():
 ######################################
 ######################################
 
-
-st.image('header4.jpeg')
-
-st.title("AIsthetic: Wardrobe Optimization")
-st.write('')
-
-with st.expander("Information on Wardrobe Data"):
-    st.write(
-        "*This application is currently running on demo data (i.e. my personal "
-        "closet). If there will be a need, it can be updated to intake and run "
-        "on other users' individual wardrobe data."
-    )
-
-items = get_all_image_filenames(CLOSET_PATH)
+st.image('header_white.jpeg')
+about_info()
 
 # st.header('Closet Information')
 
@@ -257,7 +245,7 @@ print('Counting items...')
 # info_placeholder.subheader('Entire Wardrobe')
 # count_outfits(info_placeholder, OUTFITS, items)
 
-st.header('AIsthetic Algorithm')
+# st.header('AIsthetic Algorithm')
 ss = init_session_state()
 
 ######################################
@@ -265,6 +253,8 @@ ss = init_session_state()
 # Closet Option ######################
 ######################################
 ######################################
+
+st.header('App Options')
 
 options = [
     'Use mock data for testing',
