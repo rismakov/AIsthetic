@@ -249,9 +249,7 @@ print('Counting items...')
 ss = init_session_state()
 
 ######################################
-######################################
 # Closet Option ######################
-######################################
 ######################################
 
 st.header('App Options')
@@ -303,19 +301,6 @@ if ss.has_uploaded_closet or closet_option == "Use mock data for testing":
     ]
 
     option = st.radio("What would you like to do?", options)
-
-    if closet_option == options[1]:
-        # st.write(
-        #    "The app currently runs on demo data only. If you would like to upload "
-        #    "and run on your personal wardrobe data, please have some investors "
-        #    "send over funding in order for me to continue developing this "
-        #    "further;) \n\n Or if you would really like to use this app for "
-        #    "personal use, let me know and I can send over the beta version for you"
-        #    " to test out (as long as you don't mind a few bugs and potential "
-        #    "tweaks that will need to be made)."
-        # )
-        pass
-
 
     ######################################
     ######################################
