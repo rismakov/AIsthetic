@@ -46,10 +46,10 @@ OUTFITS = Closet().get_outfits()
 
 def option_one_questions():
     season = st.sidebar.selectbox("What's the season?", SEASONS)
-
-    options = ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy']
-    weather = st.sidebar.selectbox("What is the weather today?", options)
-
+    weather = st.sidebar.selectbox(
+        "What is the weather today?", 
+        ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy'],
+    )
     occasion = st.sidebar.selectbox("What is the occasion?", OCCASIONS)
 
     return season, weather, occasion
