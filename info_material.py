@@ -29,6 +29,7 @@ def about_info():
         outfit plan.
     """)
 
+
 def tagging_session_info(placeholder, cat):
     placeholder.subheader(cat)
     placeholder.write("""
@@ -77,3 +78,12 @@ def select_filters_info():
     st.sidebar.write(
         "Please select either seasons and occasions filters"
     )
+
+
+def upload_tags_info():
+    st.subheader('Upload Closet Item Tags')
+    st.write("""
+        If you have previously set up your closet, you should have
+        your closet item tags (occasion, season, etc.) saved. Please
+        upload those tags here.
+    """)
