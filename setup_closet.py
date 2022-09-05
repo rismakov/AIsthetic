@@ -11,144 +11,39 @@ import streamlit as st
 
 from typing import Dict, List, Tuple
 
-from info_material import tagging_session_info
+from info_material import upload_tags_info
+from setup_tags import is_end_of_category, update_cat_and_item_inds
 from tagging import display_icon_key
 
 from category_constants import ALL_CATEGORIES, TAGS
 
 
+def update_upload_state():
+    """Update session state from 'is_closet_upload' to 'is_item_tag_session'.
+    """
+    st.session_state['is_closet_upload'] = False
+    st.session_state['is_finished_upload'] = True
+    st.session_state['is_item_tag_session'] = True
+
+
 def upload_items() -> List[str]:
-    uploaded_items = {}
+    st.header('Upload Closet')
+
     for cat in ALL_CATEGORIES:
-        uploaded_items[cat] = st.file_uploader(
+        st.session_state['items'][cat] = st.file_uploader(
             f'Please select all {cat} items',
             key=cat,
             accept_multiple_files=True,
-        ) 
-    return uploaded_items
+        )
+    st.button('Finished uploading closet.', on_click=update_upload_state)
 
 
-def get_next_cat_i(items, cats, ss):
-    """Get the next category index with items available.
-
-    Parameters
-    ----------
-    items : Dict[str, list]
-    cats : List[str]
-        The categories in `items`.
-    ss : int
-        The session state. Used to keep track of `cat_i` increments.
-
-    Returns
-    -------
-    int
+def upload_closet_setup_items():
+    """Prompt user to upload closet tags, closet items, and closet outfits.
     """
-    ss.cat_i += 1
+    upload_tags_info()
+    if st.file_uploader('Please select your closet tags json file'):
+        st.session_state['finished_uploading_tags'] = True
 
-    # return null if `cat_i` is greater than number of categories
-    if ss.cat_i == len(cats):
-        ss.cat_i = None
-        return
-
-    # skip category if it includes no items
-    if len(items[cats[ss.cat_i]]) == 0:
-        get_next_cat_i(items, cats, ss)
-
-    return ss.cat_i
-
-
-def select_article_tags() -> Tuple[int, Dict[str, List[str]]]:
-    form = st.form('tags')
-    style = form.selectbox('Style?', list(TAGS['style'].keys()))
-    seasons = form.multiselect('Season?', list(TAGS['season'].keys()))
-    occasions = form.multiselect('Occasion?', list(TAGS['occasion'].keys()))
-
-    if form.form_submit_button('Finished Adding Tags'):
-        return {
-            'style': style,
-            'season': seasons,
-            'occasion': occasions,
-        }
-
-
-def get_cat_and_item_inds(ss, cats, items):
-    cat = cats[ss.cat_i]
-    # continue to next non-empty category if end of items in current category
-    if ss.item_i == len(items[cat]):
-        ss.cat_i = get_next_cat_i(items, cats, ss)
-        ss.item_i = 0
-
-    # exit function if finished scrolling through all categories
-    if ss.cat_i is None:
-        ss.is_item_tag_session = False
-        ss.finished_tag_session = True
-
-    return ss
-
-
-def download_json(object_to_download, download_filename: str, button_text: str):
-    return st.download_button(
-        label=button_text, 
-        data=json.dumps(object_to_download), 
-        file_name=download_filename,
-        mime="application/json",
-    )
-
-
-def tag_items(ss, items: Dict[str, list]):
-    """Add tags to items missing tags.
-
-    Returns `items_tags` with tags included where they were previously missing.
-
-    Parameters
-    ----------
-    ss : session_state
-    items : Dict[str, list]
-
-    Returns
-    -------
-    Dict[str, List[Dict[str, List[str]]]]
-        example: {
-                'tops': [
-                    {'style': [...], 'occasion': [...], 'weather': [...]},
-                    ...
-                ],
-                'bottoms': [{...}, {...}, ...],
-                ...
-            }
-            items_tags[cat][item] --> item_tags --> item_tag_type_tags
-    """
-    display_icon_key()
-
-    cats = list(items.keys())
-
-    ss = get_cat_and_item_inds(ss, cats, items)
-    if ss.cat_i is None:
-        return ss
-
-    # create image placeholder and display tagging form
-    placeholder = st.container()
-    ss.current_tags = select_article_tags()
-
-    # if user submitted tags, append tags to list and increment item index
-    if ss.current_tags:
-        cat = cats[ss.cat_i]
-        ss.items_tags[cat] = {
-            **ss.items_tags.get(cat, {}),
-            **{items[cat][ss.item_i].name: ss.current_tags}
-        }
-        ss.item_i += 1
-
-    # need this here again
-    ss = get_cat_and_item_inds(ss, cats, items)
-    if ss.cat_i is None:
-        return ss
-
-    # display header, info and image
-    cat = cats[ss.cat_i]
-    if not ss.finished_tag_session:
-        tagging_session_info(placeholder, cat)
-
-    placeholder.image(items[cat][ss.item_i], width=300)
-
-    return ss
+    upload_items()
+    print(st.session_state['items'])

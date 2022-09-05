@@ -22,7 +22,8 @@ from outfit_utils import (
     filter_appropriate_outfits,
     filter_appropriate_items,
 )
-from setup_closet import download_json, tag_items, upload_items
+from setup_closet import upload_closet_setup_items, upload_items
+from setup_tags import tag_items
 from tagging import display_article_tags
 from utils import get_all_image_filenames
 
@@ -107,7 +108,7 @@ def get_and_display_outfit_plan():
     )
 
     # if above responses were received
-    if occasions:  
+    if occasions:
         weather_info = get_weather_info_for_outfitplans(
             city, country, start_date, end_date
         )
@@ -143,7 +144,7 @@ def get_and_display_outfit_plan():
 
 def check_if_url_valid(url):
     try:
-        response = requests.get(url)
+        requests.get(url)
         st.sidebar.success("URL is valid and exists on the internet.")
         return True
     except requests.ConnectionError as exception:
@@ -168,7 +169,7 @@ def choose_inspo_file():
         return st.sidebar.text_input(options[1]), 'uri'
 
 
-def get_and_add_filters(session_state):
+def get_and_add_filters():
     select_filters_info()
     form = st.sidebar.form('Tags')
     seasons = form.multiselect('Seasons', SEASONS)
@@ -178,20 +179,18 @@ def get_and_add_filters(session_state):
         if not occasions or not seasons:
             st.error('Please select occasion and/or season types first.')
         else:
-            ss.items_filtered = filter_appropriate_items(
-                items, seasons, occasions
+            st.session_state['items_filtered'] = filter_appropriate_items(
+                st.session_state['items'], seasons, occasions
             )
-            ss.outfits_filtered = filter_appropriate_outfits(
+            st.session_state['outfits_filtered'] = filter_appropriate_outfits(
                 OUTFITS, seasons, occasions,
             )
-            print('# of items:', len(ss.items_filtered))
-            print('# of outfits:', len(ss.outfits_filtered))
 
         info_placeholder.subheader('Post Filter')
         count_outfits(
             info_placeholder,
-            ss.outfits_filtered,
-            ss.items_filtered,
+            st.session_state['outfits_filtered'],
+            st.session_state['items_filtered'],
         )
 
     if not seasons or not occasions:
@@ -202,7 +201,7 @@ def get_and_add_filters(session_state):
     else:
         st.sidebar.success('Filters selected.')
 
-    return session_state, seasons, occasions
+    return seasons, occasions
 
 
 def confirm_filters_added(seasons, occasions):
@@ -212,25 +211,30 @@ def confirm_filters_added(seasons, occasions):
     return True
 
 
+def init_starting_values(cols, init_value):
+    for col in cols:
+        if col not in st.session_state:
+            st.session_state[col] = init_value
+
+
 def init_session_state():
-    return SessionState.get(
-        is_closet_upload=False,
-        is_item_tag_session=False,
-        finished_tag_session=False,
-        items=None,
-        items_tags=None,
-        finished_button_clicked=False,
-        cat_i=0,  # for closet setup - tagging
-        item_i=0,  # for closet setup - tagging
-        current_tags=None,  # for closet setup - tagging
-        has_uploaded_closet=False,
-        item='',
-        button_clicked=False,
-        scroll_items=False,
-        i=0,
-        items_filtered=None,
-        outfits_filtered=None,
-    )
+    cols_init_false = [
+        'is_closet_setup',
+        'is_closet_upload',
+        'is_finished_upload',
+        'is_item_tag_session',
+        'finished_all_uploads',
+        'button_clicked',
+    ]
+
+    cols_init_empty_dict = ['items', 'items_tags', 'items_filtered']
+    cols_init_zero = ['cat_i', 'item_i', 'i']
+    cols_init_null = ['current_tags', 'item', 'outfits_filtered']
+
+    init_starting_values(cols_init_false, False)
+    init_starting_values(cols_init_empty_dict, {})
+    init_starting_values(cols_init_zero, 0)
+    init_starting_values(cols_init_null, None)
 
 
 ######################################
@@ -250,7 +254,9 @@ info_placeholder = st.container()
 # count_outfits(info_placeholder, OUTFITS, items)
 
 # st.header('AIsthetic Algorithm')
-ss = init_session_state()
+init_session_state()
+
+print('DEBUG re-start', st.session_state['is_closet_upload'], st.session_state['is_item_tag_session'])
 
 ######################################
 # Closet Option ######################
@@ -264,62 +270,29 @@ closet_option = st.radio(
 )
 
 if closet_option == 'Use mock data for testing':
-    ss.items = get_all_image_filenames(CLOSET_PATH)
+    st.session_state['items'] = get_all_image_filenames(CLOSET_PATH)
 elif closet_option == 'Use own personal closet':
-    ss.items = None
     has_already_setup = st.radio('Have you set up your closet?', ['Yes', 'Not yet'])
-    if has_already_setup == 'Yep':
-        ss.is_closet_upload = False
+
+    # if has already set up closet previously
+    if has_already_setup == 'Yes':
+        upload_closet_setup_items()
+    # if has NOT set up closet yet
     elif has_already_setup == 'Not yet':
-        ss.is_closet_upload = True
+        # to not reset to state 'is_closet_upload' after user finishes upload
+        if not st.session_state['is_finished_upload']:
+            st.session_state['is_closet_upload'] = True
 
-    if ss.is_closet_upload:
-        if ss.finished_button_clicked:
-            ss.is_item_tag_session = True
-        else:
-            st.subheader('Upload Closet')
-            items = upload_items()
-            ss.finished_button_clicked = st.button('Finished uploading closet.')
-            if ss.finished_button_clicked:
-                ss.items = items
-    else:
-        if not ss.items_tags:
-            st.subheader('Upload Closet Item Tags')
-            st.write("""
-                If you have previously set up your closet, you should have
-                your closet item tags (occasion, season, etc.) saved. Please
-                upload those tags here.
-            """)
-            st.file_uploader('Please select your closet tags json file')
+        if st.session_state['is_closet_upload']:
+            upload_items()
 
-        if not ss.items:
-            st.subheader('Upload Closet')
+        if st.session_state['is_item_tag_session']:
+            tag_items()
 
-            items = upload_items()
-            ss.finished_button_clicked = st.button('Finished uploading closet.')
-            if ss.finished_button_clicked:
-                ss.items = items
-                ss.has_uploaded_closet
-
-    # need this twice
-    if ss.finished_button_clicked:
-        ss.is_item_tag_session = True
-
-    if ss.is_item_tag_session and not ss.finished_tag_session:
-        ss.is_closet_upload = False
-
-        ss = tag_items(ss, ss.items)
-
-    if ss.finished_tag_session:
-        finished_tagging_info()
-        if download_json(ss.items_tags, 'aisthetic_tags.json', 'Download Tags'):
-            ss.is_closet_upload = False
-
-print(ss.is_closet_upload, ss.has_uploaded_closet)
 ######################################
 ######################################
 
-if ss.has_uploaded_closet or closet_option == "Use mock data for testing":
+if st.session_state['finished_all_uploads'] or closet_option == "Use mock data for testing":
     options = [
         "Select a random outfit combination from closet",
         "Select an outfit based on an inspo-photo",
@@ -336,18 +309,18 @@ if ss.has_uploaded_closet or closet_option == "Use mock data for testing":
     ######################################
 
     if option == "View all clothing articles in closet":
-        ss, seasons, occasions = get_and_add_filters(ss)
+        seasons, occasions = get_and_add_filters()
 
         st.sidebar.header("Options")
 
         if st.sidebar.button('Show Wardrode Info'):
             if confirm_filters_added(seasons, occasions):
                 print('Printing wardrobe info...')
-                categorize_wardrobe_style(ss.items_filtered)
+                categorize_wardrobe_style(st.session_state['items_filtered'])
 
         if st.sidebar.button('View Clothing Tags'):
             if confirm_filters_added(seasons, occasions):
-                display_article_tags(ss.items_filtered)
+                display_article_tags(st.session_state['items_filtered'])
 
     elif option == "Analyze closet":
         ClosetAnalyzer().count_amounts()
@@ -382,9 +355,9 @@ if ss.has_uploaded_closet or closet_option == "Use mock data for testing":
                 )
                 st.image(image, width=300)
                 if image_type == 'filepath':
-                    get_outfit_match_from_inspo(ss.items, filepath=image)
+                    get_outfit_match_from_inspo(st.session_state['items'], filepath=image)
                 else:
-                    get_outfit_match_from_inspo(ss.items, uri=image)
+                    get_outfit_match_from_inspo(st.session_state['items'], uri=image)
     elif option == "Plan a set of outfits for a trip":
         st.sidebar.header("Options")
         st.session_state.outfit_plans = {}

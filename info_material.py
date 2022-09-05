@@ -2,37 +2,37 @@ import streamlit as st
 
 
 def about_info():
-    st.header('About AIsthetic')
+    with st.expander('About AIsthetic App'):
+        st.write("""
+            AIsthetic is a wardrobe optimizer that helps you decide what to wear, 
+            helps pack for a trip, and helps find items in your closet that best 
+            resemble an inspiration photo.\n\n
 
+            All you have to do is upload images of closet, and the app does the rest
+            for you.\n\n
+
+            With this app, you can:\n
+            1. View all items in your closet.
+            2. Select a random outfit based on weather and occasion.
+            3. Surface outfit pieces that most closely resemble those from an
+                inspiration image (e.g. Pinterest post).
+            4. Generate an itinerary of clothing for your next trip based on trip 
+                start date, trip end date, location, and luggage allowances.
+
+            helping with diminishing decision fatigue, with reducing need to
+            purchase more clothing, and with optimizing travel planning.
+
+            The algorithm currently has logic in place that determines whether
+            two items match together and that ensures the same item isn't
+            selected too close together when creating an outfit plan. For the
+            trip planner feature, the app scrapes weather data to determine
+            which clothing items are appropriate for the chosen days.
+        """)
+
+
+def tagging_session_info(cat):
+    st.subheader(f'Category: {cat}')
     st.write("""
-        AIsthetic is a wardrobe optimizer that helps you decide what to wear, 
-        helps pack for a trip, and helps find items in your closet that best 
-        resemble an inspiration photo.\n\n
-
-        All you have to do is upload images of closet, and the app does the rest
-        for you.\n\n
-
-        With this app, you can:\n
-        1. View all items in your closet.
-        2. Select a random outfit based on weather and occasion.
-        3. Surface outfit pieces that most closely resemble those from an
-            inspiration image (e.g. Pinterest post).
-        4. Generate an itinerary of clothing for your next trip based on trip 
-            start date, trip end date, location, and luggage allowances.
-
-        helping with diminishing decision fatigue, with reducing need to 
-        purchase more clothing, and with optimizing travel planning.
-
-        The algorithm currently has logic in place that determines whether two
-        items match together when generating an outfit and logic in place that
-        ensures the same item isn't selected too close together when creating an
-        outfit plan.
-    """)
-
-
-def tagging_session_info(placeholder, cat):
-    placeholder.subheader(cat)
-    placeholder.write("""
         Please tag the following item accordingly by style (basic vs
         statement), occasion (where you would wear it), and season (when you
         would wear it).\n\n A clothing article is considered a 'Basic' piece
