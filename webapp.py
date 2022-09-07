@@ -44,10 +44,10 @@ INSPO_DIR = 'inspo/'
 
 OUTFITS = Closet().get_outfits()
 
-WEATHER_OPTIONS = ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy']
+WEATHERS = ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy']
 DOWS = ['Sun', 'Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat']
 YES_OR_NO = ['Yes', 'No']
-YES_NO_BOOL_MAPPING = {'Yes': True, 'No': False}
+YES_NO_MAPPING = {'Yes': True, 'No': False}
 AMOUNTS = [
     'small carry-on suitcase',
     'medium suitcase',
@@ -57,11 +57,12 @@ AMOUNTS = [
 
 
 def option_one_questions():
-    season = st.sidebar.selectbox("What's the season?", SEASONS)
-    weather = st.sidebar.selectbox("What is the weather today?", WEATHER_OPTIONS)
-    occasion = st.sidebar.selectbox("What is the occasion?", OCCASIONS)
-
-    return season, weather, occasion
+    return [
+        st.sidebar.selectbox(f'What is the {x}?', options) for x, options in zip(
+            ['season', 'weather today', 'occasion'],
+            [SEASONS, WEATHERS, OCCASIONS],
+        )
+    ]
 
 
 def get_outfit_plan_question_responses():
@@ -80,7 +81,7 @@ def get_outfit_plan_question_responses():
     include = form.selectbox(
         "Would you like to include accessories?", YES_OR_NO
     )
-    include = YES_NO_BOOL_MAPPING[include]
+    include = YES_NO_MAPPING[include]
 
     amount = form.selectbox("How much are you looking to bring?", AMOUNTS)
 
