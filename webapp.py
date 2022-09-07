@@ -58,6 +58,7 @@ AMOUNTS = [
 
 
 def option_one_questions() -> Tuple[str, str, str]:
+    st.header("Select a random outfit")
     cols = st.columns(3)
     options = {
         'season': SEASONS,
@@ -72,39 +73,38 @@ def option_one_questions() -> Tuple[str, str, str]:
 
 
 def get_outfit_plan_question_responses():
-    side = st.sidebar
-    form = side.form('Plan')
+    st.header('Trip Planner')
+    with st.form(key='Plan'):
+        col1, col2 = st.columns(2)
 
-    occasions = form.multiselect(
-        "What occasions are you planning for?", OCCASIONS
-    )
+        with col1:
+            occasions = st.multiselect(
+                "What occasions are you planning for?", OCCASIONS
+            )
+            include = st.selectbox(
+                "Would you like to include accessories?", YES_OR_NO
+            )
+            city = st.text_input("Which city are you traveling to?").lower().strip()
+            start_date = st.date_input("When are you starting your trip?")
 
-    work_dow = form.multiselect(
-        "If you chose work above, what days of the week are you in the office?", 
-        DOWS,
-    )
+        with col2:
+            work_dow = st.multiselect(
+                "If you chose work, what days are you in the office?", DOWS,
+            )
+            amount = st.selectbox("How much are you looking to bring?", AMOUNTS)
+            country = st.text_input("Country?").lower().strip()
+            end_date = st.date_input("When are you ending your trip?")
 
-    include = form.selectbox(
-        "Would you like to include accessories?", YES_OR_NO
-    )
-    include = YES_NO_MAPPING[include]
+        include = YES_NO_MAPPING[include]
 
-    amount = form.selectbox("How much are you looking to bring?", AMOUNTS)
+        if st.form_submit_button("Create Outfit Plan"):
+            if end_date < start_date:
+                st.error("ERROR: end date cannot be before start date.")
+                return [], None, None, None, None, None, None
+            if 'Work' in occasions and not work_dow:
+                st.error("ERROR: you must specific the work days of the week.")
 
-    city = form.text_input("Which city are you traveling to?").lower().strip()
-    country = form.text_input("Country?").lower().strip()
-
-    start_date = form.date_input("When are you starting your trip?")
-    end_date = form.date_input("When are you ending your trip?")
-
-    if form.form_submit_button("Create Outfit Plan"):
-        if end_date < start_date:
-            form.error("ERROR: end date cannot be before start date.")
-            return [], None, None, None, None, None, None
-        if 'Work' in occasions and not work_dow:
-            form.error("ERROR: you must specific the work days of the week.")
-
-        return occasions, include, amount, city, country, start_date, end_date, work_dow
+            return occasions, include, amount, city, country, start_date, end_date, work_dow
 
     return [], None, None, None, None, None, None, None
 
@@ -150,57 +150,61 @@ def get_and_display_outfit_plan():
 
 
 def choose_inspo_file():
+    st.header("Select outfit from inspo")
+    cols = st.columns(2)
     options = ['Select an example inspo file', 'Input my own inspo photo URL']
-    option = st.sidebar.radio(
+    option = cols[0].radio(
         'How would you like to select your inspo photo?', options
     )
 
     if option == options[0]:
         filenames = [x for x in os.listdir(INSPO_DIR) if x != '.DS_Store']
-        filename = st.sidebar.selectbox(options[0], filenames)
+        filename = cols[0].selectbox(options[0], filenames)
         return os.path.join(INSPO_DIR, filename), 'filepath'
     else:
-        return st.sidebar.text_input(options[1]), 'uri'
+        return cols[0].text_input(options[1]), 'uri'
 
 
 def get_and_add_filters():
     select_filters_info()
-    form = st.sidebar.form('Tags')
-    seasons = form.multiselect('Seasons', SEASONS)
-    occasions = form.multiselect('Occasions', OCCASIONS)
+    with st.form('Tags'):
+        cols = st.columns(2)
+        seasons = cols[0].multiselect('Seasons', SEASONS)
+        occasions = cols[1].multiselect('Occasions', OCCASIONS)
 
-    if form.form_submit_button('Add Filters'):
-        if not occasions or not seasons:
-            st.error('Please select occasion and/or season types first.')
-        else:
-            st.session_state['items_filtered'] = filter_appropriate_items(
-                st.session_state['items'], seasons, occasions
+        if st.form_submit_button('Add Filters'):
+            if not occasions or not seasons:
+                st.error('Please select occasion and/or season types first.')
+            else:
+                st.session_state['items_filtered'] = filter_appropriate_items(
+                    st.session_state['items'], seasons, occasions
+                )
+                st.session_state['outfits_filtered'] = filter_appropriate_outfits(
+                    OUTFITS, seasons, occasions,
+                )
+
+            info_placeholder.subheader('Post Filter')
+            count_outfits(
+                info_placeholder,
+                st.session_state['outfits_filtered'],
+                st.session_state['items_filtered'],
             )
-            st.session_state['outfits_filtered'] = filter_appropriate_outfits(
-                OUTFITS, seasons, occasions,
-            )
 
-        info_placeholder.subheader('Post Filter')
-        count_outfits(
-            info_placeholder,
-            st.session_state['outfits_filtered'],
-            st.session_state['items_filtered'],
-        )
+            if not seasons or not occasions:
+                st.warning(
+                    "NOTE: No filters selected. Please select filters above "
+                    "and click 'Add Filters'."
+                )
+            else:
+                st.success('Filters selected.')
 
-    if not seasons or not occasions:
-        st.sidebar.warning(
-            "NOTE: No filters selected. Please select filters above and click "
-            "'Add Filters'."
-        )
-    else:
-        st.sidebar.success('Filters selected.')
-
-    return seasons, occasions
+        return seasons, occasions
+    return None, None
 
 
 def confirm_filters_added(seasons, occasions):
     if not seasons or not occasions:
-        st.sidebar.error('Please add filters first.')
+        st.error('Please add filters first.')
         return False
     return True
 
@@ -306,16 +310,16 @@ if st.session_state['finished_all_uploads'] or closet_option == "Use mock data f
     ######################################
 
     if option == "View all clothing articles in closet":
+        st.header("View entire closet")
         seasons, occasions = get_and_add_filters()
 
-        st.sidebar.header("Options")
-
-        if st.sidebar.button('Show Wardrode Info'):
+        st.subheader("Options")
+        if st.button('Show Wardrode Info'):
             if confirm_filters_added(seasons, occasions):
                 print('Printing wardrobe info...')
                 categorize_wardrobe_style(st.session_state['items_filtered'])
 
-        if st.sidebar.button('View Clothing Tags'):
+        if st.button('View Clothing Tags'):
             if confirm_filters_added(seasons, occasions):
                 display_article_tags(st.session_state['items_filtered'])
 
@@ -329,8 +333,6 @@ if st.session_state['finished_all_uploads'] or closet_option == "Use mock data f
     ######################################
 
     elif option == "Select a random outfit combination from closet":
-        st.header("Select a random outfit")
-        st.subheader("Options")
         season, weather, occasion = option_one_questions()
         if st.button('Select Random Outfit'):
             st.header('Selected Outfit')
@@ -344,9 +346,8 @@ if st.session_state['finished_all_uploads'] or closet_option == "Use mock data f
                 st.text("NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
 
     elif option == "Select an outfit based on an inspo-photo":
-        st.sidebar.header("Options")
         image, image_type = choose_inspo_file()
-        if st.sidebar.button("Select Inspo-Based Outfit"):
+        if st.button("Select Inspo-Based Outfit"):
             st.header('Inspiration Match')
 
             is_valid = True
@@ -363,7 +364,6 @@ if st.session_state['finished_all_uploads'] or closet_option == "Use mock data f
                 else:
                     get_outfit_match_from_inspo(st.session_state['items'], uri=image)
     elif option == "Plan a set of outfits for a trip":
-        st.sidebar.header("Options")
         st.session_state.outfit_plans = {}
         st.session_state.outfit_plans = get_and_display_outfit_plan()
 

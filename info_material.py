@@ -74,10 +74,8 @@ def categorize_wardrobe_info():
 def select_filters_info():
     """Used in "View all clothing articles in closet" option sidebar.
     """
-    st.sidebar.header("Filters")
-    st.sidebar.write(
-        "Please select either seasons and occasions filters"
-    )
+    st.subheader("Filters")
+    st.write("Please select either seasons and occasions filters")
 
 
 def upload_tags_info():
