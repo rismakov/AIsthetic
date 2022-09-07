@@ -4,6 +4,8 @@ import numpy as np
 import streamlit as st
 import SessionState
 
+from typing import Tuple
+
 from categorize_wardrobe import categorize_wardrobe_style
 from closet_creater import Closet
 from count_closet import count_outfits
@@ -56,13 +58,16 @@ AMOUNTS = [
 
 
 def option_one_questions() -> Tuple[str, str, str]:
+    cols = st.columns(3)
     options = {
         'season': SEASONS,
         'weather today': WEATHERS,
         'occasion': OCCASIONS,
     }
     return [
-        st.sidebar.selectbox(f'What is the {k}?', v) for k, v in options.items()
+        cols[i].selectbox(
+            f'What is the {k}?', v
+        ) for i, (k, v) in enumerate(options.items())
     ]
 
 
@@ -252,9 +257,11 @@ print('DEBUG re-start', st.session_state['is_closet_upload'], st.session_state['
 ######################################
 
 st.header('App Options')
+cols = st.columns(2)
 
-closet_option = st.radio(
-    "Which closet would you like to use?", 
+cols[0].subheader('Closet Option')
+closet_option = cols[0].radio(
+    "Which closet would you like to use?",
     ['Use mock data for testing', 'Use own personal closet'],
 )
 
@@ -289,11 +296,12 @@ if st.session_state['finished_all_uploads'] or closet_option == "Use mock data f
         "View all clothing articles in closet",
     ]
 
-    option = st.radio("What would you like to do?", options)
+    cols[1].subheader('Feature Option')
+    option = cols[1].radio("What would you like to do?", options)
 
     ######################################
     ######################################
-    # Side Bar ###########################
+    # View All ###########################
     ######################################
     ######################################
 
@@ -314,10 +322,17 @@ if st.session_state['finished_all_uploads'] or closet_option == "Use mock data f
     elif option == "Analyze closet":
         ClosetAnalyzer().count_amounts()
 
+    ######################################
+    ######################################
+    # View All ###########################
+    ######################################
+    ######################################
+
     elif option == "Select a random outfit combination from closet":
-        st.sidebar.header("Options")
+        st.header("Select a random outfit")
+        st.subheader("Options")
         season, weather, occasion = option_one_questions()
-        if st.sidebar.button('Select Random Outfit'):
+        if st.button('Select Random Outfit'):
             st.header('Selected Outfit')
             outfit = choose_outfit(OUTFITS, weather, occasion)
             if outfit:
