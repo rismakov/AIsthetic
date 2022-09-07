@@ -1,5 +1,6 @@
 import json
 import os
+import requests
 import streamlit as st
 from datetime import timedelta
 
@@ -48,6 +49,19 @@ def increment_i(i: int, max_i: int, increment_by=1) -> int:
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days) + 1):
         yield start_date + timedelta(n)
+
+
+def check_if_url_valid(url: str):
+    """Raise error if `url` is an invalid url.
+    """
+    try:
+        requests.get(url)
+        st.sidebar.success("URL is valid and exists on the internet.")
+        return True
+    except requests.ConnectionError as exception:
+        st.sidebar.error("ERROR: URL is not a valid link.")
+    except requests.exceptions.MissingSchema:
+        st.sidebar.error("ERROR: URL is not a valid link.")
 
 
 def get_product_search():

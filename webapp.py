@@ -1,7 +1,6 @@
 import json
 import os
 import numpy as np
-import requests
 import streamlit as st
 import SessionState
 
@@ -25,7 +24,7 @@ from outfit_utils import (
 from setup_closet import upload_closet_setup_items, upload_items
 from setup_tags import tag_items
 from tagging import display_article_tags
-from utils import get_all_image_filenames
+from utils import check_if_url_valid, get_all_image_filenames
 
 from category_constants import MAIN_CATEGORIES, SEASONS, OCCASIONS
 from utils_constants import CLOSET_PATH
@@ -141,19 +140,6 @@ def get_and_display_outfit_plan():
         st.session_state.outfit_plans = outfit_plans
         return st.session_state.outfit_plans
     return st.session_state.outfit_plans
-
-
-def check_if_url_valid(url):
-    try:
-        requests.get(url)
-        st.sidebar.success("URL is valid and exists on the internet.")
-        return True
-    except requests.ConnectionError as exception:
-        st.sidebar.error("ERROR: URL is not a valid link.")
-    except requests.exceptions.MissingSchema:
-        st.sidebar.error("ERROR: URL is not a valid link.")
-
-    return False
 
 
 def choose_inspo_file():
