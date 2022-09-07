@@ -55,12 +55,14 @@ AMOUNTS = [
 ]
 
 
-def option_one_questions():
+def option_one_questions() -> Tuple[str, str, str]:
+    options = {
+        'season': SEASONS,
+        'weather today': WEATHERS,
+        'occasion': OCCASIONS,
+    }
     return [
-        st.sidebar.selectbox(f'What is the {x}?', options) for x, options in zip(
-            ['season', 'weather today', 'occasion'],
-            [SEASONS, WEATHERS, OCCASIONS],
-        )
+        st.sidebar.selectbox(f'What is the {k}?', v) for k, v in options.items()
     ]
 
 
