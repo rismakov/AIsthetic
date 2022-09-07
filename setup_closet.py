@@ -44,6 +44,6 @@ def upload_closet_setup_items():
     upload_tags_info()
     if st.file_uploader('Please select your closet tags json file'):
         st.session_state['finished_uploading_tags'] = True
+        st.session_state['is_item_tag_session'] = True
 
     upload_items()
-    print(st.session_state['items'])
