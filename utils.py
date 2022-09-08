@@ -10,9 +10,21 @@ from ProductSearch import ProductSearch
 from category_constants import ALL_CATEGORIES
 
 
-def get_filenames_in_dir(dir):
+def get_filenames_in_dir(dir: str) -> List[str]:
+    """Get all filenames in directory `dir`.
+
+    Parameters
+    ----------
+    dir : str
+        The directory of filenames.
+
+    Returns
+    -------
+    List[str]
+        The list of filenames in the directory.
+    """
     return [
-        f'{dir}/{name}' for name in os.listdir(dir) 
+        f'{dir}/{name}' for name in os.listdir(dir)
         if os.path.isfile(os.path.join(dir, name)) and name != '.DS_Store'
     ]
 
@@ -26,6 +38,10 @@ def get_all_image_filenames(dir: str) -> Dict[str, List[str]]:
         The directory. Should include subfolders of categories.
 
     Returns
+    -------
+    Dict[str, List[str]]
+        The key is the category and the values are the list of filenames in the
+        category subfolder directory.
     """
     return {cat: get_filenames_in_dir(f'{dir}/{cat}') for cat in ALL_CATEGORIES}
 
