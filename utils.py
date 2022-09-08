@@ -4,6 +4,8 @@ import requests
 import streamlit as st
 from datetime import timedelta
 
+from typing import Dict, List
+
 from ProductSearch import ProductSearch
 from category_constants import ALL_CATEGORIES
 
@@ -15,11 +17,17 @@ def get_filenames_in_dir(dir):
     ]
 
 
-def get_all_image_filenames(path) -> dict:
-    return {
-        cat: get_filenames_in_dir(f'{path}/{cat}')
-        for cat in ALL_CATEGORIES
-    }
+def get_all_image_filenames(dir: str) -> Dict[str, List[str]]:
+    """Return all filenames in `path` by category subfolders.
+
+    Parameters
+    ----------
+    dir : str
+        The directory. Should include subfolders of categories.
+
+    Returns
+    """
+    return {cat: get_filenames_in_dir(f'{dir}/{cat}') for cat in ALL_CATEGORIES}
 
 
 def get_key_of_value(d: dict, v: str) -> str:
