@@ -6,31 +6,6 @@ ALL_CATEGORIES = MAIN_CATEGORIES + ACCESSORIES
 OCCASIONS = ['Casual', 'Work', 'Dinner/Bar', 'Club/Fancy']
 SEASONS = ['Summer', 'Fall', 'Winter', 'Spring']
 
-_occasion_tags = {
-    'Casual': 'ca_',
-    'Work': 'wo_',
-    'Dinner/Bar': 'bar_',
-    'Club/Fancy': 'f_',
-}
-
-_season_tags = {
-    'Summer': 'su_',
-    'Fall': 'fa_',
-    'Winter': 'wi_',
-    'Spring': 'sp_',
-}
-
-_style_tags = {
-    'Basic': 'bas_',
-    'Statement': 'st_',
-}
-
-TAGS = {
-    'season': _season_tags,
-    'occasion': _occasion_tags,
-    'style': _style_tags,
-}
-
 WEATHER_ICON_MAPPING = {
     'Partly cloudy': 'partly_cloudy.png',
     'Clear': 'sunny.png',
