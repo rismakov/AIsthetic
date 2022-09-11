@@ -1,48 +1,82 @@
-from typing import List
 
-from category_constants import OCCASIONS, SEASONS, TAGS
+import streamlit as st
+from typing import Dict, List
 
-
-def is_statement_item(item: str) -> bool:
-    return TAGS['style']['Statement'] in item
+from category_constants import OCCASIONS, SEASONS
 
 
-def filter_basic_items(items: List[str]) -> List[str]:
-    return [item for item in items if not is_statement_item(item)]
+def is_statement_item(item: str, item_tags) -> bool:
+    return item_tags['style'] == 'Statement'
 
 
-def filter_statement_items(items: List[str]) -> List[str]:
-    return [item for item in items if is_statement_item(item)]
+def filter_basic_items(items: List[str], items_tags: dict) -> List[str]:
+    return [
+        item for item in items if not is_statement_item(item, items_tags[item])
+    ]
 
 
-def filter_category_of_items(
-    items: list, seasons: list = SEASONS, occasions: list = OCCASIONS
-) -> list:
-    """Filter list to only include items with specfic tags.
+def filter_statement_items(items: List[str], items_tags: dict) -> List[str]:
+    return [
+        item for item in items if is_statement_item(item, items_tags[item])
+    ]
+
+
+def are_tags_in_item(item_tags, seasons, occasions) -> bool:
+    """Check if any seasons AND any occasions tags are linked to `item`.
 
     Items in list must include at least one of the `seasons` tags AND at least
     one of the `occasions` tags.
+    """
+    print(item_tags)
+    return (
+        any(season in item_tags['season'] for season in seasons)
+        and any(occasion in item_tags['occasion'] for occasion in occasions)
+    )
+
+
+def filter_category_of_items(cat_items, cat_items_tags, seasons, occasions, is_item_upload=False):
+    filtered_items = []
+    for item in cat_items:
+        if is_item_upload:
+            item_name = item.name
+        else:
+            item_name = item
+
+        if are_tags_in_item(cat_items_tags[item_name], seasons, occasions):
+            filtered_items.append(item)
+    return filtered_items
+
+
+def filter_appropriate_items(
+    items: Dict[str, list],
+    items_tags: Dict[str, dict],
+    seasons: List[str],
+    occasions: List[str],
+    is_item_upload: bool = False
+) -> Dict[str, list]:
+    """Filter dictionary of items.
 
     Parameters
     ----------
-    items : list
-    seasons : list
-    occasions : list
+    items : Dict[str, list]
+        The key is the category (eg 'tops', 'bottoms', etc) and the values are
+        the list of items.
+    seasons : List[str]
+        The list of seasons we want to filter on.
+    occasions : List[str]
+        The list of occasion we want to filter on.
 
     Returns
-    list
-        Returns filepaths that have at least one of the `seasons` tags and one
-        of the `occasions` tags.
+    -------
+    Dict[str, list]
+        The items filtered on those with any of the season tags AND any of the
+        occasion tags.
     """
-    season_tags = [TAGS['season'][season] for season in seasons]
-    occasion_tags = [TAGS['occasion'][occasion] for occasion in occasions]
-
-    return [
-        item for item in items if (
-            any(tag in item for tag in season_tags)
-            and any(tag in item for tag in occasion_tags)
-        )
-    ]
+    return {
+        cat: filter_category_of_items(
+            items[cat], items_tags[cat], seasons, occasions, is_item_upload=is_item_upload
+        ) for cat in items if items[cat]  # if nonempty category
+    }
 
 
 def filter_appropriate_outfits(
@@ -54,15 +88,6 @@ def filter_appropriate_outfits(
             and any(occsn in outfit['tags']['occasion'] for occsn in occasions)
         )
     ]
-
-
-def filter_appropriate_items(
-    items: dict, seasons: list, occasions: list
-) -> dict:
-    return {
-        cat: filter_category_of_items(items[cat], seasons, occasions)
-        for cat in items
-    }
 
 
 def filter_outfits_on_item(outfits, cat, item):
