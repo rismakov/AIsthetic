@@ -95,3 +95,6 @@ def get_product_search():
         st.secrets['CLOSET_SET'],
         st.secrets['gcp_service_account'],
     )
+
+def update_keys(d, mapping):
+    return {mapping.get(k, k): v for k, v in d.items()}
