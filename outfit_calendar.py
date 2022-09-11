@@ -3,10 +3,12 @@ import random
 import streamlit as st
 
 from datetime import date
+from typing import Dict
 
 from count_closet import count_outfits
 from get_weather import get_projected_weather
 from outfit_utils import (
+    filter_appropriate_items,
     filter_appropriate_outfits, filter_category_of_items, filter_basic_items,
 )
 from utils import daterange, get_filenames_in_dir, increment_i
@@ -69,10 +71,13 @@ def get_non_recently_worn_options(options: list, recently_worn: dict):
 
 def choose_outfit(
     outfits: list,
+    items: Dict[str, list],
+    items_tags: Dict[str, dict],
     weather_type: str,
     occasion: str,
     include_accessories: bool = True,
     recently_worn: dict = {},
+    is_item_upload: bool = False,
 ):
     """
     Parameters
@@ -102,16 +107,19 @@ def choose_outfit(
     choice = choose_from[random_ind]
 
     # add shoes and accessories to outfit
-    cats = ['shoes']
+    accessories_cats = ['shoes']
     if include_accessories:
-        cats += ACCESSORIES
+        accessories_cats += ACCESSORIES
 
-    for cat in cats:
-        item_options = get_filenames_in_dir(f'{CLOSET_PATH}/{cat}')
-        item_options = filter_category_of_items(item_options, [season], [occasion])
+    nonempty_cats = [cat for cat in accessories_cats if items[cat]]
+    for cat in nonempty_cats:
+        item_options = items[cat]
+        item_options = filter_category_of_items(
+            item_options, items_tags[cat], [season], [occasion], is_item_upload
+        )
 
         if choice['tags']['is_statement']:
-            item_options = filter_basic_items(item_options)
+            item_options = filter_basic_items(item_options, items_tags[cat])
         if item_options:
             choice[cat] = random.choice(item_options)
 
@@ -159,6 +167,8 @@ def get_weather_info_for_outfitplans(city, country, start_date, end_date):
 
 def get_outfit_plan_for_all_occasions(
     outfits,
+    items,
+    items_tags,
     occasions,
     work_dow,
     weather_types,
@@ -166,6 +176,7 @@ def get_outfit_plan_for_all_occasions(
     end_date,
     amount,
     include,
+    is_item_upload,
 ):
     seasons = get_season_types_from_weather_info(weather_types)
 
@@ -174,16 +185,20 @@ def get_outfit_plan_for_all_occasions(
     appropriate_outfits = filter_appropriate_outfits(
         outfits, seasons, occasions,
     )
+    appropriate_items = filter_appropriate_items(
+        items, items_tags, seasons, occasions, is_item_upload=is_item_upload,
+    )
 
     st.subheader('Options Available')
-    info_placeholder = st.container()           
-    count_outfits(info_placeholder, appropriate_outfits)
+    # info_placeholder = st.container()      
+    # count_outfits(info_placeholder, appropriate_outfits, items_tags)
 
     outfit_plan = {}
     for occasion in occasions:
-        outfit_plan[occasion] = []
         outfit_plan[occasion] = get_outfit_plan(
             appropriate_outfits,
+            appropriate_items,
+            items_tags,
             weather_types,
             occasion,
             work_dow,
@@ -191,6 +206,7 @@ def get_outfit_plan_for_all_occasions(
             end_date,
             amount,
             include,
+            is_item_upload,
         )
 
     # save_outfit_plan(outfit_plan, city, start_date, end_date)
@@ -206,7 +222,7 @@ def get_weather_icon_filename(weather_type, weather):
 
 
 def init_most_recently_worn():
-    categories = ['top', 'bottom', 'dress', 'outerwear']
+    categories = ['tops', 'bottoms', 'dresses', 'outerwear']
     return {cat: [] for cat in categories}
 
 
@@ -266,6 +282,8 @@ def save_outfit_plan(outfits, city, start_date, end_date):
 
 def get_outfit_plan(
     outfits: list,
+    items,
+    items_tags,
     weather_types: list,
     occasion: str,
     work_dow,
@@ -273,6 +291,7 @@ def get_outfit_plan(
     end_date: date,
     amount: str,
     include_accessories: bool,
+    is_item_upload,
 ):
     """Get outfit plan from `start_date` to `end_date`.
 
@@ -317,11 +336,15 @@ def get_outfit_plan(
         occasion_outfit_plan['dates'].append(outfit_date)
         outfit = choose_outfit(
             outfits,
+            items,
+            items_tags,
             weather_type,
             occasion,
             include_accessories,
             recently_worn=recently_worn,
+            is_item_upload=is_item_upload,
         )
+
         occasion_outfit_plan['outfits'].append(outfit)
 
         recently_worn = update_most_recently_worn(outfit, amount, recently_worn)
