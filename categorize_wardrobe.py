@@ -85,15 +85,16 @@ def categorize_wardrode(filepaths):
         col_inds[label] = increment_i(col_inds[label], IMAGES_PER_ROW - 1)
 
 
-
-def categorize_wardrobe_style(items: dict):
-    """Categorizes `items` as Basic pieces or Statement pieces.
+def categorize_wardrobe_style():
+    """Categorizes session state `items` as Basic pieces or Statement pieces.
 
     Based on pre-trained model.
     """
     categorize_wardrobe_info()
 
     pattern_model = load_model('model.hdf5')
+
+    items = st.session_state['items_filtered']
 
     images = []
     images_processed = []
@@ -107,8 +108,8 @@ def categorize_wardrobe_style(items: dict):
     img_rows, img_cols = 100, 100
 
     X = X.reshape(X.shape[0], img_rows, img_cols, 1)
-    print('Predicting style of item...')
-    preds = pattern_model.predict(X)
+    with st.spinner('Predicting style of items...'):
+        preds = pattern_model.predict(X)
 
     styles = {}
     for image, pred in zip(images, preds):
