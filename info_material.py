@@ -79,9 +79,10 @@ def select_filters_info():
 
 
 def upload_tags_info():
-    st.subheader('Upload Closet Item Tags')
+    st.subheader('Upload Closet Tags')
     st.write("""
         If you have previously set up your closet, you should have
         your closet item tags (occasion, season, etc.) saved. Please
-        upload those tags here.
+        upload those tags here. If this is your first time setting up your
+        closet, ignore this step.
     """)
