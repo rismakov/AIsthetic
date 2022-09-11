@@ -1,49 +1,41 @@
-import base64
-import os
+import streamlit as st
 import json
-import pickle
-import uuid
-import re
-
-import streamlit as st
-import pandas as pd
-import streamlit as st
-
 from typing import Dict, List, Tuple
 
 from info_material import upload_tags_info
-from setup_tags import is_end_of_category, update_cat_and_item_inds
+from setup_tags import is_end_of_category, get_next_cat_and_item_inds
+from state_updates import update_upload_state
 from tagging import display_icon_key
 
-from category_constants import ALL_CATEGORIES, TAGS
+from category_constants import ALL_CATEGORIES
 
 
-def update_upload_state():
-    """Update session state from 'is_closet_upload' to 'is_item_tag_session'.
+def upload_items() -> dict:
+    """Get file uploaders to upload user-specified closet items.
     """
-    st.session_state['is_closet_upload'] = False
-    st.session_state['is_finished_upload'] = True
-    st.session_state['is_item_tag_session'] = True
-
-
-def upload_items() -> List[str]:
-    st.header('Upload Closet')
-
+    st.subheader('Upload Closet Items')
     for cat in ALL_CATEGORIES:
         st.session_state['items'][cat] = st.file_uploader(
             f'Please select all {cat} items',
             key=cat,
             accept_multiple_files=True,
         )
-    st.button('Finished uploading closet.', on_click=update_upload_state)
 
 
 def upload_closet_setup_items():
     """Prompt user to upload closet tags, closet items, and closet outfits.
     """
+    st.header('Upload Closet')
+
     upload_tags_info()
-    if st.file_uploader('Please select your closet tags json file'):
-        st.session_state['finished_uploading_tags'] = True
-        st.session_state['is_item_tag_session'] = True
+    items_tags = st.file_uploader('Please select your closet tags json file')
+    if items_tags:
+        st.session_state['items_tags'] = json.load(items_tags)
+        num_tags = sum(
+            len(tags) for tags in st.session_state['items_tags'].values()
+        )
+        st.success(f'You have successfully uploaded {num_tags} item tags.')
+        print('ITEM TAGS', st.session_state['items_tags'])
 
     upload_items()
+    st.button('Finished uploading items and tags', on_click=update_upload_state)
