@@ -11,8 +11,9 @@ def get_basics_and_statements(items: dict) -> Tuple[int, dict, dict]:
     """
     Parameters
     ----------
-    items : dict
-        The clothing items as the values, with the clothing category the key.
+    items : Dict[str, list]
+        The key is the category (eg 'tops', 'bottoms', etc) and the values are
+        the list of items.
 
     Returns
     -------
@@ -51,7 +52,7 @@ def count_item_info(info_placeholder, items):
     info_placeholder.write(f'{info[:-2]}.')
 
 
-def count_outfits(info_placeholder, outfits, items=[]):
+def count_outfits(info_placeholder, outfits, items_tags, items=[]):
     outfit_count = len(outfits)
     # count non-statement outfits
     basic_outfit_count = sum(
@@ -61,11 +62,12 @@ def count_outfits(info_placeholder, outfits, items=[]):
     statement_outfits = [
         outfit for outfit in outfits if outfit['tags']['is_statement']
     ]
-    unique_statement_pieces = [
-        [
-            item for item in outfit.values() if is_statement_item(item)
-        ][0] for outfit in statement_outfits
-    ]
+    unique_statement_pieces = []
+    for outfit in statement_outfits:
+        for cat, item in outfit.items():
+            if is_statement_item(item, items_tags[cat][item]):
+                unique_statement_pieces.append(item)
+
     unique_statement_piece_count = len(set(unique_statement_pieces))
     outfit_count_2 = basic_outfit_count + unique_statement_piece_count
 
