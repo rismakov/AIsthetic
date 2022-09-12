@@ -111,7 +111,7 @@ def choose_outfit(
     if include_accessories:
         accessories_cats += ACCESSORIES
 
-    nonempty_cats = [cat for cat in accessories_cats if items[cat]]
+    nonempty_cats = [cat for cat in accessories_cats if items.get(cat)]
     for cat in nonempty_cats:
         item_options = items[cat]
         item_options = filter_category_of_items(
