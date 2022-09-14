@@ -1,6 +1,9 @@
 import unittest
 
+from streamlit.uploaded_file_manager import UploadedFile, UploadedFileRec
+
 import outfit_utils
+import outfit_calendar
 import setup_tags
 import test_constants
 import utils
@@ -72,6 +75,10 @@ class TestOutfitUtils(unittest.TestCase):
                 ['Casual'],
             )
         )
+
+    def test_filter_appropriate_items(self):
+        # filter_appropriate_items
+        pass
 
 
 class TestClosetCreator(unittest.TestCase):
@@ -267,6 +274,56 @@ class TestClosetCreator(unittest.TestCase):
                     }},
                 },
             ],
+        )
+
+
+class TestOutfitCalendar(unittest.TestCase):
+
+    def test_is_any_exclude_item_in_outfit(self):
+        test_exclude_items = {
+            'bottoms': [
+                UploadedFile(UploadedFileRec(
+                    id=114,
+                    name='91_bas_su_ca_.jpg',
+                    type='image/jpeg',
+                    data=b""
+                    )
+                ),
+                UploadedFile(UploadedFileRec(
+                    id=114,
+                    name='not_in_outfit.jpg',
+                    type='image/jpeg',
+                    data=b""
+                    )
+                )
+            ],
+        }
+        self.assertTrue(
+            outfit_calendar.is_any_exclude_item_in_outfit(
+                test_constants.OUTFIT, test_exclude_items, is_item_upload=True
+            )
+        )
+        test_exclude_items = {'bottoms': [], 'tops': []}
+        self.assertFalse(
+            outfit_calendar.is_any_exclude_item_in_outfit(
+                test_constants.OUTFIT, test_exclude_items, is_item_upload=True
+            )
+        )
+        test_exclude_items = {
+            'bottoms': [
+                UploadedFile(UploadedFileRec(
+                    id=114,
+                    name='not_in_outfit.jpg',
+                    type='image/jpeg',
+                    data=b""
+                    )
+                )
+            ],
+        }
+        self.assertFalse(
+            outfit_calendar.is_any_exclude_item_in_outfit(
+                test_constants.OUTFIT, test_exclude_items, is_item_upload=True
+            )
         )
 
 
