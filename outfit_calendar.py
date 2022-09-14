@@ -29,29 +29,41 @@ from utils_constants import CLOSET_PATH
 WEEKDAY_MAPPING = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
 
 
-def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict) -> bool:
+def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict, is_item_upload=False) -> bool:
     """Check if any items from `recently_worn` are in `outfit`.
 
     Checks for all categories in `outfit` and `recently_worn`.
 
     Parameters
     ----------
-    outfit : Dict[str]
-    recently_worn : Dict[List[str]]
+    outfit : Dict[str, Union[str, UploadedFile]]
+    recently_worn : Dict[str, List[Union[str, UploadedFile]]
+        A dictionary of recently worn items, with the item category as the key.
+        Should include keys `tops`, `bottoms`, `dresses` and `outerwear`.
 
     Returns
     -------
     bool
     """
-    # any exclude item in any of the categories
-    return any(
-        any(
-            exclude_item == item for exclude_item in recently_worn.get(cat, [])
-        ) for cat, item in outfit.items()
-    )
+    for cat, item in outfit.items():
+        if cat == 'tags':
+            continue
+
+        if is_item_upload:
+            item = item.name
+
+        for exclude_item in recently_worn.get(cat, []):
+            if is_item_upload:
+                exclude_item = exclude_item.name
+
+            if item == exclude_item:
+                return True
+    return False
 
 
-def get_non_recently_worn_options(options: list, recently_worn: dict):
+def get_non_recently_worn_options(
+    options: list, recently_worn: dict, is_item_upload:bool=False
+):
     """Remove outfits from `options` that include recently-worn items.
 
     If all options were recently-worn, keep recursively removing a day from
@@ -60,13 +72,13 @@ def get_non_recently_worn_options(options: list, recently_worn: dict):
     """
     filtered_options = [
         outfit for outfit in options
-        if not is_any_exclude_item_in_outfit(outfit, recently_worn)
+        if not is_any_exclude_item_in_outfit(outfit, recently_worn, is_item_upload)
     ]
     if filtered_options:
         return filtered_options
 
     recently_worn = {cat: items[:-1] for cat, items in recently_worn.items()}
-    return get_non_recently_worn_options(options, recently_worn)
+    return get_non_recently_worn_options(options, recently_worn, is_item_upload)
 
 
 def choose_outfit(
@@ -99,7 +111,9 @@ def choose_outfit(
         print(f"NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
         return {}
 
-    options = get_non_recently_worn_options(appropriate_outfits, recently_worn)
+    options = get_non_recently_worn_options(
+        appropriate_outfits, recently_worn, is_item_upload
+    )
 
     # create deep copy
     choose_from = [{k: v for k, v in option.items()} for option in options]
@@ -222,8 +236,7 @@ def get_weather_icon_filename(weather_type, weather):
 
 
 def init_most_recently_worn():
-    categories = ['tops', 'bottoms', 'dresses', 'outerwear']
-    return {cat: [] for cat in categories}
+    return {cat: [] for cat in ['tops', 'bottoms', 'dresses', 'outerwear']}
 
 
 def update_most_recently_worn(
