@@ -78,7 +78,9 @@ def update_post_item_tag_state(cats):
         append_tags(cat)
         cat_i, item_i = st.session_state['cat_i'], st.session_state['item_i']
         st.session_state['cat_i'], st.session_state['item_i'] = (
-            get_next_cat_and_item_inds(st.session_state['items'], cats, cat_i, item_i)
+            get_next_cat_and_item_inds(
+                st.session_state['items'], cats, cat_i, item_i
+            )
         )
 
 
