@@ -179,13 +179,6 @@ def tag_items():
             }
             items_tags[cat][item] --> item_tags --> item_tag_type_tags
     """
-    print('start', st.session_state['cat_i'], st.session_state['item_i'])
-
-    print('ITEMS')
-    print(st.session_state['items'])
-    print('ITEMS TAGS')
-    print(st.session_state['items_tags'])
-
     # if finished tagging all categories
     if st.session_state['cat_i'] is None:
         st.session_state['is_create_outfits_state'] = True
@@ -202,7 +195,6 @@ def tag_items():
         st.session_state['items_tags'],
         cats, st.session_state['cat_i'], st.session_state['item_i']
     )
-    print('post get inds', st.session_state['cat_i'], st.session_state['item_i'])
 
     # if category is empty, get next non-empty category index
     # if is_end_of_category(items[cat], st.session_state['item_i']):
