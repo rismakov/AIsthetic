@@ -69,7 +69,7 @@ def append_tags(cat: str):
     }
 
 
-def update_post_item_tag_state(placeholder, cats):
+def update_post_item_tag_state(cats):
     """Append item tags to full list and increment category and item indexes.
     """
     tags = st.session_state['current_tags']
@@ -80,8 +80,6 @@ def update_post_item_tag_state(placeholder, cats):
         st.session_state['cat_i'], st.session_state['item_i'] = (
             get_next_cat_and_item_inds(st.session_state['items'], cats, cat_i, item_i)
         )
-    else:
-        placeholder.error("You must select style, seasons, AND occasions tags.")
 
 
 def is_item_untagged(items_tags, cat, item: UploadedFile):
@@ -126,7 +124,7 @@ def select_article_tags(cats) -> Tuple[int, Dict[str, List[str]]]:
     occasions = form.multiselect('Occasion?', OCCASIONS)
 
     # where to print any error messages
-    placeholder = st.container()
+    # placeholder = st.container()
 
     st.session_state['current_tags'] = {
         'style': style, 'season': seasons, 'occasion': occasions,
@@ -134,7 +132,7 @@ def select_article_tags(cats) -> Tuple[int, Dict[str, List[str]]]:
     form.form_submit_button(
         'Finished Adding Tags',
         on_click=update_post_item_tag_state,
-        args=(placeholder, cats,)
+        args=(cats,)
     )
 
 
