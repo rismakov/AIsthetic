@@ -11,7 +11,18 @@ from category_constants import OCCASIONS, SEASONS
 
 
 def is_end_of_category(cat_items: list, item_i: int) -> bool:
-    return item_i == len(cat_items)
+    """Check if `item_i` is greater or equal than length of items.
+
+    Parameters
+    ----------
+    cat_items : list
+    item_i : int
+
+    Returns
+    -------
+    bool
+    """
+    return item_i + 1 >= len(cat_items)
 
 
 def get_next_cat_and_item_inds(
@@ -47,6 +58,7 @@ def get_next_cat_and_item_inds(
     if is_end_of_category(items[cats[cat_i]], max(0, item_i)):
         return get_next_cat_and_item_inds(items, cats, cat_i + 1, -1)
 
+    print('debugging inside get next func', item_i)
     return cat_i, item_i + 1
 
 
@@ -69,11 +81,12 @@ def append_tags(cat: str):
     }
 
 
-def update_post_item_tag_state(cats):
+def update_post_item_tag_state(cats, style, seasons, occasions):
     """Append item tags to full list and increment category and item indexes.
     """
-    tags = st.session_state['current_tags']
-    if tags['season'] and tags['occasion'] and tags['style']:
+    print('debugging update', style, seasons, occasions)
+    if style and seasons and occasions:
+        print('debugging inside update func if', st.session_state['item_i'])
         cat = cats[st.session_state['cat_i']]
         append_tags(cat)
         cat_i, item_i = st.session_state['cat_i'], st.session_state['item_i']
@@ -82,6 +95,7 @@ def update_post_item_tag_state(cats):
                 st.session_state['items'], cats, cat_i, item_i
             )
         )
+        print('debugging inside update func if 2', st.session_state['item_i'])
 
 
 def is_item_untagged(items_tags, cat, item: UploadedFile):
@@ -120,6 +134,8 @@ def get_inds_to_tag(
 
 
 def select_article_tags(cats) -> Tuple[int, Dict[str, List[str]]]:
+    """Display tag form and update state on click.
+    """
     form = st.form('tags')
     style = form.selectbox('Style?', ['Basic', 'Statement'])
     seasons = form.multiselect('Season?', SEASONS)
@@ -131,11 +147,10 @@ def select_article_tags(cats) -> Tuple[int, Dict[str, List[str]]]:
     st.session_state['current_tags'] = {
         'style': style, 'season': seasons, 'occasion': occasions,
     }
-    form.form_submit_button(
-        'Finished Adding Tags',
-        on_click=update_post_item_tag_state,
-        args=(cats,)
-    )
+    print('debugging tags', st.session_state['current_tags'])
+    print('debugging before click', style, seasons, occasions)
+    if form.form_submit_button('Finished Adding Tags'):
+        update_post_item_tag_state(cats, style, seasons, occasions)
 
 
 def update_post_tagging_state():
@@ -216,5 +231,13 @@ def tag_items():
 
     # display tagging form
     tagging_session_info(cat)
-    st.image(items[cat][st.session_state['item_i']], width=300)
+    print('debugging 1', st.session_state['item_i'])
+    image_placeholder = st.container()
+    print('debugging 2', st.session_state['item_i'])
     select_article_tags(cats)
+
+    # if not end of items
+    if not st.session_state['item_i'] is None:
+        image_placeholder.image(items[cat][st.session_state['item_i']], width=300)
+
+    print('debugging 3', st.session_state['item_i'])
