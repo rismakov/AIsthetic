@@ -3,7 +3,7 @@ import json
 from typing import Dict, List, Tuple
 
 from info_material import upload_tags_info
-from setup_tags import is_end_of_category, get_next_cat_and_item_inds
+from setup_tags import is_end_of_category
 from state_updates import update_upload_state
 from tagging import display_icon_key
 
