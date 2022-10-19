@@ -22,7 +22,7 @@ def is_end_of_category(cat_items: list, item_i: int) -> bool:
     -------
     bool
     """
-    return item_i + 1 >= len(cat_items)
+    return item_i >= len(cat_items)
 
 
 def get_next_cat_and_item_inds(

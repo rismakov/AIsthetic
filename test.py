@@ -27,6 +27,15 @@ class TestSetupTags(unittest.TestCase):
             test_constants.ITEMS['bottoms'][1]
         ))
 
+    def test_is_end_of_category(self):
+        self.assertFalse(setup_tags.is_end_of_category(['x', 'y'], 0))
+
+        self.assertFalse(setup_tags.is_end_of_category(['x', 'y'], 1))
+
+        self.assertTrue(setup_tags.is_end_of_category(['x', 'y'], 2))
+
+        self.assertTrue(setup_tags.is_end_of_category(['x', 'y'], 3))
+
     def test_get_inds_to_tag(self):
         # This is empty. Should return next untagged item.
         self.assertEqual(
