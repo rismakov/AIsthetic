@@ -85,7 +85,7 @@ def get_outfit_plan_question_responses():
     return [], None, None, None, None, None, None, None
 
 
-def get_and_display_outfit_plan(is_item_upload=False):
+def get_and_display_outfit_plan(is_user_closet=False):
     occasions, include, amount, city, country, start_date, end_date, work_dow = (
         get_outfit_plan_question_responses()
     )
@@ -107,7 +107,7 @@ def get_and_display_outfit_plan(is_item_upload=False):
             end_date,
             amount,
             include,
-            is_item_upload,
+            is_user_closet,
         )
 
         st.session_state['outfit_plans'] = outfit_plans
@@ -158,7 +158,7 @@ def select_filters():
     return seasons, occasions
 
 
-def select_and_apply_filters(info_placeholder, is_item_upload=False):
+def select_and_apply_filters(info_placeholder, is_user_closet=False):
     seasons, occasions = select_filters()
 
     if seasons and occasions:
@@ -169,7 +169,7 @@ def select_and_apply_filters(info_placeholder, is_item_upload=False):
             st.session_state['items_tags'], 
             seasons, 
             occasions,
-            is_item_upload=is_item_upload,
+            is_user_closet=is_user_closet,
         )
         st.session_state['outfits_filtered'] = filter_appropriate_outfits(
             st.session_state['outfits'], seasons, occasions,

@@ -34,10 +34,10 @@ def are_tags_in_item(item_tags, seasons, occasions) -> bool:
     )
 
 
-def filter_category_of_items(cat_items, cat_items_tags, seasons, occasions, is_item_upload=False):
+def filter_category_of_items(cat_items, cat_items_tags, seasons, occasions, is_user_closet=False):
     filtered_items = []
     for item in cat_items:
-        if is_item_upload:
+        if is_user_closet:
             item_name = item.name
         else:
             item_name = item
@@ -52,7 +52,7 @@ def filter_appropriate_items(
     items_tags: Dict[str, dict],
     seasons: List[str],
     occasions: List[str],
-    is_item_upload: bool = False
+    is_user_closet: bool = False
 ) -> Dict[str, list]:
     """Filter dictionary of items.
 
@@ -74,7 +74,11 @@ def filter_appropriate_items(
     """
     return {
         cat: filter_category_of_items(
-            items[cat], items_tags[cat], seasons, occasions, is_item_upload=is_item_upload
+            items[cat],
+            items_tags[cat],
+            seasons,
+            occasions,
+            is_user_closet=is_user_closet
         ) for cat in items if items[cat]  # if nonempty category
     }
 

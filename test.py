@@ -96,14 +96,14 @@ class TestClosetCreator(unittest.TestCase):
         return Closet(
             items=test_constants.ITEMS,
             items_tags=test_constants.ITEMS_TAGS,
-            is_item_upload=True
+            is_user_closet=True
         )
 
     def get_closet_2(self):
         return Closet(
             items=test_constants.ITEMS2,
             items_tags=test_constants.ITEMS_TAGS2,
-            is_item_upload=True
+            is_user_closet=True
         )
 
     def test_get_number_of_statement_pieces(self):
@@ -309,13 +309,13 @@ class TestOutfitCalendar(unittest.TestCase):
         }
         self.assertTrue(
             outfit_calendar.is_any_exclude_item_in_outfit(
-                test_constants.OUTFIT, test_exclude_items, is_item_upload=True
+                test_constants.OUTFIT, test_exclude_items, is_user_closet=True
             )
         )
         test_exclude_items = {'bottoms': [], 'tops': []}
         self.assertFalse(
             outfit_calendar.is_any_exclude_item_in_outfit(
-                test_constants.OUTFIT, test_exclude_items, is_item_upload=True
+                test_constants.OUTFIT, test_exclude_items, is_user_closet=True
             )
         )
         test_exclude_items = {
@@ -331,7 +331,7 @@ class TestOutfitCalendar(unittest.TestCase):
         }
         self.assertFalse(
             outfit_calendar.is_any_exclude_item_in_outfit(
-                test_constants.OUTFIT, test_exclude_items, is_item_upload=True
+                test_constants.OUTFIT, test_exclude_items, is_user_closet=True
             )
         )
 

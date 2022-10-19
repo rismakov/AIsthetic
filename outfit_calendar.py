@@ -29,7 +29,7 @@ from utils_constants import CLOSET_PATH
 WEEKDAY_MAPPING = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
 
 
-def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict, is_item_upload=False) -> bool:
+def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict, is_user_closet=False) -> bool:
     """Check if any items from `recently_worn` are in `outfit`.
 
     Checks for all categories in `outfit` and `recently_worn`.
@@ -49,11 +49,11 @@ def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict, is_item_upl
         if cat == 'tags':
             continue
 
-        if is_item_upload:
+        if is_user_closet:
             item = item.name
 
         for exclude_item in recently_worn.get(cat, []):
-            if is_item_upload:
+            if is_user_closet:
                 exclude_item = exclude_item.name
 
             if item == exclude_item:
@@ -62,7 +62,7 @@ def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict, is_item_upl
 
 
 def get_non_recently_worn_options(
-    options: list, recently_worn: dict, is_item_upload:bool=False
+    options: list, recently_worn: dict, is_user_closet:bool=False
 ):
     """Remove outfits from `options` that include recently-worn items.
 
@@ -72,13 +72,13 @@ def get_non_recently_worn_options(
     """
     filtered_options = [
         outfit for outfit in options
-        if not is_any_exclude_item_in_outfit(outfit, recently_worn, is_item_upload)
+        if not is_any_exclude_item_in_outfit(outfit, recently_worn, is_user_closet)
     ]
     if filtered_options:
         return filtered_options
 
     recently_worn = {cat: items[:-1] for cat, items in recently_worn.items()}
-    return get_non_recently_worn_options(options, recently_worn, is_item_upload)
+    return get_non_recently_worn_options(options, recently_worn, is_user_closet)
 
 
 def choose_outfit(
@@ -89,7 +89,7 @@ def choose_outfit(
     occasion: str,
     include_accessories: bool = True,
     recently_worn: dict = {},
-    is_item_upload: bool = False,
+    is_user_closet: bool = False,
 ):
     """
     Parameters
@@ -112,7 +112,7 @@ def choose_outfit(
         return {}
 
     options = get_non_recently_worn_options(
-        appropriate_outfits, recently_worn, is_item_upload
+        appropriate_outfits, recently_worn, is_user_closet
     )
 
     # create deep copy
@@ -129,7 +129,7 @@ def choose_outfit(
     for cat in nonempty_cats:
         item_options = items[cat]
         item_options = filter_category_of_items(
-            item_options, items_tags[cat], [season], [occasion], is_item_upload
+            item_options, items_tags[cat], [season], [occasion], is_user_closet
         )
 
         if choice['tags']['is_statement']:
@@ -190,7 +190,7 @@ def get_outfit_plan_for_all_occasions(
     end_date,
     amount,
     include,
-    is_item_upload,
+    is_user_closet,
 ):
     seasons = get_season_types_from_weather_info(weather_types)
 
@@ -200,7 +200,7 @@ def get_outfit_plan_for_all_occasions(
         outfits, seasons, occasions,
     )
     appropriate_items = filter_appropriate_items(
-        items, items_tags, seasons, occasions, is_item_upload=is_item_upload,
+        items, items_tags, seasons, occasions, is_user_closet=is_user_closet,
     )
 
     st.subheader('Options Available')
@@ -220,7 +220,7 @@ def get_outfit_plan_for_all_occasions(
             end_date,
             amount,
             include,
-            is_item_upload,
+            is_user_closet,
         )
 
     # save_outfit_plan(outfit_plan, city, start_date, end_date)
@@ -304,7 +304,7 @@ def get_outfit_plan(
     end_date: date,
     amount: str,
     include_accessories: bool,
-    is_item_upload,
+    is_user_closet,
 ):
     """Get outfit plan from `start_date` to `end_date`.
 
@@ -355,7 +355,7 @@ def get_outfit_plan(
             occasion,
             include_accessories,
             recently_worn=recently_worn,
-            is_item_upload=is_item_upload,
+            is_user_closet=is_user_closet,
         )
 
         occasion_outfit_plan['outfits'].append(outfit)

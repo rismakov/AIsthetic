@@ -17,7 +17,7 @@ class Closet():
         items: Dict[str, List[Union[str, UploadedFile]]],
         items_tags: [Dict[str, dict]] = {},
         outfits: Optional[list] = [],
-        is_item_upload: bool = False
+        is_user_closet: bool = False
     ):
         """Initializes `items`, `outfits`, and `item_tags`.
 
@@ -26,14 +26,14 @@ class Closet():
         self.items = items
         self.outfits = outfits
         self.items_tags = items_tags
-        self.is_item_upload = is_item_upload
+        self.is_user_closet = is_user_closet
 
         if not self.outfits:
             print('Creating closet...')
             self.create_outfits(self.items)
 
     def _get_item_name(self, item):
-        if self.is_item_upload:
+        if self.is_user_closet:
             return item.name
         return item
 
@@ -139,6 +139,7 @@ class Closet():
                             outfit_option, season_tag_overlap, occasion_tag_overlap
                         )
                     )
+        print(f'Created {len(self.outfits)} one-piece outfits')
 
         # add 'two-piece' outfits
         for top in items['tops']:
@@ -156,6 +157,7 @@ class Closet():
                                 outfit_option, season_tag_overlap, occasion_tag_overlap
                             )
                         )
+        print(f'Created {len(self.outfits)} one-pieces and two-piece outfits')
 
     def remove_item(self, cat, item):
         # remove item

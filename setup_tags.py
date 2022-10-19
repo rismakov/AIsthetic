@@ -169,6 +169,7 @@ def download_json(object_to_download, download_filename: str, button_text: str):
 
 def display_download_tags_option():
     st.session_state['is_item_tag_session'] = False
+    st.session_state['is_create_outfits_state'] = True
     finished_tagging_info()
     download_json(
         st.session_state['items_tags'],
