@@ -102,7 +102,6 @@ def display_article_tags():
                 item_name = item.name
             item_tags = st.session_state['items_tags'][cat][item_name]
 
-            print('DEBUG', item, item_tags)
             display_article_tags_for_item(cols[col_i], item, item_tags)
             col_i = increment_i(col_i, num_cols - 1)
             cols[col_i].markdown("""---""")

@@ -90,7 +90,6 @@ elif closet_option == 'Use own personal closet':
         tag_items()
 
     if st.session_state['is_create_outfits_state']:
-        print('Creating outfits...')
         st.session_state['outfits'] = Closet(
             items=st.session_state['items'],
             items_tags=st.session_state['items_tags'],
@@ -156,7 +155,6 @@ if (
                 occasion,
                 is_user_closet=is_user_closet,
             )
-            print('DEBUG outfit', outfit)
             if outfit:
                 display_outfit_pieces(outfit)
                 if st.button("This doesn't match together."):
