@@ -1,5 +1,29 @@
 from streamlit.uploaded_file_manager import UploadedFile, UploadedFileRec
 
+ONE_OF_EACH_ITEMS = {
+    'tops': [UploadedFile(UploadedFileRec(
+        id=1, name='top.jpeg', type='image/jpeg', data=b""
+    ))],
+    'bottoms': [UploadedFile(UploadedFileRec(
+        id=2, name='bottom.jpeg', type='image/jpeg', data=b""
+    ))],
+    'dresses': [UploadedFile(UploadedFileRec(
+        id=3, name='dress.jpeg', type='image/jpeg', data=b""
+    ))],
+    'outerwear': [UploadedFile(UploadedFileRec(
+        id=4, name='outer.jpeg', type='image/jpeg', data=b""
+    ))],
+    'shoes': [UploadedFile(UploadedFileRec(
+        id=5, name='shoes.jpeg', type='image/jpeg', data=b""
+    ))],
+    'hats': [UploadedFile(UploadedFileRec(
+        id=6, name='hat.jpeg', type='image/jpeg', data=b""
+    ))],
+    'bags': [UploadedFile(UploadedFileRec(
+        id=7, name='bag.jpeg', type='image/jpeg', data=b""
+    ))],
+}
+
 ITEMS = {
     'tops': [],
     'bottoms': [

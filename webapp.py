@@ -94,6 +94,7 @@ elif closet_option == 'Use own personal closet':
             items=st.session_state['items'],
             items_tags=st.session_state['items_tags'],
             is_user_closet=is_user_closet,
+            outfits=[],
         ).outfits
         print('Number of outfits created:', len(st.session_state['outfits']))
 

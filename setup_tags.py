@@ -55,7 +55,7 @@ def get_next_cat_and_item_inds(
 
     # if end of category list, increment `cat_i` and re-initialize `item_i`
     # if -1 passed in for `item_i` (indicating new category), pass in 0 instead
-    if is_end_of_category(items[cats[cat_i]], max(0, item_i)):
+    if is_end_of_category(items[cats[cat_i]], item_i + 1):
         return get_next_cat_and_item_inds(items, cats, cat_i + 1, -1)
 
     return cat_i, item_i + 1
@@ -66,6 +66,8 @@ def append_tags(cat: str):
 
     Add `current_tags` to session state `items_tags` dict under the item_name
     key.
+
+    Uses session states.
 
     Parameters
     ----------
@@ -82,6 +84,8 @@ def append_tags(cat: str):
 
 def update_post_item_tag_state(cats, style, seasons, occasions):
     """Append item tags to full list and increment category and item indexes.
+
+    Uses session states.
     """
     if style and seasons and occasions:
         cat = cats[st.session_state['cat_i']]
@@ -94,22 +98,28 @@ def update_post_item_tag_state(cats, style, seasons, occasions):
         )
 
 
-def is_item_untagged(items_tags, cat, item: UploadedFile):
+def is_item_untagged(items_tags: Dict[str, dict], cat: str, item: UploadedFile):
     return not items_tags.get(cat, {}).get(item.name)
 
 
 def get_inds_to_tag(
-    items, items_tags, cats: List[str], cat_i: int, item_i: int
+    items: Dict[str, list],
+    items_tags: Dict[str, dict],
+    cats: List[str],
+    cat_i: int,
+    item_i: int
 ) -> Tuple[int, int]:
     """Return `cat_i` and `item_i` if no associated tag with item.
 
     Else, increment inds by one (either `item_i` or if end of category,
     `cat_i` with reinitialization of `item_i`).
 
-    Repeat recursilvely until reach an untagged item.
+    Repeat recursively until reach an untagged item.
 
     Parameters
     ----------
+    items : Dict[str, list]
+    items_tags : Dict[str, dict]
     cats : List[str]
     cat_i : int
     item_i : int
@@ -162,6 +172,11 @@ def download_json(object_to_download, download_filename: str, button_text: str):
 
 
 def display_download_tags_option():
+    """Display the 'download tags' button.
+
+    Updates the session state from `is_item_tag_session` to
+    `is_create_outfits_state`.
+    """
     st.session_state['is_item_tag_session'] = False
     st.session_state['is_create_outfits_state'] = True
     finished_tagging_info()

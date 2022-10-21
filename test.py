@@ -15,6 +15,40 @@ CATS = ['tops', 'bottoms', 'dresses', 'outerwear', 'shoes', 'hats', 'bags']
 
 class TestSetupTags(unittest.TestCase):
 
+    def test_is_end_of_category(self):
+        self.assertFalse(setup_tags.is_end_of_category(['x', 'y'], 0))
+
+        self.assertFalse(setup_tags.is_end_of_category(['x', 'y'], 1))
+
+        self.assertTrue(setup_tags.is_end_of_category(['x', 'y'], 2))
+
+        self.assertTrue(setup_tags.is_end_of_category(['x', 'y'], 3))
+
+    def test_get_next_cat_and_item_inds(self):
+        items = test_constants.ONE_OF_EACH_ITEMS
+        self.assertEqual(
+            setup_tags.get_next_cat_and_item_inds(items, CATS, 0, 0), (1, 0)
+        )
+        self.assertEqual(
+            setup_tags.get_next_cat_and_item_inds(items, CATS, 1, 0), (2, 0)
+        )
+        self.assertEqual(
+            setup_tags.get_next_cat_and_item_inds(items, CATS, 2, 0), (3, 0)
+        )
+        self.assertEqual(
+            setup_tags.get_next_cat_and_item_inds(items, CATS, 3, 0), (4, 0)
+        )
+        self.assertEqual(
+            setup_tags.get_next_cat_and_item_inds(items, CATS, 4, 0), (5, 0)
+        )
+        self.assertEqual(
+            setup_tags.get_next_cat_and_item_inds(items, CATS, 5, 0), (6, 0)
+        )
+        self.assertEqual(
+            setup_tags.get_next_cat_and_item_inds(items, CATS, 6, 0),
+            (None, None)
+        )
+
     def test_is_item_untagged(self):
         self.assertTrue(setup_tags.is_item_untagged(
             test_constants.ITEMS_TAGS,
@@ -26,15 +60,6 @@ class TestSetupTags(unittest.TestCase):
             'bottoms',
             test_constants.ITEMS['bottoms'][1]
         ))
-
-    def test_is_end_of_category(self):
-        self.assertFalse(setup_tags.is_end_of_category(['x', 'y'], 0))
-
-        self.assertFalse(setup_tags.is_end_of_category(['x', 'y'], 1))
-
-        self.assertTrue(setup_tags.is_end_of_category(['x', 'y'], 2))
-
-        self.assertTrue(setup_tags.is_end_of_category(['x', 'y'], 3))
 
     def test_get_inds_to_tag(self):
         # This is empty. Should return next untagged item.
@@ -54,6 +79,25 @@ class TestSetupTags(unittest.TestCase):
             setup_tags.get_inds_to_tag(
                 test_constants.ITEMS, test_constants.ITEMS_TAGS, CATS, 1, 1
             ), (None, None)
+        )
+
+        # Test empty `items_tags` case.
+        self.assertEqual(
+            setup_tags.get_inds_to_tag(
+                test_constants.ITEMS, {}, CATS, 0, 0
+            ), (1, 0)
+        )
+
+        self.assertEqual(
+            setup_tags.get_inds_to_tag(
+                test_constants.ONE_OF_EACH_ITEMS, {}, CATS, 0, 0
+            ), (0, 0)
+        )
+
+        self.assertEqual(
+            setup_tags.get_inds_to_tag(
+                test_constants.ONE_OF_EACH_ITEMS, {}, CATS, 4, 0
+            ), (4, 0)
         )
 
 

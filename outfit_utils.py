@@ -27,7 +27,6 @@ def are_tags_in_item(item_tags, seasons, occasions) -> bool:
     Items in list must include at least one of the `seasons` tags AND at least
     one of the `occasions` tags.
     """
-    print(item_tags)
     return (
         any(season in item_tags['season'] for season in seasons)
         and any(occasion in item_tags['occasion'] for occasion in occasions)
