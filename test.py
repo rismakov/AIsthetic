@@ -353,13 +353,13 @@ class TestOutfitCalendar(unittest.TestCase):
         }
         self.assertTrue(
             outfit_calendar.is_any_exclude_item_in_outfit(
-                test_constants.OUTFIT, test_exclude_items, is_user_closet=True
+                test_constants.OUTFIT, test_exclude_items
             )
         )
         test_exclude_items = {'bottoms': [], 'tops': []}
         self.assertFalse(
             outfit_calendar.is_any_exclude_item_in_outfit(
-                test_constants.OUTFIT, test_exclude_items, is_user_closet=True
+                test_constants.OUTFIT, test_exclude_items
             )
         )
         test_exclude_items = {
@@ -375,7 +375,7 @@ class TestOutfitCalendar(unittest.TestCase):
         }
         self.assertFalse(
             outfit_calendar.is_any_exclude_item_in_outfit(
-                test_constants.OUTFIT, test_exclude_items, is_user_closet=True
+                test_constants.OUTFIT, test_exclude_items
             )
         )
 

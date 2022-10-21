@@ -29,7 +29,7 @@ from utils_constants import CLOSET_PATH
 WEEKDAY_MAPPING = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
 
 
-def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict, is_user_closet=False) -> bool:
+def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict) -> bool:
     """Check if any items from `recently_worn` are in `outfit`.
 
     Checks for all categories in `outfit` and `recently_worn`.
@@ -49,21 +49,13 @@ def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict, is_user_clo
         if cat == 'tags':
             continue
 
-        if is_user_closet:
-            item = item.name
-
         for exclude_item in recently_worn.get(cat, []):
-            if is_user_closet:
-                exclude_item = exclude_item.name
-
-            if item == exclude_item:
+            if exclude_item == item:
                 return True
     return False
 
 
-def get_non_recently_worn_options(
-    options: list, recently_worn: dict, is_user_closet:bool=False
-):
+def get_non_recently_worn_options(options: list, recently_worn: dict):
     """Remove outfits from `options` that include recently-worn items.
 
     If all options were recently-worn, keep recursively removing a day from
@@ -72,13 +64,13 @@ def get_non_recently_worn_options(
     """
     filtered_options = [
         outfit for outfit in options
-        if not is_any_exclude_item_in_outfit(outfit, recently_worn, is_user_closet)
+        if not is_any_exclude_item_in_outfit(outfit, recently_worn)
     ]
     if filtered_options:
         return filtered_options
 
     recently_worn = {cat: items[:-1] for cat, items in recently_worn.items()}
-    return get_non_recently_worn_options(options, recently_worn, is_user_closet)
+    return get_non_recently_worn_options(options, recently_worn)
 
 
 def choose_outfit(
@@ -111,9 +103,7 @@ def choose_outfit(
         print(f"NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
         return {}
 
-    options = get_non_recently_worn_options(
-        appropriate_outfits, recently_worn, is_user_closet
-    )
+    options = get_non_recently_worn_options(appropriate_outfits, recently_worn)
 
     # create deep copy
     choose_from = [{k: v for k, v in option.items()} for option in options]
