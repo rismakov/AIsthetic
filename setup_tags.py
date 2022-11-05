@@ -238,7 +238,7 @@ def tag_items():
     display_icon_key()
 
     # display tagging form
-    tagging_session_info(st.session_state['cat_i'])
+    tagging_session_info(cats[ss['cat_i']])
     image_placeholder = st.container()
     form_placeholder = st.container()
     with form_placeholder.container():
