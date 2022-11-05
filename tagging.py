@@ -61,7 +61,7 @@ def display_icon_key():
     st.markdown("""---""")
 
 
-def display_article_tags_for_item(col, item_name: str, item_tags):
+def display_article_tags_for_item(col, item, item_tags):
     """Display item image with tags below.
 
     Used within 'View all clothing articles' view and within 'Update tags' view.
@@ -81,7 +81,7 @@ def display_article_tags_for_item(col, item_name: str, item_tags):
         col.image(icons, width=ICON_IMAGE_WIDTH)
 
 
-def display_article_tags():
+def display_article_tags(items_filtered: Dict[str, list]):
     """Display article tags.
 
     If `item_tags` is null, takes tags information from item filenames.
@@ -89,18 +89,18 @@ def display_article_tags():
     display_icon_key()
 
     num_cols = 3
-    for cat in st.session_state['items_filtered']:
+    for cat in items_filtered:
         st.subheader(cat)
         st.markdown("""---""")
 
         cols = st.columns(num_cols)
         col_i = 0
-        for item in st.session_state['items_filtered'][cat]:
+        for item in items_filtered[cat]:
             if isinstance(item, str):
                 item_name = item
             else:
                 item_name = item.name
-            item_tags = st.session_state['items_tags'][cat][item_name]
+            item_tags = st.session_state['closet'].items_tags[cat][item_name]
 
             display_article_tags_for_item(cols[col_i], item, item_tags)
             col_i = increment_i(col_i, num_cols - 1)
