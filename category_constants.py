@@ -6,6 +6,9 @@ ALL_CATEGORIES = MAIN_CATEGORIES + ACCESSORIES
 OCCASIONS = ['Casual', 'Work', 'Dinner/Bar', 'Club/Fancy']
 SEASONS = ['Summer', 'Fall', 'Winter', 'Spring']
 
+WEEKDAYS = ['Sun', 'Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat']
+DOWS = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
+
 WEATHER_ICON_MAPPING = {
     'Partly cloudy': 'partly_cloudy.png',
     'Clear': 'sunny.png',
@@ -26,23 +29,23 @@ WEATHER_TO_SEASON_MAPPINGS = {
 }
 
 _high_cadence = {
-    'top': 4,
-    'bottom': 4,
-    'dress': 4,
+    'tops': 4,
+    'bottoms': 4,
+    'dresses': 4,
     'outerwear': 0,
 }
 
 _med_cadence = {
-    'top': 5,
-    'bottom': 5,
-    'dress': 6,
+    'tops': 5,
+    'bottoms': 5,
+    'dresses': 6,
     'outerwear': 1,
 }
 
 _low_cadence = {
-    'top': 6,
-    'bottom': 6,
-    'dress': 9,
+    'tops': 6,
+    'bottoms': 6,
+    'dresses': 9,
     'outerwear': 3,
 }
 
