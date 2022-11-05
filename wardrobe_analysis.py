@@ -5,7 +5,7 @@ from typing import Dict
 
 from closet_creater import Closet
 from count_closet import count_item_info, get_basics_and_statements
-from outfit_utils import filter_appropriate_outfits, 
+from outfit_utils import filter_appropriate_outfits
 from utils import get_all_image_filenames, stacked_bar_plot
 
 from category_constants import MAIN_CATEGORIES, OCCASIONS, SEASONS
@@ -26,9 +26,8 @@ OUTFITS_PER_SEASON = {
 
 class ClosetAnalyzer():
 
-    def __init__(self, items, outfits):
-        self.outfits = outfits
-        self.items = items
+    def __init__(self, closet):
+        self.closet = closet
 
     def count_amounts(self):
         for occasion in OCCASIONS:
@@ -37,12 +36,12 @@ class ClosetAnalyzer():
                 st.subheader(season)
 
                 items_filtered = (
-                    self.items, [season], [occasion]
+                    self.closet.items, [season], [occasion]
                 )
                 count_item_info(st.container(), items_filtered)
 
                 _, basics, statements = (
-                    get_basics_and_statements(items_filtered)
+                    get_basics_and_statements(items_filtered, self.closet.items_tags)
                 )
                 fig = stacked_bar_plot(
                     MAIN_CATEGORIES,
