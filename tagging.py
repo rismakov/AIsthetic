@@ -66,7 +66,7 @@ def display_article_tags_for_item(col, item, item_tags):
 
     Used within 'View all clothing articles' view and within 'Update tags' view.
     """
-    col.image(item_name, width=150)
+    col.image(item, width=150)
     for tag_type in item_tags:
         icons = []
         # `style` will contain a str
