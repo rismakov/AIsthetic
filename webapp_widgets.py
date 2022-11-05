@@ -54,18 +54,18 @@ def get_outfit_plan_question_responses():
             occasions = st.multiselect(
                 "What occasions are you planning for?", OCCASIONS
             )
-            include = st.selectbox(
-                "Would you like to include accessories?", YES_OR_NO
-            )
-            city = st.text_input("Which city are you traveling to?").lower().strip()
-            start_date = st.date_input("When are you starting your trip?")
-
-        with col2:
             work_dow = st.multiselect(
                 "If you chose work, what days are you in the office?", DOWS,
             )
+            include = st.selectbox(
+                "Would you like to include accessories?", YES_OR_NO
+            )
             amount = st.selectbox("How much are you looking to bring?", AMOUNTS)
+
+        with col2:
+            city = st.text_input("Which city are you traveling to?").lower().strip()
             country = st.text_input("Country?").lower().strip()
+            start_date = st.date_input("When are you starting your trip?")
             end_date = st.date_input("When are you ending your trip?")
 
         include = YES_NO_MAPPING[include]
