@@ -5,24 +5,21 @@ from typing import Any, List, Tuple
 
 from closet_creater import Closet
 from count_closet import count_outfits
+from get_weather import get_projected_weather
 from info_material import about_info, finished_tagging_info, select_filters_info
-from outfit_calendar import (
-    get_outfit_plan_for_all_occasions,
-    get_weather_info_for_outfitplans,
-    display_outfit_plan,
-)
+from outfit_calendar_display import display_outfit_plan
+from outfit_calendar import OutfitCalendars
 from outfit_utils import (
     filter_outfits_on_item,
     filter_appropriate_outfits,
     filter_appropriate_items,
 )
-from category_constants import MAIN_CATEGORIES, SEASONS, OCCASIONS
+from category_constants import DOWS, MAIN_CATEGORIES, SEASONS, OCCASIONS
 
 
 INSPO_DIR = 'inspo/'
 
 WEATHERS = ['Hot', 'Warm', 'Mild', 'Chilly', 'Cold', 'Rainy']
-DOWS = ['Sun', 'Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat']
 YES_OR_NO = ['Yes', 'No']
 YES_NO_MAPPING = {'Yes': True, 'No': False}
 AMOUNTS = [
@@ -33,7 +30,7 @@ AMOUNTS = [
 ]
 
 
-def option_one_questions() -> Tuple[str, str, str]:
+def get_choose_outfit_responses() -> Tuple[str, str, str]:
     st.header("Select a random outfit")
     cols = st.columns(3)
     options = {
@@ -85,47 +82,44 @@ def get_outfit_plan_question_responses():
     return [], None, None, None, None, None, None, None
 
 
-def get_and_display_outfit_plan(is_user_closet=False):
+def get_and_display_outfit_plans(closet):
     occasions, include, amount, city, country, start_date, end_date, work_dow = (
         get_outfit_plan_question_responses()
     )
 
     # if above responses were received
     if occasions:
-        weather_info = get_weather_info_for_outfitplans(
-            city, country, start_date, end_date
-        )
-
-        outfit_plans = get_outfit_plan_for_all_occasions(
-            st.session_state['outfits'],
-            st.session_state['items'],
-            st.session_state['items_tags'],
-            occasions,
-            work_dow,
-            weather_info['weather_types'],
+        outfit_calendars = OutfitCalendars(
+            closet,
             start_date,
             end_date,
+            city,
+            country,
+            occasions,
             amount,
             include,
-            is_user_closet,
+            work_dow,
         )
 
-        st.session_state['outfit_plans'] = outfit_plans
-        for occasion, outfit_plan in outfit_plans.items():
-            st.header(f'{occasion}')
+        # st.session_state['outfit_plans'] = outfit_plans
+        for plan in outfit_calendars.plans:
+            st.header(f'{plan.occasion}')
             st.markdown("""---""")
 
             days_in_week = 7
-            if occasion == 'Work':
+            if plan.occasion == 'Work':
                 days_in_week = len(work_dow)
 
-            dates = outfit_plan['dates']
-            outfits = outfit_plan['outfits']
-            display_outfit_plan(dates, outfits, weather_info, days_in_week)
+            display_outfit_plan(
+                plan.outfit_plan['dates'],
+                plan.outfit_plan['outfits'],
+                outfit_calendars.weather_info,
+                days_in_week
+            )
 
-        st.session_state.outfit_plans = outfit_plans
-        return st.session_state.outfit_plans
-    return st.session_state.outfit_plans
+        # st.session_state.outfit_plans = plans
+        return outfit_calendars.plans
+    return []
 
 
 def choose_inspo_file():
@@ -165,14 +159,10 @@ def select_and_apply_filters(info_placeholder, is_user_closet=False):
         st.success('Filters selected.')
 
         st.session_state['items_filtered'] = filter_appropriate_items(
-            st.session_state['items'], 
-            st.session_state['items_tags'], 
-            seasons, 
-            occasions,
-            is_user_closet=is_user_closet,
+            st.session_state['closet'], seasons, occasions,
         )
         st.session_state['outfits_filtered'] = filter_appropriate_outfits(
-            st.session_state['outfits'], seasons, occasions,
+            st.session_state['closet'].outfits, seasons, occasions,
         )
 
         # info_placeholder.subheader('Post Filter')
@@ -184,8 +174,8 @@ def select_and_apply_filters(info_placeholder, is_user_closet=False):
         # )
     else:
         st.warning(
-            "NOTE: No filters selected. Please select filters above "
-            "and click 'Add Filters'."
+            "NOTE: No filters selected. Please select filters above and click "
+            "'Add Filters'."
         )
 
     return seasons, occasions
