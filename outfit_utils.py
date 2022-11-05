@@ -1,23 +1,63 @@
 
 import streamlit as st
-from typing import Dict, List
+from typing import Dict, List, Union
+
+from streamlit.uploaded_file_manager import UploadedFile  # for typing
 
 from category_constants import OCCASIONS, SEASONS
 
 
-def is_statement_item(item: str, item_tags) -> bool:
-    return item_tags['style'] == 'Statement'
+def get_item_name(item: Union[str, UploadedFile], is_user_closet: bool):
+    """Get item name depending on whether item is user-uploaded or mock data.
+
+    User-uploaded items are of type `streamlit.UploadedFile`, whereas mock data
+    items are of type `str`.
+
+    item : Union[]
+    """
+    if is_user_closet:
+        return item.name
+    return item
 
 
-def filter_basic_items(items: List[str], items_tags: dict) -> List[str]:
+def is_item_of_type_style(item_tags: Dict[str, List[str]], style: str) -> bool:
+    """
+
+    Parameters
+    ----------
+    item_tags : Dict[str, List[str]]
+        Tags of a particular item. For example: {
+            'season': ['Summer', 'Spring',
+            'occasion': 'Casual'],
+            'style': 'Basic',
+        }
+    style: str
+        The style, either 'Basic' or 'Statment'.
+
+    Returns
+    -------
+    bool
+    """
+    return style in item_tags['style']
+
+
+def filter_items_by_style(
+    cat_items: list, cat_item_tags, is_user_closet, style: str
+) -> List[str]:
+    """Filter statement items or basic items.
+
+    Parameters
+    ----------
+    cat_items : list
+        List of items of specific category.
+    cat_item_tags:
+        List of item tags of specific category
+    style : str
+        The style to filter on (either 'Basic' or 'Statement.)
+    """
     return [
-        item for item in items if not is_statement_item(item, items_tags[item])
-    ]
-
-
-def filter_statement_items(items: List[str], items_tags: dict) -> List[str]:
-    return [
-        item for item in items if is_statement_item(item, items_tags[item])
+        item for item in cat_items if is_item_of_type_style(
+            cat_item_tags[get_item_name(item, is_user_closet)], style)
     ]
 
 
@@ -33,7 +73,13 @@ def are_tags_in_item(item_tags, seasons, occasions) -> bool:
     )
 
 
-def filter_category_of_items(cat_items, cat_items_tags, seasons, occasions, is_user_closet=False):
+def filter_category_of_items(
+    cat_items: list,
+    cat_items_tags: list,
+    seasons: List[str],
+    occasions: List[str],
+    is_user_closet: bool = False
+):
     filtered_items = []
     for item in cat_items:
         if is_user_closet:
@@ -47,19 +93,16 @@ def filter_category_of_items(cat_items, cat_items_tags, seasons, occasions, is_u
 
 
 def filter_appropriate_items(
-    items: Dict[str, list],
-    items_tags: Dict[str, dict],
+    closet,
     seasons: List[str],
     occasions: List[str],
-    is_user_closet: bool = False
 ) -> Dict[str, list]:
     """Filter dictionary of items.
 
     Parameters
     ----------
-    items : Dict[str, list]
-        The key is the category (eg 'tops', 'bottoms', etc) and the values are
-        the list of items.
+    closet : create_closet.Closet()
+        The closet, including `items` and `items_tags`.
     seasons : List[str]
         The list of seasons we want to filter on.
     occasions : List[str]
@@ -73,18 +116,33 @@ def filter_appropriate_items(
     """
     return {
         cat: filter_category_of_items(
-            items[cat],
-            items_tags[cat],
+            closet.items[cat],
+            closet.items_tags[cat],
             seasons,
             occasions,
-            is_user_closet=is_user_closet
-        ) for cat in items if items[cat]  # if nonempty category
+            is_user_closet=closet.is_user_closet
+        ) for cat in closet.items if closet.items[cat]  # if nonempty category
     }
 
 
 def filter_appropriate_outfits(
-    outfits: list, seasons: list, occasions: list
+    outfits: List[dict], seasons: List[str], occasions: List[str]
 ) -> list:
+    """Filter `outfits` by those with tags from `seasons` and `occasions`.
+
+    Parameters
+    ----------
+    outfits : List[dict]
+        List of outfits. Should include a `tags` key for each outfit.
+    seasons : List[str]
+        List of seasons ('Summer', 'Winter', 'Fall', 'Spring').
+    occasions : List[str]
+        List of occasions.
+
+    Returns
+    -------
+    List[dict]
+    """
     return [
         outfit for outfit in outfits if (
             any(season in outfit['tags']['season'] for season in seasons)
