@@ -50,6 +50,10 @@ def extract_tag_markers(item: str) -> Dict[str, Union[list, str]]:
         item_tags[tag_type] = [
             tag for tag, tag_flag in TAGS[tag_type].items() if tag_flag in item
         ]
+        if tag_type == 'style':
+            # if item tag flag exists in item filename
+            if item_tags[tag_type]:
+                item_tags[tag_type] = item_tags[tag_type][0]
     return item_tags
 
 
