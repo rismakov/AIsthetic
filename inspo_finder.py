@@ -68,22 +68,24 @@ def get_outfit_match(items, filepath=None, uri=None, content=None):
     return outfit_items, match_scores
 
 
-def get_outfit_match_from_camera_input(
-    items, content=None
-):
+def get_outfit_match_from_camera_input(items, content=None):
     outfit_items, match_scores = get_outfit_match(items, content=content)
     if match_scores:
         st.write(
-            "Before purchasing this item, consider these similar items that "
-            "are already in your closet:"
+            "Before purchasing this item, remember you have these similar items"
+            "already in your closet:"
         )
         display_outfit_pieces(outfit_items)
 
         st.write("""
-            Fast fashion makes shopping for clothes more affordable, but it
-            comes at an environmental cost. The fashion industry produces 10%
-            of ALL humanity's carbon emissions, and accounts for more greenhouse
-            gasses than international flights and maritime shipping combined.
+            Fast fashion makes clothing more affordable, but at a high
+            environmental cost. The fashion industry produces 10% of ALL
+            humanity's carbon emissions, accounting for more greenhouse
+            gasses than that of international flights and maritime shipping
+            combined.
+
+            Purchasing from sustainable brands and thrift shopping is one way
+            to help combat this. But another is to just BUY LESS STUFF.
         """)
     else:
         st.write("No similar items found in closet.")
