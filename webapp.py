@@ -231,5 +231,5 @@ if (
 
         if camera_input:
             bytes_data = camera_input.getvalue()
-            get_outfit_match_from_camera_input(st.session_state['items'], content=bytes_data)
+            get_outfit_match_from_camera_input(st.session_state['closet'].items, content=bytes_data)
             
