@@ -372,15 +372,17 @@ class ProductSearch:
                 name=self.product_set_path)
             return [ProductSearch.Product._from_response(self.product_search, x) for x in response]
 
-        def search(self, product_category, file_path=None, image_uri=None, filter=None):
+        def search(self, product_category, file_path=None, image_uri=None, content=None, filter=None):
             self._checkDeleted()
             # This little hack checks that exactly one of file_path or image_uri is set
-            if bool(file_path) == bool(image_uri):
+            if bool(file_path) == bool(image_uri) == bool(content):
                 raise Exception(
                     "Must provide one of either a file path or an image uri"
                 )
 
-            if file_path:
+            if content:
+                image = image = vision.types.Image(content=content)
+            elif file_path:
                 with open(file_path, 'rb') as image_file:
                     content = image_file.read()
                 image = vision.types.Image(content=content)

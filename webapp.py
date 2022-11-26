@@ -15,7 +15,9 @@ from closet_creater import Closet
 from display_closet import display_outfit_pieces
 from extract_tags import create_items_tags
 from info_material import about_info
-from inspo_finder import get_outfit_match_from_inspo
+from inspo_finder import (
+    get_outfit_match_from_camera_input, get_outfit_match_from_inspo
+)
 from outfit_calendar import choose_outfit
 from setup_closet import upload_closet_setup_items, upload_items
 from setup_tags import tag_items
@@ -26,7 +28,7 @@ from utils import check_if_url_valid, get_all_image_filenames, update_keys
 from category_constants import MAIN_CATEGORIES, SEASONS, OCCASIONS
 from utils_constants import CLOSET_PATH, OUTFIT_PATH
 from webapp_constants import (
-    INSPO_OPTION, OPTIONS, RANDOM_OPTION, TRIP_OPTION, VIEW_OPTION,
+    CAMERA_OPTION, INSPO_OPTION, OPTIONS, RANDOM_OPTION, TRIP_OPTION, VIEW_OPTION,
 )
 
 SINGULAR_TO_PLURAL = {
@@ -156,9 +158,8 @@ if (
                 occasion,
                 is_item_upload=is_item_upload,
             )
-            print('DEBUG outfit', outfit)
             if outfit:
-                display_outfit_pieces(outfit)
+                display_outfit_pieces(outfit.values())
                 if st.button("This doesn't match together."):
                     Closet().remove_outfit(outfit)
                     st.write("Outfit items have been unmatched.")
@@ -203,3 +204,15 @@ if (
                 with open('outfit_plans', 'w') as f:
                     json.dump(st.session_state.outfit_plans, f)
                 print('Outfit Plan saved to file.')
+
+    ######################################
+    # Camera Option ######################
+    ######################################
+
+    elif option == CAMERA_OPTION:
+        camera_input = st.camera_input("Snap image of clothing item")
+
+        if camera_input:
+            bytes_data = camera_input.getvalue()
+            get_outfit_match_from_camera_input(st.session_state['items'], content=bytes_data)
+            

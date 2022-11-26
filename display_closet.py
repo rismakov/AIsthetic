@@ -15,18 +15,16 @@ def display_outfits(outfits: list):
         i = increment_i(i, num_cols - 1)
 
 
-def display_outfit_pieces(outfit: dict):
+def display_outfit_pieces(outfit_items: list):
     """Display outfit pieces.
 
     Parameters
     ----------
-    outfit : dict
-        Dict of outfit pieces, with the category the key and the image filepath
-        the value.
+    outfit_items : list
     """
     cols = st.columns(6)
     i = 0
-    for item in outfit.values():
+    for item in outfit_items:
         cols[i].image(item, width=250)
 
         i = increment_i(i, 4, increment_by=2)
