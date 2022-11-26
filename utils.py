@@ -71,6 +71,13 @@ def increment_i(i: int, max_i: int, increment_by=1) -> int:
 
 
 def daterange(start_date, end_date):
+    """Generate range from `start_date` to `end_date`.
+
+    Parameters
+    ----------
+    start_date : datetime.datetime
+    end_date : datetime.datetime
+    """
     for n in range(int((end_date - start_date).days) + 1):
         yield start_date + timedelta(n)
 

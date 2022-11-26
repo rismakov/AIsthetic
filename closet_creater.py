@@ -4,7 +4,7 @@ import os
 from streamlit.uploaded_file_manager import UploadedFile
 from typing import Dict, List, Optional, Union
 
-from outfit_utils import is_statement_item
+from outfit_utils import get_item_name, is_item_of_type_style
 from utils import get_all_image_filenames, get_filenames_in_dir
 
 from utils_constants import NEW_ITEMS_PATH
@@ -17,7 +17,7 @@ class Closet():
         items: Dict[str, List[Union[str, UploadedFile]]],
         items_tags: [Dict[str, dict]] = {},
         outfits: Optional[list] = [],
-        is_item_upload: bool = False
+        is_user_closet: bool = False
     ):
         """Initializes `items`, `outfits`, and `item_tags`.
 
@@ -26,16 +26,11 @@ class Closet():
         self.items = items
         self.outfits = outfits
         self.items_tags = items_tags
-        self.is_item_upload = is_item_upload
+        self.is_user_closet = is_user_closet
 
         if not self.outfits:
             print('Creating closet...')
             self.create_outfits(self.items)
-
-    def _get_item_name(self, item):
-        if self.is_item_upload:
-            return item.name
-        return item
 
     def save_outfits(self, filename):
         with open(filename, 'w') as f:
@@ -67,14 +62,15 @@ class Closet():
         """
         tags = []
         for cat, item in outfit_option.items():
-            item_name = self._get_item_name(item)
+            item_name = get_item_name(item, self.is_user_closet)
             tags.append(self.items_tags[cat][item_name][tag_type])
         return set(tags[0]).intersection(*tags[1:])
 
     def get_number_of_statement_pieces(self, outfit):
         return sum(
-            is_statement_item(
-                item, self.items_tags[cat][self._get_item_name(item)]
+            is_item_of_type_style(
+                self.items_tags[cat][get_item_name(item, self.is_user_closet)],
+                'Statement'
             ) for cat, item in outfit.items()
         )
 
@@ -139,6 +135,7 @@ class Closet():
                             outfit_option, season_tag_overlap, occasion_tag_overlap
                         )
                     )
+        print(f'Created {len(self.outfits)} one-piece outfits')
 
         # add 'two-piece' outfits
         for top in items['tops']:
@@ -156,6 +153,7 @@ class Closet():
                                 outfit_option, season_tag_overlap, occasion_tag_overlap
                             )
                         )
+        print(f'Created {len(self.outfits)} one-pieces and two-piece outfits')
 
     def remove_item(self, cat, item):
         # remove item

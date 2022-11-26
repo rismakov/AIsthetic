@@ -11,7 +11,18 @@ from category_constants import OCCASIONS, SEASONS
 
 
 def is_end_of_category(cat_items: list, item_i: int) -> bool:
-    return item_i == len(cat_items)
+    """Check if `item_i` is greater or equal than length of items.
+
+    Parameters
+    ----------
+    cat_items : list
+    item_i : int
+
+    Returns
+    -------
+    bool
+    """
+    return item_i >= len(cat_items)
 
 
 def get_next_cat_and_item_inds(
@@ -44,7 +55,7 @@ def get_next_cat_and_item_inds(
 
     # if end of category list, increment `cat_i` and re-initialize `item_i`
     # if -1 passed in for `item_i` (indicating new category), pass in 0 instead
-    if is_end_of_category(items[cats[cat_i]], max(0, item_i)):
+    if is_end_of_category(items[cats[cat_i]], item_i + 1):
         return get_next_cat_and_item_inds(items, cats, cat_i + 1, -1)
 
     return cat_i, item_i + 1
@@ -55,6 +66,8 @@ def append_tags(cat: str):
 
     Add `current_tags` to session state `items_tags` dict under the item_name
     key.
+
+    Uses session states.
 
     Parameters
     ----------
@@ -69,35 +82,44 @@ def append_tags(cat: str):
     }
 
 
-def update_post_item_tag_state(cats):
+def update_post_item_tag_state(cats, style, seasons, occasions):
     """Append item tags to full list and increment category and item indexes.
+
+    Uses session states.
     """
-    tags = st.session_state['current_tags']
-    if tags['season'] and tags['occasion'] and tags['style']:
+    if style and seasons and occasions:
         cat = cats[st.session_state['cat_i']]
         append_tags(cat)
         cat_i, item_i = st.session_state['cat_i'], st.session_state['item_i']
         st.session_state['cat_i'], st.session_state['item_i'] = (
-            get_next_cat_and_item_inds(st.session_state['items'], cats, cat_i, item_i)
+            get_next_cat_and_item_inds(
+                st.session_state['items'], cats, cat_i, item_i
+            )
         )
 
 
-def is_item_untagged(items_tags, cat, item: UploadedFile):
+def is_item_untagged(items_tags: Dict[str, dict], cat: str, item: UploadedFile):
     return not items_tags.get(cat, {}).get(item.name)
 
 
 def get_inds_to_tag(
-    items, items_tags, cats: List[str], cat_i: int, item_i: int
+    items: Dict[str, list],
+    items_tags: Dict[str, dict],
+    cats: List[str],
+    cat_i: int,
+    item_i: int
 ) -> Tuple[int, int]:
     """Return `cat_i` and `item_i` if no associated tag with item.
 
     Else, increment inds by one (either `item_i` or if end of category,
     `cat_i` with reinitialization of `item_i`).
 
-    Repeat recursilvely until reach an untagged item.
+    Repeat recursively until reach an untagged item.
 
     Parameters
     ----------
+    items : Dict[str, list]
+    items_tags : Dict[str, dict]
     cats : List[str]
     cat_i : int
     item_i : int
@@ -118,6 +140,8 @@ def get_inds_to_tag(
 
 
 def select_article_tags(cats) -> Tuple[int, Dict[str, List[str]]]:
+    """Display tag form and update state on click.
+    """
     form = st.form('tags')
     style = form.selectbox('Style?', ['Basic', 'Statement'])
     seasons = form.multiselect('Season?', SEASONS)
@@ -129,11 +153,8 @@ def select_article_tags(cats) -> Tuple[int, Dict[str, List[str]]]:
     st.session_state['current_tags'] = {
         'style': style, 'season': seasons, 'occasion': occasions,
     }
-    form.form_submit_button(
-        'Finished Adding Tags',
-        on_click=update_post_item_tag_state,
-        args=(cats,)
-    )
+    if form.form_submit_button('Finished Adding Tags'):
+        update_post_item_tag_state(cats, style, seasons, occasions)
 
 
 def update_post_tagging_state():
@@ -151,7 +172,13 @@ def download_json(object_to_download, download_filename: str, button_text: str):
 
 
 def display_download_tags_option():
+    """Display the 'download tags' button.
+
+    Updates the session state from `is_item_tag_session` to
+    `is_create_outfits_state`.
+    """
     st.session_state['is_item_tag_session'] = False
+    st.session_state['is_create_outfits_state'] = True
     finished_tagging_info()
     download_json(
         st.session_state['items_tags'],
@@ -164,6 +191,7 @@ def tag_items():
     """Add tags to items missing tags.
 
     Updates `items_tags` with tags included where they were previously missing.
+    Uses session_state variables.
 
     `item_tags` =
     Dict[str, List[Dict[str, List[str]]]]
@@ -176,13 +204,17 @@ def tag_items():
                 ...
             }
             items_tags[cat][item] --> item_tags --> item_tag_type_tags
+
     """
     # if finished tagging all categories
-    if st.session_state['cat_i'] is None:
-        st.session_state['is_create_outfits_state'] = True
-        return
+    # if st.session_state['cat_i'] is None:
+    #    print('entered first if')
+    #    display_download_tags_option()
+    #    return
 
-    items = st.session_state['items']
+    ss = st.session_state
+
+    items = ss['items']
     cats = list(items.keys())
 
     # if tag already exists, skip to next non-existing item
@@ -191,28 +223,36 @@ def tag_items():
     st.session_state['cat_i'], st.session_state['item_i'] = get_inds_to_tag(
         st.session_state['items'],
         st.session_state['items_tags'],
-        cats, st.session_state['cat_i'], st.session_state['item_i']
+        cats,
+        st.session_state['cat_i'],
+        st.session_state['item_i'],
     )
-
-    # if category is empty, get next non-empty category index
-    # if is_end_of_category(items[cat], st.session_state['item_i']):
-    #    st.session_state['cat_i'], st.session_state['item_i'] = (
-    #        get_next_cat_and_item_inds(
-    #            st.session_state['items'], cats, cat_i, st.session_state['item_i'],
-    #        )
-    #    )
 
     # if end of categories, exit function
     if st.session_state['cat_i'] is None:
+        print('entered second if')
         display_download_tags_option()
-        st.session_state['is_create_outfits_state'] = True
         return
 
     st.header('Tag Items')
     display_icon_key()
-    cat = cats[st.session_state['cat_i']]
 
     # display tagging form
-    tagging_session_info(cat)
-    st.image(items[cat][st.session_state['item_i']], width=300)
-    select_article_tags(cats)
+    tagging_session_info(cats[ss['cat_i']])
+    image_placeholder = st.container()
+    form_placeholder = st.container()
+    with form_placeholder.container():
+        select_article_tags(cats)
+
+    # if not end of items
+    if st.session_state['cat_i'] is None:
+        print('entered third if')
+        # remove article tags form
+        form_placeholder.empty()
+        display_download_tags_option()
+        return
+
+    image_placeholder.image(
+        items[cats[st.session_state['cat_i']]][st.session_state['item_i']],
+        width=300
+    )

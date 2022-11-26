@@ -86,3 +86,12 @@ def upload_tags_info():
         upload those tags here. If this is your first time setting up your
         closet, ignore this step.
     """)
+
+
+def items_tags_upload_success_info(items_tags):
+    num_tags = sum(len(tags) for tags in items_tags.values())
+
+    st.success(
+        f'You have successfully uploaded {num_tags} item tags — '
+        + ', '.join([f'{len(tags)} {cat}' for cat, tags in items_tags.items()])
+    )

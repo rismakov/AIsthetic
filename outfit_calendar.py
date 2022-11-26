@@ -3,20 +3,17 @@ import random
 import streamlit as st
 
 from datetime import date
-from typing import Dict
+from typing import Dict, List
 
 from count_closet import count_outfits
 from get_weather import get_projected_weather
-from outfit_utils import (
-    filter_appropriate_items,
-    filter_appropriate_outfits, filter_category_of_items, filter_basic_items,
-)
+from outfit_selection_utils import choose_outfit
+from webapp_error_messages import weather_info_not_found_message
 from utils import daterange, get_filenames_in_dir, increment_i
 
 from category_constants import (
-    ACCESSORIES,
     CADENCES,
-    MAIN_CATEGORIES,
+    DOWS,
     OUTFIT_AMOUNT,
     WEATHER_ICON_MAPPING,
     WEATHER_TO_SEASON_MAPPINGS,
@@ -26,340 +23,193 @@ from utils_constants import CLOSET_PATH
 # References:
 # https://daleonai.com/social-media-fashion-ai
 
-WEEKDAY_MAPPING = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
 
+class OutfitCalendar():
 
-def is_any_exclude_item_in_outfit(outfit: dict, recently_worn: dict, is_item_upload=False) -> bool:
-    """Check if any items from `recently_worn` are in `outfit`.
-
-    Checks for all categories in `outfit` and `recently_worn`.
-
-    Parameters
-    ----------
-    outfit : Dict[str, Union[str, UploadedFile]]
-    recently_worn : Dict[str, List[Union[str, UploadedFile]]
-        A dictionary of recently worn items, with the item category as the key.
-        Should include keys `tops`, `bottoms`, `dresses` and `outerwear`.
-
-    Returns
-    -------
-    bool
-    """
-    for cat, item in outfit.items():
-        if cat == 'tags':
-            continue
-
-        if is_item_upload:
-            item = item.name
-
-        for exclude_item in recently_worn.get(cat, []):
-            if is_item_upload:
-                exclude_item = exclude_item.name
-
-            if item == exclude_item:
-                return True
-    return False
-
-
-def get_non_recently_worn_options(
-    options: list, recently_worn: dict, is_item_upload:bool=False
-):
-    """Remove outfits from `options` that include recently-worn items.
-
-    If all options were recently-worn, keep recursively removing a day from
-    the recently-worn items (i.e. if 'recently' is defined as 3 days, check 2
-    days, then 1 day).
-    """
-    filtered_options = [
-        outfit for outfit in options
-        if not is_any_exclude_item_in_outfit(outfit, recently_worn, is_item_upload)
-    ]
-    if filtered_options:
-        return filtered_options
-
-    recently_worn = {cat: items[:-1] for cat, items in recently_worn.items()}
-    return get_non_recently_worn_options(options, recently_worn, is_item_upload)
-
-
-def choose_outfit(
-    outfits: list,
-    items: Dict[str, list],
-    items_tags: Dict[str, dict],
-    weather_type: str,
-    occasion: str,
-    include_accessories: bool = True,
-    recently_worn: dict = {},
-    is_item_upload: bool = False,
-):
-    """
-    Parameters
-    ----------
-    recently_worn : Dict[List[str]]
-
-    Returns
-    -------
-    dict
-    """
-    season = WEATHER_TO_SEASON_MAPPINGS[weather_type]
-
-    # Get clothing items that are the proper occasion and season type
-    appropriate_outfits = filter_appropriate_outfits(
-        outfits, [season], [occasion],
-    )
-
-    if not appropriate_outfits:
-        print(f"NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
-        return {}
-
-    options = get_non_recently_worn_options(
-        appropriate_outfits, recently_worn, is_item_upload
-    )
-
-    # create deep copy
-    choose_from = [{k: v for k, v in option.items()} for option in options]
-    random_ind = random.randint(0, len(options) - 1)
-    choice = choose_from[random_ind]
-
-    # add shoes and accessories to outfit
-    accessories_cats = ['shoes']
-    if include_accessories:
-        accessories_cats += ACCESSORIES
-
-    nonempty_cats = [cat for cat in accessories_cats if items.get(cat)]
-    for cat in nonempty_cats:
-        item_options = items[cat]
-        item_options = filter_category_of_items(
-            item_options, items_tags[cat], [season], [occasion], is_item_upload
-        )
-
-        if choice['tags']['is_statement']:
-            item_options = filter_basic_items(item_options, items_tags[cat])
-        if item_options:
-            choice[cat] = random.choice(item_options)
-
-    del choice['tags']
-
-    return choice
-
-
-def get_season_types_from_weather_info(weather_types):
-    """Return season types based on scraped weather.
-
-    Parameters
-    ----------
-    weather_info
-
-    Returns
-    -------
-    set
-    """
-    weather_type_set = set(weather_types)
-    season_types = set([
-        WEATHER_TO_SEASON_MAPPINGS[weather_type] 
-        for weather_type in weather_type_set
-    ])
-
-    st.write(
-        "This trip requires planning for the following season types"
-        f": {', '.join(season_types)}."
-    )
-
-    return season_types
-
-
-def get_weather_info_for_outfitplans(city, country, start_date, end_date):
-    weather_info = get_projected_weather(city, country, start_date, end_date)
-
-    if not weather_info['temps']:
-        st.error(
-            "ERROR: Weather information not found. Confirm that city and "
-            "country names are filled in and spelled correctly."
-        )
-        return
-    return weather_info
-
-
-def get_outfit_plan_for_all_occasions(
-    outfits,
-    items,
-    items_tags,
-    occasions,
-    work_dow,
-    weather_types,
-    start_date,
-    end_date,
-    amount,
-    include,
-    is_item_upload,
-):
-    seasons = get_season_types_from_weather_info(weather_types)
-
-    # Make sure items of all necessary season types are available,
-    # depending on set of all weather types of trip
-    appropriate_outfits = filter_appropriate_outfits(
-        outfits, seasons, occasions,
-    )
-    appropriate_items = filter_appropriate_items(
-        items, items_tags, seasons, occasions, is_item_upload=is_item_upload,
-    )
-
-    st.subheader('Options Available')
-    # info_placeholder = st.container()      
-    # count_outfits(info_placeholder, appropriate_outfits, items_tags)
-
-    outfit_plan = {}
-    for occasion in occasions:
-        outfit_plan[occasion] = get_outfit_plan(
-            appropriate_outfits,
-            appropriate_items,
-            items_tags,
-            weather_types,
-            occasion,
-            work_dow,
-            start_date,
-            end_date,
-            amount,
-            include,
-            is_item_upload,
-        )
-
-    # save_outfit_plan(outfit_plan, city, start_date, end_date)
-    return outfit_plan
-
-
-def get_weather_icon_filename(weather_type, weather):
-    if weather_type == 'Really Cold':
-        return WEATHER_ICON_MAPPING['Really Cold']
-    if weather_type == 'Rainy':
-        return WEATHER_ICON_MAPPING['Rainy']
-    return WEATHER_ICON_MAPPING.get(weather, 'cloudy.png')
-
-
-def init_most_recently_worn():
-    return {cat: [] for cat in ['tops', 'bottoms', 'dresses', 'outerwear']}
-
-
-def update_most_recently_worn(
-    outfit: dict, amount: str, recently_worn: dict
-) -> dict:
-    for cat, cadence in CADENCES[amount].items():
-        if outfit.get(cat):
-            recently_worn[cat] = (
-                [outfit[cat]] + recently_worn[cat]
-            )[:cadence]
-    return recently_worn
-
-
-def display_outfit_plan(
-    dates: list, outfits: list, weather_info: dict, days_in_week: int
-):
-    temps, weathers, weather_types = (
-        weather_info['temps'],
-        weather_info['weathers'],
-        weather_info['weather_types'],
-    )
-
-    num_cols = 3
-    for i, outfit_date, outfit in zip(range(len(dates)), dates, outfits):
-        # display week number
-        if i % days_in_week == 0:
-            st.header(f'Week {int((i / days_in_week)) + 1}')
-            cols = st.columns(num_cols)
-            col_i = 0
-
-        dow = WEEKDAY_MAPPING[outfit_date.weekday()]
-        month_day = f'{outfit_date.month}/{outfit_date.day}'
-        cols[col_i].subheader(f'Day {i + 1} - {dow} - {month_day}')
-
-        weather_text = (
-            f'{weathers[i]} - {temps[i]}° ({weather_types[i]})'
-        )
-        weather_icon_filename = get_weather_icon_filename(
-            weather_types[i], weathers[i]
-        )
-
-        cols[col_i].image(f'icons/season/{weather_icon_filename}', width=30)
-        cols[col_i].text(weather_text)
-        cols[col_i].image(list(outfit.values()), width=70)
-
-        cols[col_i].markdown("""---""")
-
-        col_i = increment_i(col_i, num_cols - 1)
-
-
-def save_outfit_plan(outfits, city, start_date, end_date):
-    path = f'outfit_plans/{city}_{start_date}_{end_date}.json'
-    with open(path, 'w') as f:
-        json.dump(outfits, f)
-
-
-def get_outfit_plan(
-    outfits: list,
-    items,
-    items_tags,
-    weather_types: list,
-    occasion: str,
-    work_dow,
-    start_date: date,
-    end_date: date,
-    amount: str,
-    include_accessories: bool,
-    is_item_upload,
-):
-    """Get outfit plan from `start_date` to `end_date`.
-
-    Parameters
-    ----------
-    filepaths : list
-        The filepaths of the clothing item images.
-    weather_types : list
-        The weather types (ie 'Hot', 'Warm', 'Chilly') of the days specified.
-    occasion : str
-        The occasion type (ie 'Casual', 'Dinner/Bar').
-    start_date : date
-        The date when to start the outfit plan.
-    end_date : date
-        The date when to end the outfit plan.
-    amount : str
-        The amount to pack for (i.e. 'small carry-on suitcase',
-        'medium suitcase').
-    include_accessories : bool
-        Whether to add accessories to the outfit plan.
-
-    Returns
-    -------
-    list
-        List of outfits from `start_date` to `end_date`.
-    """
-    occasion_outfit_plan = {
-        'dates': [],
-        'outfits': [],
-    }
-    recently_worn = init_most_recently_worn()
-    for weather_type, outfit_date in zip(
-        weather_types, daterange(start_date, end_date)
+    def __init__(
+        self,
+        closet,
+        start_date,
+        end_date,
+        weather_types,
+        occasion: str,
+        amount: str,
+        include_accessories: bool,
+        work_dow: List[str] = DOWS[1:-1],
     ):
-        # Don't add outfit for `occasion`='Work' if its a non-work day
-        work_dow_ints = [
-            i for i, day in enumerate(WEEKDAY_MAPPING) if day in work_dow
-        ]
-        if outfit_date.weekday() not in work_dow_ints and occasion == 'Work':
-            continue
+        """Initialize `OutfitCalendar`.
 
-        occasion_outfit_plan['dates'].append(outfit_date)
-        outfit = choose_outfit(
-            outfits,
-            items,
-            items_tags,
-            weather_type,
-            occasion,
-            include_accessories,
-            recently_worn=recently_worn,
-            is_item_upload=is_item_upload,
+        Parameters
+        ----------
+        closet : create_closet.Closet
+        start_date : datetime.datetime
+            The start date of the outfit plan.
+        end_date : datetime.datetime
+            The end date of the outfit plan.
+        weather_types : List[str]
+            The weather type (e.g. 'Hot', 'Chilly', etc.) from `start_date` to
+            `end_date`.
+        occasion : str
+            The occasion type (i.e, 'Casual', 'Dinner/Bar').
+        amount : str
+            The amount to pack for (i.e. 'small carry-on suitcase', 'medium
+            suitcase').
+        include_accessories : bool
+            Whether to include accessories in the outfit plan.
+        work_dow : List[str]
+            Default is Monday through Friday.
+        """
+        if len(weather_types) != (end_date - start_date).days + 1:
+            raise Exception(
+                "`weather_types` must be the same length as `start_date` to "
+                "`end_date`"
+            )
+
+        self.closet = closet
+        self.start_date = start_date
+        self.end_date = end_date
+        self.occasion = occasion
+        self.amount = amount
+        self.include_accessories = include_accessories
+        self.work_dow = work_dow
+
+        self.outfit_plan = self._create_outfit_plan(weather_types)
+
+    @staticmethod
+    def _get_seasons_set_from_weather_types(weather_types: List[str]):
+        """Return season types based on scraped weather.
+
+        Parameters
+        ----------
+        weather_info : List[str]
+            Example: ['Hot', 'Rainy', 'Mild', ...]
+
+        Returns
+        -------
+        set
+        """
+        weather_type_set = set(weather_types)
+        season_types = set(
+            WEATHER_TO_SEASON_MAPPINGS[weather_type]
+            for weather_type in weather_type_set
         )
 
-        occasion_outfit_plan['outfits'].append(outfit)
+        st.write(
+            "This trip requires planning for the following season types:"
+            f"{', '.join(season_types)}."
+        )
 
-        recently_worn = update_most_recently_worn(outfit, amount, recently_worn)
+        return season_types
 
-    return occasion_outfit_plan
+    @staticmethod
+    def _init_most_recently_worn():
+        return {cat: [] for cat in ['tops', 'bottoms', 'dresses', 'outerwear']}
+
+    def _update_most_recently_worn(
+        self, outfit: dict, recently_worn: dict
+    ) -> dict:
+        """Add outfit to `recently_worn` list based on `self.amount`.
+
+        For example, if amount allows for a top to be worn once every 5 days,
+        `recently_worn` should be tracking all tops that were worn within the
+        last 5 days.
+
+        Parameters
+        ----------
+        outfit : dict
+        recently_worn : dict
+
+        Returns
+        -------
+        dict
+        """
+        for cat, cadence in CADENCES[self.amount].items():
+            if outfit.get(cat):
+                recently_worn[cat] = (
+                    [outfit[cat]] + recently_worn[cat]
+                )[:cadence]
+        return recently_worn
+
+    def save_outfit_plan(self, outfits, city):
+        path = f'outfit_plans/{city}_{self.start_date}_{self.end_date}.json'
+        with open(path, 'w') as f:
+            json.dump(outfits, f)
+
+    def _create_outfit_plan(self, weather_types: List[str]):
+        """Get outfit plan from `start_date` to `end_date`.
+
+        Parameters
+        ----------
+        weather_types : List[str]
+            The weather types (i.e. 'Hot', 'Warm', 'Chilly') of the specified
+            days.
+
+        Returns
+        -------
+        list
+            List of outfits from `start_date` to `end_date`.
+        """
+        occasion_outfit_plan = {'dates': [], 'outfits': []}
+
+        recently_worn = OutfitCalendar._init_most_recently_worn()
+        for weather_type, outfit_date in zip(
+            weather_types, daterange(self.start_date, self.end_date)
+        ):
+            # Don't add outfit for `occasion`='Work' if its a non-work day
+            work_dow_ints = [
+                i for i, day in enumerate(DOWS) if day in self.work_dow
+            ]
+            if (
+                outfit_date.weekday() not in work_dow_ints
+                and self.occasion == 'Work'
+            ):
+                continue
+
+            occasion_outfit_plan['dates'].append(outfit_date)
+            outfit = choose_outfit(
+                self.closet,
+                weather_type,
+                self.occasion,
+                self.include_accessories,
+                recently_worn=recently_worn,
+            )
+
+            occasion_outfit_plan['outfits'].append(outfit)
+            recently_worn = self._update_most_recently_worn(outfit, recently_worn)
+
+        return occasion_outfit_plan
+
+
+class OutfitCalendars():
+    """Creates plans for all specified occasions (e.g. 'Casual', 'Work', etc)."""
+
+    def __init__(
+        self,
+        closet,
+        start_date,
+        end_date,
+        city: str,
+        country: str,
+        occasions: List[str],
+        amount: str,
+        include_accessories: bool,
+        work_dow: List[str] = DOWS[1:-1],
+    ):
+        self.weather_info = get_projected_weather(
+            start_date, end_date, city, country,
+        )
+        if not self.weather_info['temps']:
+            weather_info_not_found_message()
+
+        self.plans = [
+            OutfitCalendar(
+                closet,
+                start_date,
+                end_date,
+                self.weather_info['weather_types'],
+                occasion,
+                amount,
+                include_accessories,
+                work_dow
+            ) for occasion in occasions
+        ]
