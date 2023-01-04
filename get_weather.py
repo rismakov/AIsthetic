@@ -6,7 +6,7 @@ from datetime import date, timedelta
 
 MONTH_MAPPING = [
     'january',
-    'feburary',
+    'february',
     'march',
     'april',
     'may',
