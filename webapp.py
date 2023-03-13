@@ -43,9 +43,9 @@ SINGULAR_TO_PLURAL = {
 # https://daleonai.com/social-media-fashion-ai
 
 
-######################################
-# Header #############################
-######################################
+# ------------------------------------
+# Header -----------------------------
+# ------------------------------------
 
 st.image('header_white.jpeg')
 about_info()
@@ -67,9 +67,10 @@ def print_states():
 print('DEBUGGING: top of webapp script')
 print_states()
 
-######################################
-# Closet Option ######################
-######################################
+# ------------------------------------
+# Closet Option ----------------------
+# ------------------------------------
+
 
 st.header('App Options')
 cols = st.columns(2)
@@ -120,8 +121,8 @@ elif closet_option == 'Use own personal closet':
     if st.session_state['outfits']:
         st.session_state['finished_all_uploads'] = True
 
-######################################
-######################################
+# ------------------------------------
+# ------------------------------------
 
 if (
     st.session_state['finished_all_uploads']
@@ -130,9 +131,9 @@ if (
     cols[1].subheader('Feature Option')
     option = cols[1].radio("What would you like to do?", OPTIONS)
 
-    ######################################
-    # View Closet ########################
-    ######################################
+    # ------------------------------------
+    # View Closet ------------------------
+    # ------------------------------------
 
     if option == VIEW_OPTION:
         st.header("View Entire Closet")
@@ -151,16 +152,17 @@ if (
             if confirm_filters_added(seasons, occasions):
                 display_article_tags(st.session_state['items_filtered'])
 
-    ######################################
-    # Analyze Closet #####################
-    ######################################
+    # ------------------------------------
+    # Analyze Closet ---------------------
+    # ------------------------------------
+
 
     elif option == "Analyze closet":
         ClosetAnalyzer().count_amounts()
 
-    ######################################
-    # Random Outfit ######################
-    ######################################
+    # ------------------------------------
+    # Random Outfit ----------------------
+    # ------------------------------------
 
     elif option == RANDOM_OPTION:
         season, weather, occasion = get_choose_outfit_responses()
@@ -179,9 +181,10 @@ if (
             else:
                 st.text("NO APPROPRIATE OPTIONS FOR THE WEATHER AND OCCASION.")
 
-    ######################################
-    # Inspo Outfit #######################
-    ######################################
+    # ------------------------------------
+    # Inspo Outfit -----------------------
+    # ------------------------------------
+
 
     elif option == INSPO_OPTION:
         image, image_type = choose_inspo_file()
@@ -206,9 +209,10 @@ if (
                         st.session_state['closet'].items, uri=image
                     )
 
-    ######################################
-    # Trip Outfits #######################
-    ######################################
+    # ------------------------------------
+    # Trip Outfits -----------------------
+    # ------------------------------------
+
 
     elif option == TRIP_OPTION:
         st.session_state.outfit_plans = {}
@@ -222,9 +226,10 @@ if (
                     json.dump(st.session_state.outfit_plans, f)
                 print('Outfit Plan saved to file.')
 
-    ######################################
-    # Camera Option ######################
-    ######################################
+    # ------------------------------------
+    # Camera Option ----------------------
+    # ------------------------------------
+
 
     elif option == CAMERA_OPTION:
         camera_input = st.camera_input("Snap image of clothing item")
