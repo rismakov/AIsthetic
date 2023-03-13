@@ -59,17 +59,21 @@ def get_weather_type(temp: int, weather: str) -> str:
 def get_projected_weather(
     start_date, end_date, city: str, country: str
 ) -> dict:
-    """
+    """Get projected weather from `start_date` to `end_date`.
+
+    Returns the projected temperature, weather description (e.g. 'Cloudy with
+    scattered rain'), and weather type (e.g. 'Chilly').
+
     Parameters
     ----------
-    city : str
-    country : str
     start_date : datetime.date
     end_date : datetime.date
+    city : str
+    country : str
 
     Returns
     -------
-    dict 
+    dict
         Returns dict of lists with keys: ['temps', 'weathers', 'weather_types'].
     """
     weather_info_class_regex = 'ww-month-week(end|days) (fore(a|)cast)(-statistics|)'
