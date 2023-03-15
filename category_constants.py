@@ -9,6 +9,8 @@ SEASONS = ['Summer', 'Fall', 'Winter', 'Spring']
 WEEKDAYS = ['Sun', 'Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat']
 DOWS = ['Mon', 'Tues', 'Weds', 'Thurs', 'Fri', 'Sat', 'Sun']
 
+HISTORICAL_WEATHER_AVG_TITLE = 'Monthly Historical Average Temp' 
+
 WEATHER_ICON_MAPPING = {
     'Partly cloudy': 'partly_cloudy.png',
     'Clear': 'sunny.png',

@@ -2,16 +2,42 @@ import streamlit as st
 
 from utils import increment_i
 from category_constants import (
-    DOWS, WEATHER_ICON_MAPPING, WEATHER_TO_SEASON_MAPPINGS
+    DOWS,
+    HISTORICAL_WEATHER_AVG_TITLE,
+    WEATHER_ICON_MAPPING,
+    WEATHER_TO_SEASON_MAPPINGS,
 )
 
 
-def get_weather_icon_filename(weather_type, weather):
-    if weather_type == 'Really Cold':
-        return WEATHER_ICON_MAPPING['Really Cold']
-    if weather_type == 'Rainy':
-        return WEATHER_ICON_MAPPING['Rainy']
-    return WEATHER_ICON_MAPPING.get(weather, 'cloudy.png')
+def select_weather_icon_filename(weather_type, weather=None):
+    """Gets weather icon based either on `weather_type`, `weather` or `temp`.
+
+    Parameters
+    ----------
+    weather_type : str
+      Either 'Really Cold', 'Cold', 'Chilly', 'Mild', 'Warm', or 'Hot'
+    weather : str
+      Weather description (e.g. 'Mostly clear')
+
+    Returns
+    -------
+    str
+      Filename to weather icon image.
+    """
+    if weather_type in ['Really Cold', 'Rainy']:
+        return WEATHER_ICON_MAPPING[weather_type]
+
+    # If the Historical Average is used, weather description information isn't
+    # provided; so `weather_type` instead of `weather` should be used to select
+    # the appropriate icon.
+    if weather != HISTORICAL_WEATHER_AVG_TITLE:
+        return WEATHER_ICON_MAPPING.get(weather, 'cloudy.png')
+
+    if weather_type in ['Cold', 'Chilly']:
+        return WEATHER_ICON_MAPPING['Cloudy']
+    if weather_type in ['Warm', 'Hot']:
+        return WEATHER_ICON_MAPPING['Clear']
+    return WEATHER_ICON_MAPPING['Partly cloudy']
 
 
 def display_outfit_plan(
@@ -36,7 +62,7 @@ def display_outfit_plan(
         cols[col_i].subheader(f'Day {i + 1} - {dow} - {month_day}')
 
         weather_text = f'{weathers[i]} - {temps[i]}° ({weather_types[i]})'
-        weather_icon_filename = get_weather_icon_filename(
+        weather_icon_filename = select_weather_icon_filename(
             weather_types[i], weathers[i]
         )
 
