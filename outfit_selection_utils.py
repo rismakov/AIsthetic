@@ -70,9 +70,6 @@ def get_non_recently_worn_options(
     the recently-worn items (i.e. if 'recently' is defined as 3 days, check
     2 days, then 1 day).
     """
-    print('--')
-    print(recently_worn)
-    print('--')
     filtered_options = []
     recently_worn_cats = []
     for outfit in options:

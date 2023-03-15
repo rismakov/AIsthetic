@@ -230,7 +230,6 @@ def tag_items():
 
     # if end of categories, exit function
     if st.session_state['cat_i'] is None:
-        print('entered second if')
         display_download_tags_option()
         return
 
@@ -246,7 +245,6 @@ def tag_items():
 
     # if not end of items
     if st.session_state['cat_i'] is None:
-        print('entered third if')
         # remove article tags form
         form_placeholder.empty()
         display_download_tags_option()
