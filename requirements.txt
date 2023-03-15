@@ -28,6 +28,7 @@ proto-plus==1.19.0
 pyarrow==5.0.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.7
+pyweatherbit
 PyYAML==5.4.1
 streamlit==1.4.0
 streamlit-metrics==0.1.0
