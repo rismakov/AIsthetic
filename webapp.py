@@ -13,6 +13,7 @@ from webapp_widgets import (
 from categorize_wardrobe import categorize_wardrobe_style
 from closet_creater import Closet
 from display_closet import display_outfit_pieces
+from email_scraper import extract_items_from_email
 from extract_tags import create_items_tags
 from info_material import about_info
 from inspo_finder import (
@@ -64,9 +65,6 @@ def print_states():
     print(f"session state outfits: {len(st.session_state['outfits'])}")
 
 
-print('DEBUGGING: top of webapp script')
-print_states()
-
 # ------------------------------------
 # Closet Option ----------------------
 # ------------------------------------
@@ -76,13 +74,18 @@ st.header('App Options')
 cols = st.columns(2)
 
 cols[0].subheader('Closet Option')
+MOCK_OPTION = 'Use mock closet data for testing'
+UPLOAD_OPTION = 'Manually upload own personal closet'
+IMPORT_OPTION = 'Import closet from email receipts'
+CLOSET_OPTIONS = [MOCK_OPTION, UPLOAD_OPTION]  # , IMPORT_OPTION]
+
 closet_option = cols[0].radio(
     "Which closet would you like to use?",
-    ['Use mock data for testing', 'Use own personal closet'],
-    on_change=init_session_state,
+    CLOSET_OPTIONS,
+    on_change=init_session_state
 )
 
-if closet_option == 'Use mock data for testing':
+if closet_option == MOCK_OPTION:
     is_user_closet = False
 
     items = get_all_image_filenames(CLOSET_PATH)
@@ -93,7 +96,7 @@ if closet_option == 'Use mock data for testing':
         is_user_closet=is_user_closet,
     )
 
-elif closet_option == 'Use own personal closet':
+elif closet_option == UPLOAD_OPTION:
     is_user_closet = True
 
     # to not reset to state 'is_closet_upload' after user finishes upload
@@ -121,13 +124,13 @@ elif closet_option == 'Use own personal closet':
     if st.session_state['outfits']:
         st.session_state['finished_all_uploads'] = True
 
+elif closet_option == IMPORT_OPTION:
+    extract_items_from_email()
+
 # ------------------------------------
 # ------------------------------------
 
-if (
-    st.session_state['finished_all_uploads']
-    or closet_option == "Use mock data for testing"
-):
+if st.session_state['finished_all_uploads'] or closet_option == MOCK_OPTION:
     cols[1].subheader('Feature Option')
     option = cols[1].radio("What would you like to do?", OPTIONS)
 
@@ -155,7 +158,6 @@ if (
     # ------------------------------------
     # Analyze Closet ---------------------
     # ------------------------------------
-
 
     elif option == "Analyze closet":
         ClosetAnalyzer().count_amounts()
@@ -185,7 +187,6 @@ if (
     # Inspo Outfit -----------------------
     # ------------------------------------
 
-
     elif option == INSPO_OPTION:
         image, image_type = choose_inspo_file()
         if st.button("Select Inspo-Based Outfit"):
@@ -213,7 +214,6 @@ if (
     # Trip Outfits -----------------------
     # ------------------------------------
 
-
     elif option == TRIP_OPTION:
         st.session_state.outfit_plans = {}
         st.session_state.outfit_plans = get_and_display_outfit_plans(
@@ -230,11 +230,10 @@ if (
     # Camera Option ----------------------
     # ------------------------------------
 
-
     elif option == CAMERA_OPTION:
         camera_input = st.camera_input("Snap image of clothing item")
 
         if camera_input:
             bytes_data = camera_input.getvalue()
             get_outfit_match_from_camera_input(st.session_state['closet'].items, content=bytes_data)
-            
+
