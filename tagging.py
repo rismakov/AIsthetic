@@ -69,11 +69,8 @@ def display_article_tags_for_item(col, item, item_tags):
     col.image(item, width=150)
     for tag_type in item_tags:
         icons = []
-        # `style` will contain a str
         if tag_type == 'style':
-            tag = item_tags[tag_type]
-            icons.append(ICON_PATHS[tag_type][tag])
-        # `season` and `occasion` will contain lists
+            icons.append(ICON_PATHS[tag_type][item_tags[tag_type]])
         else:
             for tag in item_tags[tag_type]:
                 icons.append(ICON_PATHS[tag_type][tag])
