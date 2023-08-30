@@ -77,7 +77,7 @@ cols[0].subheader('Closet Option')
 MOCK_OPTION = 'Use mock closet data for testing'
 UPLOAD_OPTION = 'Manually upload own personal closet'
 IMPORT_OPTION = 'Import closet from email receipts'
-CLOSET_OPTIONS = [MOCK_OPTION, UPLOAD_OPTION]  # , IMPORT_OPTION]
+CLOSET_OPTIONS = [MOCK_OPTION, UPLOAD_OPTION, IMPORT_OPTION]
 
 closet_option = cols[0].radio(
     "Which closet would you like to use?",
